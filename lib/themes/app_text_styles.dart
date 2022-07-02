@@ -35,6 +35,29 @@ class AppTextStyles {
     color: AppColors.shape,
   );
 
+  static final labelClock22 = GoogleFonts.russoOne(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+
+  static final subTitleShape = GoogleFonts.lexendDeca(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.shape,
+  );
+  static final subTitleBlack = GoogleFonts.lexendDeca(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+
+  static final subTitleBlack16 = GoogleFonts.lexendDeca(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+
   static final labelBlack16 = GoogleFonts.fredokaOne(
     fontSize: 16,
     fontWeight: FontWeight.w600,

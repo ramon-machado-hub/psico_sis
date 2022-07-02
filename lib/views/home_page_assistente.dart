@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:psico_sis/daows/UsuarioWS.dart';
+import 'package:psico_sis/model/Usuario.dart';
 import 'package:psico_sis/themes/app_images.dart';
 import 'package:psico_sis/widgets/menu_button_widget.dart';
 
 import '../themes/app_colors.dart';
 import '../widgets/app_bar_widget.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePageAssistente extends StatefulWidget {
+  const HomePageAssistente({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePageAssistente> createState() => _HomePageStateAssitente();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageStateAssitente extends State<HomePageAssistente> {
+
+  // loadUsuario() async {
+  //   List<Usuario> ls = await UsuarioWS.getInstance().getAll();
+  //   ls.forEach((element) {print(element.emailUsuario);});
+  // }
+
   @override
   Widget build(BuildContext context) {
+    // loadUsuario();
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: const PreferredSize(
@@ -50,7 +59,9 @@ class _HomePageState extends State<HomePage> {
                       height: size.width * 0.1,
                       width: size.width * 0.1,
                       image: AppImages.agenda,
-                      onTap: (){},
+                      onTap: (){
+                        Navigator.pushReplacementNamed(context, "/agenda_assistente");
+                      },
                   ),
                   MenuButtonWidget(
                       label: "Aniversariantes",
@@ -60,11 +71,20 @@ class _HomePageState extends State<HomePage> {
                       onTap: (){},
                   ),
                   MenuButtonWidget(
-                      label: "Atendentes",
-                      height: size.width * 0.1,
-                      width: size.width * 0.1,
-                      image: AppImages.recepcionista,
-                      onTap: (){},
+                    label: "Caixa",
+                    height: size.width * 0.1,
+                    width: size.width * 0.1,
+                    image: AppImages.caixa,
+                    onTap: (){
+                      Navigator.pushReplacementNamed(context, "/home");
+                    },
+                  ),
+                  MenuButtonWidget(
+                    label: "Consulta",
+                    height: size.width * 0.1,
+                    width: size.width * 0.1,
+                    image: AppImages.consulta,
+                    onTap: (){},
                   ),
                   MenuButtonWidget(
                       label: "Especialidades",
@@ -73,13 +93,7 @@ class _HomePageState extends State<HomePage> {
                       image: AppImages.tipos_psico,
                       onTap: (){},
                   ),
-                  MenuButtonWidget(
-                      label: "Consulta",
-                      height: size.width * 0.1,
-                      width: size.width * 0.1,
-                      image: AppImages.consulta,
-                      onTap: (){},
-                  ),
+
                   MenuButtonWidget(
                       label: "Paciente",
                       height: size.width * 0.1,

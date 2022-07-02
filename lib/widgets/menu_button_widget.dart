@@ -1,13 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 
 class MenuButtonWidget extends StatefulWidget {
-
+  final String label;
   final double height;
   final double width;
+  final String image;
+  final VoidCallback onTap;
+
   const MenuButtonWidget({Key? key,
+    required this.label,
     required this.height,
     required this.width,
+    required this.image,
+    required this.onTap,
   }) : super(key: key);
 
   @override
@@ -17,13 +24,28 @@ class MenuButtonWidget extends StatefulWidget {
 class _MenuButtonWidgetState extends State<MenuButtonWidget> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: widget.height,
-        width: widget.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: AppColors.primaryColor,
-        ),
+    return Column(
+        children: [
+
+          InkWell(
+            onTap: widget.onTap,
+            child: Container(
+              height: widget.height,
+              width: widget.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryColor,
+              ),
+              child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: Padding(
+                    padding: const EdgeInsets.all(50.0),
+                    child: Image.asset(widget.image),
+                  )),
+            ),
+          ),
+          Text(widget.label)
+        ],
     );
   }
 }

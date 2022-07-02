@@ -42,53 +42,42 @@ class _InputTextWidgetState extends State<InputTextWidget> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, left: 60,right: 60),
-      child: Column(
-        children: [
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.shape,
-          ),
-          TextFormField(
-            enableSuggestions: false,
-            autocorrect: false,
-            obscureText: widget.obscureText,
-            keyboardType: widget.keyboardType,
-            controller: widget.controller,
-            initialValue: widget.initalValue,
-            validator: widget.validator,
-            onChanged: widget.onChanged,
-            // style: AppTextStyles.labelBlack12,
+      child: TextFormField(
+        enableSuggestions: false,
+        autocorrect: false,
+        obscureText: widget.obscureText,
+        keyboardType: widget.keyboardType,
+        controller: widget.controller,
+        initialValue: widget.initalValue,
+        validator: widget.validator,
+        onChanged: widget.onChanged,
+        // style: AppTextStyles.labelBlack12,
 
-            decoration: InputDecoration(
-                contentPadding: EdgeInsets.zero,
-                labelText: widget.label,
-                labelStyle: widget.textStyle,
-                icon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Icon(
-                        widget.icon,
-                        color: widget.iconColor,
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: 48,
-                      color: AppColors.shape,
-                    )
-                  ],
-                ),
-                border: InputBorder.none),
-          ),
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.shape,
-          )
-        ],
+        decoration: InputDecoration(
+            fillColor: widget.backgroundColor,
+            filled: true,
+            // contentPadding: EdgeInsets.zero,
+            labelText: widget.label,
+            labelStyle: widget.textStyle,
+            icon: Icon(
+              widget.icon,
+              color: widget.iconColor,
+            ),
+            // icon: Row(
+            //   mainAxisSize: MainAxisSize.min,
+            //   children: [
+            //     Icon(
+            //       widget.icon,
+            //       color: widget.iconColor,
+            //     ),
+            //     Container(
+            //       width: 1,
+            //       height: 48,
+            //       color: AppColors.shape,
+            //     )
+            //   ],
+            // ),
+            border: InputBorder.none),
       ),
 
     );

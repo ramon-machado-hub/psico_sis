@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
                       color: AppColors.primaryColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    height: MediaQuery.of(context).size.height * 0.40,
+                    height: MediaQuery.of(context).size.height * 0.45,
                     width: MediaQuery.of(context).size.width * 0.40,
                     child: Column(
                       children: [
@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
                     height: MediaQuery.of(context).size.height * 0.1,
                     label: "Entrar",
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, "/home");
+                      Navigator.pushReplacementNamed(context, "/home_assistente");
                     },
                   ),
 
