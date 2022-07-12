@@ -68,7 +68,9 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                       height: size.width * 0.1,
                       width: size.width * 0.1,
                       image: AppImages.aniversario,
-                      onTap: (){},
+                      onTap: (){
+                        Navigator.pushReplacementNamed(context, "/aniversariantes");
+                      },
                   ),
                   MenuButtonWidget(
                     label: "Caixa",
@@ -76,7 +78,7 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                     width: size.width * 0.1,
                     image: AppImages.caixa,
                     onTap: (){
-                      Navigator.pushReplacementNamed(context, "/home");
+                      Navigator.pushReplacementNamed(context, "/caixa");
                     },
                   ),
                   MenuButtonWidget(
@@ -84,14 +86,18 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                     height: size.width * 0.1,
                     width: size.width * 0.1,
                     image: AppImages.consulta,
-                    onTap: (){},
+                    onTap: (){
+                      Navigator.pushReplacementNamed(context, "/consulta");
+                    },
                   ),
                   MenuButtonWidget(
                       label: "Especialidades",
                       height: size.width * 0.1,
                       width: size.width * 0.1,
                       image: AppImages.tipos_psico,
-                      onTap: (){},
+                      onTap: (){
+                        Navigator.pushReplacementNamed(context, "/especialidades");
+                      },
                   ),
 
                   MenuButtonWidget(
@@ -99,14 +105,18 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                       height: size.width * 0.1,
                       width: size.width * 0.1,
                       image: AppImages.paciente,
-                    onTap: (){},
+                    onTap: (){
+                      Navigator.pushReplacementNamed(context, "/pacientes");
+                    },
                   ),
                   MenuButtonWidget(
                       label: "Parceiros",
                       height: size.width * 0.1,
                       width: size.width * 0.1,
                       image: AppImages.parceiro,
-                      onTap: (){},
+                      onTap: (){
+                        Navigator.pushReplacementNamed(context, "/parceiro");
+                      },
                   ),
                   MenuButtonWidget(
                       label: "Profissionais",
@@ -114,7 +124,7 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                       width: size.width * 0.1,
                       image: AppImages.profissionais,
                       onTap: (){
-
+                        Navigator.pushReplacementNamed(context, "/profissionais");
                       },
                   ),
                 ],

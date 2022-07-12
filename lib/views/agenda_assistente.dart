@@ -5,7 +5,6 @@ import 'package:psico_sis/widgets/app_bar_widget.dart';
 
 import '../daows/UsuarioWS.dart';
 import '../model/Usuario.dart';
-import '../themes/app_images.dart';
 
 class AgendaAssistente extends StatefulWidget {
   const AgendaAssistente({Key? key}) : super(key: key);
@@ -16,17 +15,27 @@ class AgendaAssistente extends StatefulWidget {
 
 class _AgendaAssistenteState extends State<AgendaAssistente> {
   late List<Usuario> _ls = [];
+  Future<void> carregarUsuarios() async {
+    _ls = await UsuarioWS.getInstance().getAll();
+    _ls.forEach((element) {
+      print(element.nomeUsuario);
+    });
+  }
 
-  loadUsuario() async {
+  void loadUsuario() async {
     _ls = await UsuarioWS.getInstance().getAll();
     _ls.forEach((element) {
       print(element.emailUsuario);
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
-    loadUsuario();
+    carregarUsuarios().then((value) => setState(() {
+
+    }));
+        print("entrou");
     return Scaffold(
         appBar: const PreferredSize(
           preferredSize: Size.fromHeight(80),
@@ -59,45 +68,23 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            // FittedBox(
-                            //   fit: BoxFit.contain,
-                            //   child: ClipRRect(
-                            //     borderRadius: BorderRadius.circular(10),
-                            //     child: Image.asset(AppImages.profissionais)
-                            //   ),
-                            // ),
+
                                   for(var item in _ls)
                                     Card(
                                       elevation: 8,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // Container(
-                                          //   height: 20.0,
-                                          //   child: Image.asset(AppImages.paciente),
-                                          // ),
-                                          ListTile(
-                                            trailing: Icon(Icons.person),
-                                            title: Text(item.nomeUsuario.toString()),
-                                            subtitle: Text("Psicólogo"),
+                                      child: ListTile(
+                                        leading: Icon(Icons.person),
+                                        title: Text(item.nomeUsuario.toString()),
+                                        subtitle: Text("Psicólogo"),
 
-                                          ),
-
-                                        ],
                                       ),
                                     )
-                                  // _ls.forEach((element) {
-                                  //   Card(child: Text(element.nomeUsuario!));
-                                  // })
+
                           ],
                         ),
                       ),
                     ),
-                    //   child: Column(
-                    //     children: [
 
-                    //     ],
-                    //   ),
                   ),
                 ),
 
@@ -359,7 +346,10 @@ Widget columnHorario(context) {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+
+
+                },
                 icon: Icon(
                   Icons.keyboard_double_arrow_left,
                   color: AppColors.labelWhite,
@@ -452,8 +442,8 @@ showAlertDialog(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text("Paciente: " + paciente),
-        Text("Profissional: " + paciente),
-        Text("Horario: " + paciente),
+        Text("Profissional: " + profissional),
+        Text("Horario: " + hora),
         Text("Tipo Pagamento: " + paciente),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),

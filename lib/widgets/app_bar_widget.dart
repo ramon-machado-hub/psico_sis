@@ -51,6 +51,18 @@ class _AppBarWidgetState extends State<AppBarWidget> {
               ),
             ),
 
+            Expanded(
+              flex: 2,
+              child: IconButton(
+                iconSize: 40,
+                onPressed: (){
+                  Navigator.pushReplacementNamed(context, "/home_assistente");
+                },
+                color: AppColors.labelWhite.withOpacity(0.8),
+                 icon: Icon(Icons.home),
+              )
+            ),
+
             //relogio
             Expanded(
               flex: 2,

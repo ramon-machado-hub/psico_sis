@@ -53,9 +53,27 @@ class AppTextStyles {
   );
 
   static final subTitleBlack16 = GoogleFonts.lexendDeca(
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
+  );
+
+  static final subTitleBlack14 = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+
+  static final subTitleBlack12 = GoogleFonts.lexendDeca(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+
+  static final subTitleWhite14 = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelWhite,
   );
 
   static final labelBlack16 = GoogleFonts.fredokaOne(
