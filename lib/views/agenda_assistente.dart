@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
 import 'package:psico_sis/widgets/app_bar_widget.dart';
 
 import '../daows/UsuarioWS.dart';
 import '../model/Usuario.dart';
+import '../model/Profissional.dart';
 
 class AgendaAssistente extends StatefulWidget {
   const AgendaAssistente({Key? key}) : super(key: key);
@@ -15,118 +19,157 @@ class AgendaAssistente extends StatefulWidget {
 
 class _AgendaAssistenteState extends State<AgendaAssistente> {
   late List<Usuario> _ls = [];
+  late List<Profissional> _lp = [];
   Future<void> carregarUsuarios() async {
-    _ls = await UsuarioWS.getInstance().getAll();
+    _ls = await UsuarioWS.getInstance().getAll("");
     _ls.forEach((element) {
       print(element.nomeUsuario);
     });
   }
-
   void loadUsuario() async {
-    _ls = await UsuarioWS.getInstance().getAll();
+    print("aqui");
+    _ls = await UsuarioWS.getInstance().getAll("");
+    print(_ls.length);
     _ls.forEach((element) {
       print(element.emailUsuario);
     });
   }
 
+  Future<void> getAtivos() async {
+    _ls = await UsuarioWS.getInstance().getAtivos("");
+    _ls.forEach((element) {
+      print(element.emailUsuario);
+    });
+  }
+
+  void carregaProfissionais() async {
+    setState((){});
+  }
+
+  Future<List<Profissional>> ReadJsonData() async {
+    final jsondata = await rootBundle.loadString('jsonfile/profissionais_json.json');
+    final list = json.decode(jsondata) as List<dynamic>;
+    return list.map((e) => Profissional.fromJson(e)).toList();
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    carregarUsuarios().then((value) => setState(() {
-
-    }));
-        print("entrou");
-    return Scaffold(
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(80),
-          child: AppBarWidget(),
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-              gradient: RadialGradient(
-            radius: 2.0,
-            colors: [
-              AppColors.shape,
-              AppColors.primaryColor,
-            ],
-          )),
-          child: Center(
-            child: Row(
-              children: [
-                //Profissionais
-                Padding(
-                  padding: const EdgeInsets.only(left: 50.0),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    height: MediaQuery.of(context).size.height * 0.7,
+    // carregarUsuarios().then((value) => setState(() {
+    //
+    // }));
+    //     print("entrou");
+    loadUsuario();
+    return FutureBuilder(
+        future: ReadJsonData(),
+        builder: (context, data) {
+          if (data.hasError) {
+            print("erro ao carregar o json");
+            return Center(child: Text("${data.error}"));
+          } else if (data.hasData) {
+            print("entrou");
+            _lp = data.data as List<Profissional>;
+            // carregaProfissionais();
+            for(var item in _lp)
+              print(item.nome);
+          }
+          return SafeArea(
+              child: Scaffold(
+                  appBar: const PreferredSize(
+                    preferredSize: Size.fromHeight(80),
+                    child: AppBarWidget(),
+                  ),
+                  body: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.labelWhite,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-
-                                  for(var item in _ls)
-                                    Card(
-                                      elevation: 8,
-                                      child: ListTile(
-                                        leading: Icon(Icons.person),
-                                        title: Text(item.nomeUsuario.toString()),
-                                        subtitle: Text("Psicólogo"),
-
-                                      ),
-                                    )
-
+                        gradient: RadialGradient(
+                          radius: 2.0,
+                          colors: [
+                            AppColors.shape,
+                            AppColors.primaryColor,
                           ],
-                        ),
+                        )),
+                    child: Center(
+                      child: Row(
+                        children: [
+                          //Profissionais
+                          Padding(
+                            padding: const EdgeInsets.only(left: 50.0),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.2,
+                              height: MediaQuery.of(context).size.height * 0.7,
+                              decoration: BoxDecoration(
+                                color: AppColors.labelWhite,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    children: [
+
+                                      for(var item in _lp)
+                                        Card(
+                                          elevation: 8,
+                                          child: ListTile(
+                                            leading: Icon(Icons.person),
+                                            title: Text(item.nome.toString()),
+                                            subtitle: Text(item.especialidade.toString()),
+
+                                          ),
+                                        )
+
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                            ),
+                          ),
+
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.05,
+                          ),
+
+                          //agenda
+                          Padding(
+                            padding: const EdgeInsets.only(left: 14.0),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.65,
+                              height: MediaQuery.of(context).size.height * 0.70,
+                              decoration: BoxDecoration(
+                                color: AppColors.labelWhite,
+                                // borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  //coluna horário
+                                  Container(
+                                      width: MediaQuery.of(context).size.width * 0.1,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.labelBlack.withOpacity(0.3),
+                                      ),
+                                      child: columnHorario(context)),
+                                  Container(
+                                      width: MediaQuery.of(context).size.width * 0.1,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.labelBlack.withOpacity(0.3),
+                                      ),
+                                      child:
+                                      columnProfissional(context, "Anne Vasconcelos"))
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                  ))
+          );
+        }
 
-                  ),
-                ),
+    );
 
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.05,
-                ),
-
-                //agenda
-                Padding(
-                  padding: const EdgeInsets.only(left: 14.0),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.65,
-                    height: MediaQuery.of(context).size.height * 0.70,
-                    decoration: BoxDecoration(
-                      color: AppColors.labelWhite,
-                      // borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        //coluna horário
-                        Container(
-                            width: MediaQuery.of(context).size.width * 0.1,
-                            decoration: BoxDecoration(
-                              color: AppColors.labelBlack.withOpacity(0.3),
-                            ),
-                            child: columnHorario(context)),
-                        Container(
-                            width: MediaQuery.of(context).size.width * 0.1,
-                            decoration: BoxDecoration(
-                              color: AppColors.labelBlack.withOpacity(0.3),
-                            ),
-                            child:
-                                columnProfissional(context, "Anne Vasconcelos"))
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ));
   }
 }
 
@@ -203,9 +246,9 @@ Widget CardVago(context, Color color1, Color color2, String label) {
                       onPressed: () {
                         showAlertDialog(
                           context,
-                          "Ramon",
-                          "Rafaela",
-                          "Sessao 4",
+                          "RAMON LUIZ ALVES MACHADO",
+                          "08:00",
+                          "ANNE VASCONCELOS",
                         );
                       },
                       icon: Icon(Icons.edit)),
@@ -324,9 +367,9 @@ Widget CardAgenda(
                     onPressed: () {
                       showAlertDialog(
                         context,
-                        "Ramon",
-                        "Rafaela",
-                        "Sessao 4",
+                        "MATEUS CARVALHO",
+                        "ANNE VASCONCELOS",
+                        "CARTÃO DE CRÉDITO (VENCIMENTO)",
                       );
                     },
                     icon: const Icon(Icons.edit))),
@@ -441,10 +484,29 @@ showAlertDialog(
     title: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Paciente: " + paciente),
-        Text("Profissional: " + profissional),
-        Text("Horario: " + hora),
-        Text("Tipo Pagamento: " + paciente),
+        Row(
+          children: [
+            Text("Paciente: " ),
+            Text(paciente, style: AppTextStyles.labelBold16,),          ],
+        ),
+        Row(
+          children: [
+            Text("Profissional: " ),
+            Text(profissional, style: AppTextStyles.labelBold16,),
+          ],
+        ),
+        Row(
+          children: [
+            Text("Horario: "),
+            Text(hora, style: AppTextStyles.labelBold16,),
+          ],
+        ),
+        Row(
+          children: [
+            Text("Tipo Pagamento: "),
+            Text("À VISTA (DINHEIRO)", style: AppTextStyles.labelBold16,),
+          ],
+        ),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Divider(

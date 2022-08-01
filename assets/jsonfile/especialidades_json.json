@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "descricao": "DERMATOLOGIA"
+  },
+  {
+    "id": 2,
+    "descricao": "FONOAUDIOLOGIA"
+  },
+  {
+    "id": 3,
+    "descricao": "NUTRIÇÃO"
+  },
+  {
+    "id": 4,
+    "descricao": "PSICOLOGIA"
+  },
+  {
+    "id": 5,
+    "descricao": "PSIQUIATRIA"
+  },
+  {
+    "id": 6,
+    "descricao": "TERAPIA OCUPACIONAL"
+  }
+]

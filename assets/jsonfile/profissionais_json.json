@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "nome": "ANNE VASCONCELOS",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055888",
+    "data_nascimento": "20/07/1985",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRP 19/2595"
+  },
+  {
+    "id": 2,
+    "nome": "KAROLINA SILVEIRA",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79999665555",
+    "data_nascimento": "25/07/1990",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRP 19/003053"
+  },
+  {
+    "id": 3,
+    "nome": "CAMILA ARAÚJO",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055999",
+    "data_nascimento": "21/07/1992",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRP 19/002696"
+  },
+  {
+    "id": 4,
+    "nome": "CATIELE REIS",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055777",
+    "data_nascimento": "23/07/1995",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRP 19/002165"
+  },
+  {
+    "id": 5,
+    "nome": "DHARIELLE MENEZES",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055666",
+    "data_nascimento": "22/07/2000",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRP 19/003400"
+  },
+  {
+    "id": 6,
+    "nome": "LUISA BARBOSA",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055444",
+    "data_nascimento": "21/07/1990",
+    "especialidade": "NUTRICIONISTA",
+    "codigo_especialidade": "CRN 7524"
+  },
+  {
+    "id": 7,
+    "nome": "BRUNA MENEZES",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "21/07/1985",
+    "especialidade": "NUTRICIONISTA",
+    "codigo_especialidade": "CRN 9661"
+  }
+]

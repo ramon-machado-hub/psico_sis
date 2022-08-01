@@ -23,9 +23,14 @@ class AppTextStyles {
     color: AppColors.labelBlack,
   );
 
-  static final labelBold16 = GoogleFonts.mitr(
+  static final labelBold16 = GoogleFonts.lexendDeca(
     fontSize: 16,
     fontWeight: FontWeight.w600,
+    color: AppColors.labelBlack,
+  );
+  static final labelBold22 = GoogleFonts.lexendDeca(
+    fontSize: 22,
+    fontWeight: FontWeight.w800,
     color: AppColors.labelBlack,
   );
 

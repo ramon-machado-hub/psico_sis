@@ -19,7 +19,6 @@ class Dialogs {
     );
   }
 
-
   static Future<void> AlertDialogProfissional(parentContext) {
     return showDialog(
       context: parentContext,
@@ -68,6 +67,39 @@ class Dialogs {
       },
     );
   }
+
+  static Future<void> AlertConfirmSistema(parentContext, String descricao) {
+    return showDialog(
+      context: parentContext,
+      builder: (context) {
+        return AlertDialog(
+          title: Column(
+            children: [
+              const Text("DESEJA REALMENTE SALVAR O SISTEMA ABAIXO"),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(descricao),
+              ),
+            ],
+          ),
+
+          actions: <Widget>[
+            SimpleDialogOption(
+                child: Text("SIM"),
+                onPressed: () {
+
+                  Navigator.pop(context);
+                }
+            ),
+            SimpleDialogOption(child: Text("NÃO"), onPressed: () {
+              Navigator.pop(context);
+            }),
+          ],
+        );
+      },
+    );
+  }
+
 }
 
 List <Widget> ListHousColumn() {

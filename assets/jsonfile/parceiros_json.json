@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "razao_social": "SE PROMOTORA",
+    "cnpj": "11.555.444/0001-14",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "7936311111",
+    "email": "sepromotora@se.com.br",
+    "desconto": "20",
+    "status": "ATIVO"
+  },
+  {
+    "id": 2,
+    "razao_social": "AD PROMOTORA",
+    "cnpj": "22.555.444/0001-14",
+    "endereco": "AV PRESIDENTE VARGAS, 300",
+    "telefone": "7936312222",
+    "email": "adpromotora@se.com.br",
+    "desconto": "15",
+    "status": "ATIVO"
+  },
+  {
+    "id": 3,
+    "razao_social": "MARATÁ",
+    "cnpj": "33.555.444/0001-14",
+    "endereco": "RODOVIA 212 , 300",
+    "telefone": "7936313333",
+    "email": "marata@se.com.br",
+    "desconto": "25",
+    "status": "ATIVO"
+  },
+  {
+    "id": 4,
+    "razao_social": "RADIANTE",
+    "cnpj": "44.555.444/0001-14",
+    "endereco": "RODOVIA 332, 300",
+    "telefone": "7936311111",
+    "email": "radiante@se.com.br",
+    "desconto": "15",
+    "status": "ATIVO"
+  },
+  {
+    "id": 5,
+    "razao_social": "MINASNET",
+    "cnpj": "55.555.444/0001-14",
+    "endereco": "AV LIBERIO MONTEIRO, 255",
+    "telefone": "7936311122",
+    "email": "minasnet@se.com.br",
+    "desconto": "20",
+    "status": "ATIVO"
+  },
+  {
+    "id": 6,
+    "razao_social": "GRUPO BRÍCIO",
+    "cnpj": "66.555.444/0001-14",
+    "endereco": "AV LIBERIO MONTEIRO, 213",
+    "telefone": "7936319999",
+    "email": "grupo_bricio@se.com.br",
+    "desconto": "20",
+    "status": "ATIVO"
+  },
+  {
+    "id": 7,
+    "razao_social": "G BARBOSA",
+    "cnpj": "77.555.444/0001-14",
+    "endereco": "AV LIBERIO MONTEIRO, 432",
+    "telefone": "7936317654",
+    "email": "gbarbosa@se.com.br",
+    "desconto": "20",
+    "status": "ATIVO"
+  }
+]

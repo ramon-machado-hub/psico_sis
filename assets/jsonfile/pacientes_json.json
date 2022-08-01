@@ -1,0 +1,66 @@
+[
+  {
+    "id_paciente": 1,
+    "nome": "RAFAELA FRANÇA DIAS",
+    "cpf": "00011122233",
+    "endereco": "RUA H, 72",
+    "telefone": "79998522727",
+    "data_nascimento": "22/07/1994"
+  },
+  {
+    "id_paciente": 2,
+    "nome": "RAMON LUIZ ALVES MACHADO",
+    "cpf": "00011122273",
+    "endereco": "RUA H, 72",
+    "telefone": "79998522727",
+    "data_nascimento": "16/07/1994"
+  },
+  {
+    "id_paciente": 3,
+    "nome": "MARIA HELENA SANTOS SILVA",
+    "cpf": "00011122263",
+    "endereco": "RUA F, 72",
+    "telefone": "79998522727",
+    "data_nascimento": "25/07/1994"
+  },
+  {
+    "id_paciente": 4,
+    "nome": "AUGUSTO CESAR CARDOSO",
+    "cpf": "00011122253",
+    "endereco": "RUA L, 72",
+    "telefone": "79998522727",
+    "data_nascimento": "22/07/1994"
+  },
+  {
+    "id_paciente": 5,
+    "nome": "FAUSTO SILVA FELIX",
+    "cpf": "00011122243",
+    "endereco": "RUA K, 72",
+    "telefone": "79998522727",
+    "data_nascimento": "22/07/1994"
+  },
+  {
+    "id_paciente": 6,
+    "nome": "PAULO HENRRIQUE FONTES SILVA",
+    "cpf": "00011122273",
+    "endereco": "RUA I, 72",
+    "telefone": "79998522727",
+    "data_nascimento": "29/07/1994"
+  },
+  {
+    "id_paciente": 7,
+    "nome": "JOÃO PAULO OLIVEIRA",
+    "cpf": "00011122273",
+    "endereco": "RUA A, 72",
+    "telefone": "7999654477",
+    "data_nascimento": "30/08/1994"
+  },
+  {
+    "id_paciente": 8,
+    "nome": "MARIA FRANCISCA DA SILVA",
+    "cpf": "00058922273",
+    "endereco": "RUA I, 79",
+    "telefone": "7999651122",
+    "data_nascimento": "30/01/1999"
+  }
+]

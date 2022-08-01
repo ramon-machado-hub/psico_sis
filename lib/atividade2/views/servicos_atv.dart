@@ -1,68 +1,56 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:psico_sis/themes/app_colors.dart';
+import 'package:psico_sis/atividade2/daows/servicosWs.dart';
+import 'package:psico_sis/atividade2/model/servicio_model.dart';
+import 'package:psico_sis/atividade2/model/usuario_model.dart';
 
-import '../daows/UsuarioWS.dart';
-import '../model/Paciente.dart';
-import '../model/Usuario.dart';
-import '../themes/app_text_styles.dart';
-import '../widgets/app_bar_widget.dart';
-import '../widgets/button_widget.dart';
-import '../widgets/input_text_widget.dart';
+import '../../themes/app_colors.dart';
+import '../../themes/app_text_styles.dart';
+import '../../widgets/button_widget.dart';
+import '../widgets/app_bar_atv_widget.dart';
 
-class Pacientes extends StatefulWidget {
-  const Pacientes({Key? key}) : super(key: key);
+class ServicosAtv extends StatefulWidget {
+  final UsuarioModel usuario;
+  const ServicosAtv({Key? key, required this.usuario}) : super(key: key);
 
   @override
-  State<Pacientes> createState() => _PacientesState();
+  State<ServicosAtv> createState() => _ServicosAtvState();
 }
 
-class _PacientesState extends State<Pacientes> {
-  late List<Paciente> _lp = [];
+class _ServicosAtvState extends State<ServicosAtv> {
 
-  Future<List<Paciente>> ReadJsonData() async {
-    final jsondata =
-        await rootBundle.loadString('jsonfile/pacientes_json.json');
-    final list = json.decode(jsondata) as List<dynamic>;
-    // list.sort((a, b) => a.toString().compareTo(b.toString()));
-    // list.
-    return list.map((e) => Paciente.fromJson(e)).toList();
-  }
+  late List<ServicoModel> _ls = [];
 
-  String dropdownValue = 'Consulta Avaliativa';
-  bool checkParceiro = false;
+   Future<List<ServicoModel>> getServicos() async{
+     return await ServicoWS.getInstance().getServicos(widget.usuario.tokenUsuario);
+   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return FutureBuilder(
-        future: ReadJsonData(),
-        builder: (context, data) {
+        future: getServicos(),
+        builder: (context, data){
           if (data.hasError) {
-            print("erro ao carregar o json");
+            print("erro ao carregar sistemas do banco");
             return Center(child: Text("${data.error}"));
           } else if (data.hasData) {
-            _lp = data.data as List<Paciente>;
-            _lp.sort((a, b) => a.nome.toString().compareTo(b.nome.toString()));
-            for (var item in _lp) print(item.nome);
+            _ls = data.data as List<ServicoModel>;
           }
           return SafeArea(
               child: Scaffold(
-                  appBar: const PreferredSize(
+                  appBar: PreferredSize(
                     preferredSize: Size.fromHeight(80),
-                    child: AppBarWidget(),
+                    child: AppBarAtvWidget(nomeUsuario: widget.usuario.nomeUsuario ),
                   ),
                   body: Container(
                     decoration: BoxDecoration(
                         gradient: RadialGradient(
-                      radius: 2.0,
-                      colors: [
-                        AppColors.shape,
-                        AppColors.primaryColor,
-                      ],
-                    )),
+                          radius: 2.0,
+                          colors: [
+                            AppColors.shape,
+                            AppColors.primaryColor,
+                          ],
+                        )),
                     child: Column(
                       children: [
                         Padding(
@@ -82,41 +70,42 @@ class _PacientesState extends State<Pacientes> {
                                   color: AppColors.shape),
                               child: SingleChildScrollView(
                                 child: Padding(
-                                  padding: const EdgeInsets.only(top: 16.0, right: 16.0, left: 16.0),
+                                  padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
                                   child: Column(
                                     children: [
-                                      for (var item in _lp)
+                                      for (var item in _ls)
                                         Card(
                                           elevation: 8,
                                           child: ListTile(
                                             trailing:  InkWell(
                                                 onTap: (){},
-                                                child: const Icon(Icons.search_rounded)),
+                                                child: const Icon(Icons.edit)),
                                             title: Column(
                                               mainAxisAlignment: MainAxisAlignment.start,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text(item.nome.toString()),
-                                                Text("Fone: ${item.telefone}", style: AppTextStyles.labelBold16,),
+                                                Text(item.nomeServico.toString(), style: AppTextStyles.labelBold16,),
+                                                Text("STATUS = ${item.statusServico}"),
                                               ],
                                             ),
 
                                           ),
                                         )
+
                                     ],
                                   ),
                                 ),
                               ),
+
                             ),
                           ),
                         ),
                         ButtonWidget(
                           width: MediaQuery.of(context).size.width * 0.2,
                           height: MediaQuery.of(context).size.height * 0.1,
-                          label: "Cadastrar Paciente",
+                          label: "Cadastrar SERVIÇO",
                           onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, "/cadastro_paciente");
+                            Navigator.pushReplacementNamed(context, "/cadastrar_servico", arguments: widget.usuario);
                           },
                         ),
                       ],

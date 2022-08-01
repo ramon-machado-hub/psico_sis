@@ -34,11 +34,11 @@ class _CadastroParceiroState extends State<CadastroParceiro> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                 child: Center(
                   child: Container(
                     width: size.width * 0.45,
-                    height: size.height * 0.7,
+                    height: size.height * 0.74,
                     decoration: BoxDecoration(
                         border: Border.fromBorderSide(
                           BorderSide(
@@ -49,7 +49,7 @@ class _CadastroParceiroState extends State<CadastroParceiro> {
                         borderRadius: BorderRadius.circular(8),
                         color: AppColors.shape),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
                           padding: EdgeInsets.only(top: 12.0, bottom: 12.0),
@@ -119,11 +119,29 @@ class _CadastroParceiroState extends State<CadastroParceiro> {
                           textStyle:  AppTextStyles.subTitleBlack12,
                           iconColor: AppColors.labelBlack,),
 
-                        Column(
-                          children: const [
-                            Text("Desconto"),
-                            DropDownWidget(list: ["10%","20%","30%","40%"]),
-                          ],
+                        InputTextWidget(
+                          label: "EMAIL",
+                          icon: Icons.email,
+                          validator: (value) {
+                            if ((value!.isEmpty) || (value == null)) {
+                              return 'Por favor insira um texto';
+                            }
+                            return null;
+                          },
+                          keyboardType: TextInputType.emailAddress,
+                          obscureText: false,
+                          backgroundColor: AppColors.secondaryColor,
+                          borderColor: AppColors.line,
+                          textStyle:  AppTextStyles.subTitleBlack12,
+                          iconColor: AppColors.labelBlack,),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Column(
+                            children: const [
+                              Text("Desconto"),
+                              DropDownWidget(list: ["10%","20%","30%","40%"]),
+                            ],
+                          ),
                         )
                       ],
                     ),
