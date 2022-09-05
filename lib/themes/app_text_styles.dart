@@ -11,6 +11,38 @@ class AppTextStyles {
     color: AppColors.labelWhite,
   );
 
+  static final labelBlack20 = GoogleFonts.lexendDeca(
+    fontSize: 20,
+    fontWeight: FontWeight.w100,
+    color: AppColors.labelBlack,
+  );
+  static final labelBlack14 = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+  static final labelBlack16Lex = GoogleFonts.lexendDeca(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+  static final labelWhite16Lex = GoogleFonts.lexendDeca(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelWhite,
+  );
+  static final labelBlack14Lex = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w800,
+    color: AppColors.labelBlack,
+  );
+
+  static final labelBlackBold20 = GoogleFonts.fredokaOne(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: AppColors.labelBlack,
+  );
+
   static final labelWhite20 = GoogleFonts.fredokaOne(
     fontSize: 22,
     fontWeight: FontWeight.normal,
@@ -20,6 +52,12 @@ class AppTextStyles {
   static final labelBlack12 = GoogleFonts.fredokaOne(
     fontSize: 12,
     fontWeight: FontWeight.w600,
+    color: AppColors.labelBlack,
+  );
+
+  static final labelBlack12Lex = GoogleFonts.lexendDeca(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
   );
 

@@ -1,0 +1,97 @@
+[
+  {
+    "id": 1,
+    "id_profissional": 1,
+    "descricao": "SEGUNDA"
+  },
+  {
+    "id": 2,
+    "id_profissional": 1,
+    "descricao": "QUARTA"
+  },
+  {
+    "id": 3,
+    "id_profissional": 1,
+    "descricao": "SÁBADO"
+  },
+  {
+    "id": 4,
+    "id_profissional": 2,
+    "descricao": "SEGUNDA"
+  },
+  {
+    "id": 5,
+    "id_profissional": 2,
+    "descricao": "QUARTA"
+  },
+  {
+    "id": 6,
+    "id_profissional": 2,
+    "descricao": "QUINTA"
+  },
+  {
+    "id": 7,
+    "id_profissional": 3,
+    "descricao": "SEGUNDA"
+  },
+  {
+    "id": 8,
+    "id_profissional": 3,
+    "descricao": "QUINTA"
+  },
+  {
+    "id": 9,
+    "id_profissional": 4,
+    "descricao": "SEGUNDA"
+  },
+  {
+    "id": 9,
+    "id_profissional": 4,
+    "descricao": "SEXTA"
+  },
+  {
+    "id": 10,
+    "id_profissional": 5,
+    "descricao": "SEGUNDA"
+  },
+  {
+    "id": 11,
+    "id_profissional": 6,
+    "descricao": "SEGUNDA"
+  },
+  {
+    "id": 12,
+    "id_profissional": 7,
+    "descricao": "TERÇA"
+  },
+  {
+    "id": 13,
+    "id_profissional": 8,
+    "descricao": "TERÇA"
+  },
+  {
+    "id": 14,
+    "id_profissional": 9,
+    "descricao": "SÁBADO"
+  },
+  {
+    "id": 15,
+    "id_profissional": 10,
+    "descricao": "SÁBADO"
+  },
+  {
+    "id": 16,
+    "id_profissional": 11,
+    "descricao": "SEXTA"
+  },
+  {
+    "id": 17,
+    "id_profissional": 12,
+    "descricao": "SEXTA"
+  },
+  {
+    "id": 18,
+    "id_profissional": 12,
+    "descricao": "QUINTA"
+  }
+]

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
 import 'package:psico_sis/widgets/app_bar_widget.dart';
@@ -18,14 +19,18 @@ class AgendaAssistente extends StatefulWidget {
 }
 
 class _AgendaAssistenteState extends State<AgendaAssistente> {
+
   late List<Usuario> _ls = [];
   late List<Profissional> _lp = [];
+  late List<Profissional> _lpacientes = [];
+
   Future<void> carregarUsuarios() async {
     _ls = await UsuarioWS.getInstance().getAll("");
     _ls.forEach((element) {
       print(element.nomeUsuario);
     });
   }
+
   void loadUsuario() async {
     print("aqui");
     _ls = await UsuarioWS.getInstance().getAll("");
@@ -380,33 +385,61 @@ Widget CardAgenda(
   );
 }
 
+String getAddDay() {
+ return DateFormat('EEEE').format(DateTime.now().add(const Duration(days: 3)));
+
+}
+
 Widget columnHorario(context) {
+  // String day = DateFormat('EEEE').format(DateTime.now());
+  String day = DateFormat('EEEE').format(DateTime.now());
   return Column(
     children: [
       SizedBox(
         height: MediaQuery.of(context).size.height * 0.1,
+        width: MediaQuery.of(context).size.width * 0.1,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          // mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            IconButton(
-                onPressed: () {
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.025,
+              child: IconButton(
+                  onPressed: () {
 
-
-                },
-                icon: Icon(
-                  Icons.keyboard_double_arrow_left,
-                  color: AppColors.labelWhite,
-                )),
-            Text(
-              " Hoje ",
-              style: AppTextStyles.labelBold16,
+                      day = getAddDay();
+                      print(day);
+                      // setState(() {});
+                  },
+                  icon: Icon(
+                    Icons.keyboard_double_arrow_left,
+                    color: AppColors.labelWhite,
+                  )),
             ),
-            IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.keyboard_double_arrow_right,
-                  color: AppColors.labelWhite,
-                )),
+
+
+
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.05,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Text(
+                  day,
+                  style: AppTextStyles.labelBold16,
+                  // textAlign: TextAlign.end,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.025,
+              child: IconButton(
+                  onPressed: () {
+
+                  },
+                  icon: Icon(
+                    Icons.keyboard_double_arrow_right,
+                    color: AppColors.labelWhite,
+                  )),
+            ),
             // GestureDetector(
             //     onTap: (){Navigator.of(context).pop();},
             //     child: Text(" >> ", style: AppTextStyles.labelBold16,)),

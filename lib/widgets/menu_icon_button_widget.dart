@@ -1,28 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:psico_sis/themes/app_colors.dart';
-import 'package:psico_sis/themes/app_text_styles.dart';
 
-class MenuButtonWidget extends StatefulWidget {
+import '../themes/app_text_styles.dart';
+
+class MenuIconButtonWidget extends StatefulWidget {
   final String label;
   final double height;
   final double width;
-  final String image;
+  final IconData iconData;
   final VoidCallback onTap;
 
-  const MenuButtonWidget({Key? key,
+  const MenuIconButtonWidget({Key? key,
     required this.label,
     required this.height,
     required this.width,
-    required this.image,
+    required this.iconData,
     required this.onTap,
   }) : super(key: key);
 
   @override
-  State<MenuButtonWidget> createState() => _MenuButtonWidgetState();
+  State<MenuIconButtonWidget> createState() => _MenuIconButtonWidgetState();
 }
 
-class _MenuButtonWidgetState extends State<MenuButtonWidget> {
+class _MenuIconButtonWidgetState extends State<MenuIconButtonWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -41,12 +42,15 @@ class _MenuButtonWidgetState extends State<MenuButtonWidget> {
               child: FittedBox(
                   fit: BoxFit.contain,
                   child: Padding(
-                    padding: const EdgeInsets.all(50.0),
-                    child: Image.asset(widget.image),
+                    padding: const EdgeInsets.all(7.0),
+                   child: Icon(widget.iconData),
+                    // child: Image.asset(widget.image),
                   )),
             ),
           ),
-          Text(widget.label, style: AppTextStyles.labelBold16,)
+          FittedBox(
+              fit: BoxFit.contain,
+              child: Text(widget.label, style: AppTextStyles.labelBold16,))
         ],
     );
   }

@@ -13,14 +13,22 @@
   },
   {
     "id": 4,
-    "descricao": "PSICOLOGIA"
+    "descricao": "PEDIATRIA"
   },
   {
     "id": 5,
-    "descricao": "PSIQUIATRIA"
+    "descricao": "PSICOLOGIA"
   },
   {
     "id": 6,
+    "descricao": "PSICOPEDAGOGIA"
+  },
+  {
+    "id": 7,
+    "descricao": "PSIQUIATRIA"
+  },
+  {
+    "id": 8,
     "descricao": "TERAPIA OCUPACIONAL"
   }
 ]

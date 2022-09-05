@@ -68,5 +68,65 @@
     "data_nascimento": "21/07/1985",
     "especialidade": "NUTRICIONISTA",
     "codigo_especialidade": "CRN 9661"
+  },
+  {
+    "id": 8,
+    "nome": "FERNANDA MENEZES",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "21/04/1985",
+    "especialidade": "NUTRICIONISTA",
+    "codigo_especialidade": "CRN 9661"
+  },
+  {
+    "id": 9,
+    "nome": "CAMILA SOUZA FONTES",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "21/09/1985",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRN 9661"
+  },
+  {
+    "id": 10,
+    "nome": "PABLO SANTANA ALMEIDA",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "05/07/1985",
+    "especialidade": "NUTRICIONISTA",
+    "codigo_especialidade": "CRN 9661"
+  },
+  {
+    "id": 11,
+    "nome": "MARCOS ANTONIO FREIRE",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "21/01/1985",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRN 9661"
+  },
+  {
+    "id": 12,
+    "nome": "BRUNO SILVA MELO",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "21/07/1985",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRN 9661"
+  },
+  {
+    "id": 13,
+    "nome": "CARLOS MAGNO SILVA",
+    "cpf": "12345678900",
+    "endereco": "AV LIBERIO MONTEIRO, 300",
+    "telefone": "79998055333",
+    "data_nascimento": "21/02/1985",
+    "especialidade": "PSICOLOGIA",
+    "codigo_especialidade": "CRN 9661"
   }
 ]

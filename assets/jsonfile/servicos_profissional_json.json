@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "id_profissional": 1,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 2,
+    "id_profissional": 2,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 3,
+    "id_profissional": 3,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 4,
+    "id_profissional": 4,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 5,
+    "id_profissional": 5,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 6,
+    "id_profissional": 6,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 7,
+    "id_profissional": 7,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 8,
+    "id_profissional":8,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 9,
+    "id_profissional": 9,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 10,
+    "id_profissional": 10,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 11,
+    "id_profissional": 11,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 12,
+    "id_profissional": 12,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 13,
+    "id_profissional": 13,
+    "id_servico": 1,
+    "valor": 180
+  },
+  {
+    "id": 14,
+    "id_profissional": 1,
+    "id_servico": 3,
+    "valor": 150
+  },
+  {
+    "id": 15,
+    "id_profissional": 2,
+    "id_servico": 3,
+    "valor": 150
+  },
+  {
+    "id": 16,
+    "id_profissional": 3,
+    "id_servico": 3,
+    "valor": 150
+  },
+  {
+    "id": 17,
+    "id_profissional": 4,
+    "id_servico": 3,
+    "valor": 150
+  },
+  {
+    "id": 18,
+    "id_profissional": 5,
+    "id_servico": 3,
+    "valor": 150
+  },
+  {
+    "id": 19,
+    "id_profissional": 6,
+    "id_servico": 3,
+    "valor": 200
+  },
+  {
+    "id": 20,
+    "id_profissional": 7,
+    "id_servico": 2,
+    "valor": 180
+  },
+  {
+    "id": 21,
+    "id_profissional": 8,
+    "id_servico": 2,
+    "valor": 160
+  },
+  {
+    "id": 22,
+    "id_profissional": 9,
+    "id_servico": 5,
+    "valor": 200
+  },
+  {
+    "id": 23,
+    "id_profissional": 10,
+    "id_servico": 3,
+    "valor": 200
+  },
+  {
+    "id": 24,
+    "id_profissional": 11,
+    "id_servico": 4,
+    "valor": 150
+  },
+  {
+    "id": 25,
+    "id_profissional": 12,
+    "id_servico": 2,
+    "valor": 150
+  },
+  {
+    "id": 26,
+    "id_profissional": 13,
+    "id_servico": 1,
+    "valor": 150
+  },
+  {
+    "id": 27,
+    "id_profissional": 1,
+    "id_servico": 5,
+    "valor": 400
+  },
+  {
+    "id": 28,
+    "id_profissional": 1,
+    "id_servico": 3,
+    "valor": 200
+  },
+  {
+    "id": 28,
+    "id_profissional": 1,
+    "id_servico": 8,
+    "valor": 400
+  },
+  {
+    "id": 29,
+    "id_profissional": 1,
+    "id_servico": 10,
+    "valor": 0
+  }
+]

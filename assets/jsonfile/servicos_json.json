@@ -1,0 +1,54 @@
+[
+
+  {
+    "id": 1,
+    "descricao": "AVALIAÇÃO NUTRICIONAL",
+    "qtd_pacientes": 1
+  },
+  {
+    "id": 2,
+    "descricao": "AVALIAÇÃO PSICOLOGICA",
+    "qtd_pacientes": 1
+  },
+  {
+    "id": 3,
+    "descricao": "CONSULTA",
+    "qtd_pacientes": 1
+  },
+
+  {
+    "id": 4,
+    "descricao": "TERAPIA DE CASAL",
+    "qtd_pacientes": 2
+  },
+  {
+    "id": 5,
+    "descricao": "TERAPIA FAMILIAR 2 PESSOAS",
+    "qtd_pacientes": 2
+  },
+  {
+    "id": 6,
+    "descricao": "TERAPIA FAMILIAR 3 PESSOAS",
+    "qtd_pacientes": 3
+  },
+  {
+    "id": 7,
+    "descricao": "TERAPIA FAMILIAR 4 PESSOAS",
+    "qtd_pacientes": 4
+  },
+  {
+    "id": 8,
+    "descricao": "PACOTE 4 SESSÕES",
+    "qtd_pacientes": 1
+  },
+  {
+    "id": 9,
+    "descricao": "PACOTE 4 SESSÕES TERAPIA FAMILIAR 2",
+    "qtd_pacientes": 2
+  },
+  {
+    "id": 10,
+    "descricao": "RETORNO",
+    "qtd_pacientes": 2
+  }
+]

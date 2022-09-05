@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:psico_sis/themes/app_images.dart';
 import 'package:psico_sis/widgets/menu_button_widget.dart';
+import 'package:psico_sis/widgets/menu_icon_button_widget.dart';
 
 import '../themes/app_colors.dart';
 import '../widgets/app_bar_widget.dart';
@@ -73,6 +74,8 @@ class _HomePageState extends State<HomePage> {
                       image: AppImages.tipos_psico,
                       onTap: (){},
                   ),
+
+
                   MenuButtonWidget(
                       label: "Consulta",
                       height: size.width * 0.1,
@@ -87,13 +90,20 @@ class _HomePageState extends State<HomePage> {
                       image: AppImages.paciente,
                     onTap: (){},
                   ),
-                  MenuButtonWidget(
+
+                  MenuIconButtonWidget(
                       label: "Parceiros",
                       height: size.width * 0.1,
                       width: size.width * 0.1,
-                      image: AppImages.parceiro,
-                      onTap: (){},
-                  ),
+                      iconData: Icons.handshake_rounded,
+                      onTap: (){}),
+                  // MenuButtonWidget(
+                  //     label: "Parceiros",
+                  //     height: size.width * 0.1,
+                  //     width: size.width * 0.1,
+                  //     image: AppImages.parceiro,
+                  //     onTap: (){},
+                  // ),
                   MenuButtonWidget(
                       label: "Profissionais",
                       height: size.width * 0.1,

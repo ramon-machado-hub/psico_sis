@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "descricao": "À VISTA DINHEIRO"
+  },
+  {
+    "id": 2,
+    "descricao": "À VISTA PIX"
+  },
+  {
+    "id": 3,
+    "descricao": "CARTÃO DÉBITO"
+  },
+  {
+    "id": 4,
+    "descricao": "CARTÃO DE CRÉDITO (VENCIMENTO)"
+  },
+  {
+    "id": 5,
+    "descricao": "CARTÃO DE CRÉDITO (2X)"
+  },
+  {
+    "id": 6,
+    "descricao": "CARTÃO DE CRÉDITO (3X)"
+  },
+  {
+    "id": 7,
+    "descricao": "CARTÃO DE CRÉDITO (4X)"
+  }
+]

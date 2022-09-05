@@ -5,7 +5,7 @@
     "cpf": "00011122233",
     "endereco": "RUA H, 72",
     "telefone": "79998522727",
-    "data_nascimento": "22/07/1994"
+    "data_nascimento": "22/08/1994"
   },
   {
     "id_paciente": 2,
@@ -13,7 +13,7 @@
     "cpf": "00011122273",
     "endereco": "RUA H, 72",
     "telefone": "79998522727",
-    "data_nascimento": "16/07/1994"
+    "data_nascimento": "16/11/1994"
   },
   {
     "id_paciente": 3,
@@ -21,7 +21,7 @@
     "cpf": "00011122263",
     "endereco": "RUA F, 72",
     "telefone": "79998522727",
-    "data_nascimento": "25/07/1994"
+    "data_nascimento": "25/10/1994"
   },
   {
     "id_paciente": 4,
@@ -29,7 +29,7 @@
     "cpf": "00011122253",
     "endereco": "RUA L, 72",
     "telefone": "79998522727",
-    "data_nascimento": "22/07/1994"
+    "data_nascimento": "22/09/1994"
   },
   {
     "id_paciente": 5,
@@ -37,7 +37,7 @@
     "cpf": "00011122243",
     "endereco": "RUA K, 72",
     "telefone": "79998522727",
-    "data_nascimento": "22/07/1994"
+    "data_nascimento": "19/08/1994"
   },
   {
     "id_paciente": 6,
@@ -53,7 +53,7 @@
     "cpf": "00011122273",
     "endereco": "RUA A, 72",
     "telefone": "7999654477",
-    "data_nascimento": "30/08/1994"
+    "data_nascimento": "06/08/1994"
   },
   {
     "id_paciente": 8,
@@ -61,6 +61,46 @@
     "cpf": "00058922273",
     "endereco": "RUA I, 79",
     "telefone": "7999651122",
-    "data_nascimento": "30/01/1999"
+    "data_nascimento": "05/04/1999"
+  },
+  {
+    "id_paciente": 9,
+    "nome": "RAFAEL VIANA SILVA",
+    "cpf": "00058922273",
+    "endereco": "RUA I, 79",
+    "telefone": "7999651122",
+    "data_nascimento": "03/03/1999"
+  },
+  {
+    "id_paciente": 10,
+    "nome": "BEATRIZ FONTES DIAS",
+    "cpf": "00058922273",
+    "endereco": "RUA I, 79",
+    "telefone": "7999651122",
+    "data_nascimento": "30/02/2000"
+  },
+  {
+    "id_paciente": 11,
+    "nome": "BIANCA FONTES MACHADO",
+    "cpf": "00058922273",
+    "endereco": "RUA I, 79",
+    "telefone": "7999651122",
+    "data_nascimento": "05/01/2005"
+  },
+  {
+    "id_paciente": 12,
+    "nome": "BERNARDO FONTES GOIS",
+    "cpf": "00058922273",
+    "endereco": "RUA I, 79",
+    "telefone": "7999651122",
+    "data_nascimento": "05/10/2005"
+  },
+  {
+    "id_paciente": 13,
+    "nome": "BRUNO FONTES SILVA",
+    "cpf": "00058922273",
+    "endereco": "RUA I, 79",
+    "telefone": "7999651122",
+    "data_nascimento": "05/11/2005"
   }
 ]

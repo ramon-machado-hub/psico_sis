@@ -1,8 +1,8 @@
 class Especialidade {
   int? idEspecialidade;
-  String? descricao;
+  late String descricao;
 
-  Especialidade({this.idEspecialidade, this.descricao});
+  Especialidade({this.idEspecialidade, required this.descricao});
 
   Especialidade.fromJson(Map<String, dynamic> json) {
     idEspecialidade = json['id_especialidade'];

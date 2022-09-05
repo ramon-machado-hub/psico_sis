@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../themes/app_colors.dart';
 import '../themes/app_text_styles.dart';
-import '../widgets/alert_dialog.dart';
 import '../widgets/app_bar_widget.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/input_text_widget.dart';

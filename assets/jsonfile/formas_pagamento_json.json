@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "descricao": "VALOR TOTAL ANTECIPADO"
+  },
+  {
+    "id": 2,
+    "descricao": "POR SESSÃO"
+  },
+  {
+    "id": 3,
+    "descricao": "VALOR TOTAL NA 1º SESSÃO"
+  },
+  {
+    "id": 4,
+    "descricao": "ENTRADA + SESSÕES"
+  }
+]

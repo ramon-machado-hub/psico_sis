@@ -8,14 +8,14 @@ import '../themes/app_text_styles.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/list_hours_widget.dart';
 
-class AgendamentoConsulta extends StatefulWidget {
-  const AgendamentoConsulta({Key? key}) : super(key: key);
+class Sessao2 extends StatefulWidget {
+  const Sessao2({Key? key}) : super(key: key);
 
   @override
-  State<AgendamentoConsulta> createState() => _AgendamentoConsultaState();
+  State<Sessao2> createState() => _Sessao2State();
 }
 
-class _AgendamentoConsultaState extends State<AgendamentoConsulta> {
+class _Sessao2State extends State<Sessao2> {
   DateTime data = DateTime.now();
   List<int> dias = [2,6];
   //método que retorna o mês corrente.
@@ -408,7 +408,7 @@ class _AgendamentoConsultaState extends State<AgendamentoConsulta> {
                 height: MediaQuery.of(context).size.height * 0.1,
                 label: "Avançar",
                 onTap: () {
-                  Navigator.pushReplacementNamed(context, "/confirmar_consulta");
+                  Navigator.pushReplacementNamed(context, "/sessao22", );
                 },
               ),
             ],

@@ -1,0 +1,37 @@
+[
+  {
+    "id_pacientes_parceiros": 1,
+    "id_paciente": 1,
+    "id_parceiro": 1
+  },
+  {
+    "id_pacientes_parceiros": 2,
+    "id_paciente": 2,
+    "id_parceiro": 1
+  },
+  {
+    "id_pacientes_parceiros": 3,
+    "id_paciente": 3,
+    "id_parceiro": 2
+  },
+  {
+    "id_pacientes_parceiros": 4,
+    "id_paciente": 4,
+    "id_parceiro": 3
+  },
+  {
+    "id_pacientes_parceiros": 5,
+    "id_paciente": 5,
+    "id_parceiro": 4
+  },
+  {
+    "id_pacientes_parceiros": 6,
+    "id_paciente": 6,
+    "id_parceiro": 5
+  },
+  {
+    "id_pacientes_parceiros": 7,
+    "id_paciente": 7,
+    "id_parceiro": 6
+  }
+]

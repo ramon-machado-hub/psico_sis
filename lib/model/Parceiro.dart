@@ -5,7 +5,7 @@ class Parceiro {
   String? endereco;
   String? telefone;
   String? email;
-  String? desconto;
+  int? desconto;
   String? status;
 
   Parceiro(

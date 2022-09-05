@@ -102,7 +102,7 @@ class _CadastroPacientesState extends State<CadastroPacientes> {
                           obscureText: false,
                           backgroundColor: AppColors.secondaryColor,
                           borderColor: AppColors.line,
-                          textStyle:  AppTextStyles.subTitleBlack16,
+                          textStyle:  AppTextStyles.subTitleBlack12,
                           iconColor: AppColors.labelBlack,),
                         InputTextWidget(
                           label: "TELEFONE",

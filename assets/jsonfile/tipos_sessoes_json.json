@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "descricao": "PRESENCIAL",
+    "comissao_profissional": 70
+  },
+  {
+    "id": 2,
+    "descricao": "ON LINE",
+    "comissao_profissional": 80
+  }
+]

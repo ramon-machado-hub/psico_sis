@@ -6,7 +6,7 @@
     "endereco": "AV LIBERIO MONTEIRO, 300",
     "telefone": "7936311111",
     "email": "sepromotora@se.com.br",
-    "desconto": "20",
+    "desconto": 20,
     "status": "ATIVO"
   },
   {
@@ -16,7 +16,7 @@
     "endereco": "AV PRESIDENTE VARGAS, 300",
     "telefone": "7936312222",
     "email": "adpromotora@se.com.br",
-    "desconto": "15",
+    "desconto": 15,
     "status": "ATIVO"
   },
   {
@@ -26,7 +26,7 @@
     "endereco": "RODOVIA 212 , 300",
     "telefone": "7936313333",
     "email": "marata@se.com.br",
-    "desconto": "25",
+    "desconto": 25,
     "status": "ATIVO"
   },
   {
@@ -36,7 +36,7 @@
     "endereco": "RODOVIA 332, 300",
     "telefone": "7936311111",
     "email": "radiante@se.com.br",
-    "desconto": "15",
+    "desconto": 15,
     "status": "ATIVO"
   },
   {
@@ -46,7 +46,7 @@
     "endereco": "AV LIBERIO MONTEIRO, 255",
     "telefone": "7936311122",
     "email": "minasnet@se.com.br",
-    "desconto": "20",
+    "desconto": 20,
     "status": "ATIVO"
   },
   {
@@ -56,7 +56,7 @@
     "endereco": "AV LIBERIO MONTEIRO, 213",
     "telefone": "7936319999",
     "email": "grupo_bricio@se.com.br",
-    "desconto": "20",
+    "desconto": 20,
     "status": "ATIVO"
   },
   {
@@ -66,7 +66,7 @@
     "endereco": "AV LIBERIO MONTEIRO, 432",
     "telefone": "7936317654",
     "email": "gbarbosa@se.com.br",
-    "desconto": "20",
+    "desconto": 20,
     "status": "ATIVO"
   }
 ]

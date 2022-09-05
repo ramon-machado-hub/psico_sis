@@ -1,0 +1,61 @@
+[
+  {
+    "id": 1,
+    "id_consulta": 1,
+    "id_paciente": 1
+  },
+  {
+    "id": 2,
+    "id_consulta": 2,
+    "id_paciente": 2
+  },
+  {
+    "id": 3,
+    "id_consulta": 3,
+    "id_paciente": 3
+  },
+  {
+    "id": 4,
+    "id_consulta": 4,
+    "id_paciente": 4
+  },
+  {
+    "id": 5,
+    "id_consulta": 5,
+    "id_paciente": 5
+  },{
+  "id": 6,
+  "id_consulta": 6,
+  "id_paciente": 6
+},{
+  "id": 7,
+  "id_consulta": 7,
+  "id_paciente": 7
+},{
+  "id": 8,
+  "id_consulta": 8,
+  "id_paciente": 8
+},
+  {
+    "id": 9,
+    "id_consulta": 9,
+    "id_paciente": 9
+  },{
+  "id": 10,
+  "id_consulta": 10,
+  "id_paciente": 10
+},{
+  "id": 11,
+  "id_consulta": 11,
+  "id_paciente": 11
+},{
+  "id": 12,
+  "id_consulta": 12,
+  "id_paciente": 12
+},
+  {
+    "id": 13,
+    "id_consulta": 13,
+    "id_paciente": 13
+  }
+]
