@@ -1,11 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:psico_sis/arguments/sessao4_arguments.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:path_provider/path_provider.dart';
 import '../model/consulta.dart';
 import '../model/servico.dart';
 import '../themes/app_colors.dart';
@@ -26,7 +22,6 @@ class _Sessao4State extends State<Sessao4> {
 
   late List<Consulta> _lSessoes = [];
   late List<Servico> _lServicos = [];
-  late Servico? _servico;
 
   Future<void> ReadJsonDataServico() async {
     final jsondata =
@@ -36,7 +31,6 @@ class _Sessao4State extends State<Sessao4> {
       _lServicos = list.map((e) => Servico.fromJson(e)).toList();
       _lServicos.forEach((element) {
         if (element.id==widget.arguments.servicoProfissional.idServico){
-          _servico = element;
         }
       });
     });
@@ -45,112 +39,16 @@ class _Sessao4State extends State<Sessao4> {
   Future<void> ReadJsonDataSessoes() async {
     final jsondata =
     await rootBundle.loadString('jsonfile/consultas_json.json');
+
     final list = json.decode(jsondata) as List<dynamic>;
     setState(() {
       _lSessoes = list.map((e) => Consulta.fromJson(e)).toList();
+      print("_lSessoes ${_lSessoes.length}");
     });
   }
-  Future<File> _getLocalFile() async {
-    // get the path to the document directory.
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    return new File('jsonfile/consultas_json.json');
-  }
-
-  Future<String> get _localPath async {
-    print("_localPath");
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-
-    final path = await _localPath;
-    // final path2 = "/consultas_json.json";
-    print("_localFile");
-    return File('$path/jsonfile/consultas_json.json');
-  }
-
-  Future<void> SalvarSessaoJson(String data, String hora, int valor,
-        String tp_consulta, String desc, int idProfissional, String sala,
-        String situacao) async{
-
-    int id = _lSessoes.length;
-    Consulta insert = Consulta(idConsulta: id, dataConsulta: data,
-    descConsulta: desc, horarioConsulta: hora, valorConsulta: valor,
-    tpConsulta: tp_consulta, idPaciente: 1, idProfissional: idProfissional,
-    salaConsulta: "SALA 1", situacaoConsulta: situacao, statusConsulta: "PENDENTE");
-    _lSessoes.add(insert);
-    print("adicionou na lista _lSessoes $id");
-    // String data = await
-    // DefaultAssetBundle.of(context).loadString("jsonfile/consultas_json.json");
-    String jsonString =  await rootBundle.loadString('jsonfile/consultas_json.json');
-    final jsonResponse  = json.decode(jsonString);
-
-    Future<File> file = _localFile;
-    // String contents = await file.readAsString();
-    // var jsonResponse = jsonDecode(contents);
-    file.then((value) => print(value.existsSync()));
-    // file.writeAsStringSync(json.encode(_lSessoes));
-    // print("salvou json uhru");
-    // File file = await _getLocalFile();
-    // if (file.existsSync()){
-    //   print(" entrou file.existsSync()");
-    //   await file.writeAsString(json.encode(_lSessoes));
-    // } else {
-    //   print("não entrou");
-    // }
-    //
-    // print("salvou");
-
-    // final jsondata =
-    // await rootBundle.loadString('jsonfile/consultas_json.json');
-    // List<Consulta> sessoesJson = json.decode(jsondata);
-    // jsonFile.writeAsStringSync(json.encode(_listQuestions));
-    // var json = _lSessoes.map((e) => e.toJson()).toList;
-    // var jsonFile = new File("$_localPath/$_localFile");
-    // var fileExists = jsonFile.existsSync();
-    // if (fileExists) {
-    //   jsonFile.writeAsString("");
-    // }
-    // getApplicationDocumentsDirectory().then((Directory directory) {
-    //   dir = directory;
-    //   jsonFile = new File(dir.path + "/" + fileName);
-    //   fileExists = jsonFile.existsSync();
-    //   if (fileExists) this.setState(() => fileContent = JSON.decode(jsonFile.readAsStringSync()));
-    // });
 
 
 
-    // var json = ()jsonEncode(_lSessoes.map((e) => e.toJson()).toList);
-    // String jsonData = insert.toJson() as String;
-    // String jsonData = '{"name":"user name"}';
-    // await File("jsonfile/consultas_json.json").writeAsString(json);
-
-    // File jsonFile = File("jsonfile/consultas_json.json");
-    // print(jsonFile);
-    // jsonFile.writeAsString(jsonEncode(_lSessoes));
-    // final jsondata =
-    //     await rootBundle.loadString('jsonfile/consultas_json.json');
-    // final list = json.decode(jsondata) as List<dynamic>;
-
-    // final jsondata =
-    // await rootBundle.loadString('jsonfile/consultas_json.json');
-    // List<Consulta> sessoesJson = json.decode(jsondata);
-    // jsonFile.writeAsStringSync(json.encode(_listQuestions));
-    // var dir = await getExternalStorageDirectory();
-    //   "id": 12,
-    //     "data_consulta": "13/08/2022",
-    //     "horario_consulta": "17:00",
-    //     "valor": 180,
-    //     "tp_consulta": "CONSULTA ONLINE",
-    //     "desc_consulta": "CONSULTA",
-    //     "id_profissional":	2,
-    //     "id_paciente": 12,
-    //     "sala_consulta": "SALA 2",
-    //     "status_consulta": "AGENDADA",
-    //     "situacao_consulta": "PENDENTE"
-
-  }
 
   String getDescServicoById(int? id) {
     String value = "ID Serviço não encontrado";
@@ -166,6 +64,7 @@ class _Sessao4State extends State<Sessao4> {
   @override
   void initState() {
     super.initState();
+    ReadJsonDataSessoes();
     ReadJsonDataServico();
   }
 
@@ -478,14 +377,14 @@ class _Sessao4State extends State<Sessao4> {
                 width: MediaQuery.of(context).size.width * 0.2,
                 height: MediaQuery.of(context).size.height * 0.1,
                 label: "CONFIRMAR",
-                onTap: () {
+                onTap: () async {
                   // print(_localPath);
-                  SalvarSessaoJson(widget.arguments.datasSessoes[0],
-                      widget.arguments.HorariosSessoes[0],
-                      widget.arguments.valorSessoes[0].toInt(),
-                      "PRESENCIAL", widget.arguments.sessoes[0],
-                      widget.arguments.profissional.id!, "SALA 1", "PENDENTE");
-                  print("salvou");
+                  // await SalvarSessaoJson(widget.arguments.datasSessoes[0],
+                  //     widget.arguments.HorariosSessoes[0],
+                  //     widget.arguments.valorSessoes[0].toInt(),
+                  //     "PRESENCIAL", widget.arguments.sessoes[0],
+                  //     widget.arguments.profissional.id!, "SALA 1", "PENDENTE");
+                  print("salvouUUUU");
                   // showAlertDialog(context);
                   Navigator.pushReplacementNamed(context, "/sessao");
                 },

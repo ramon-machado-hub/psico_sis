@@ -1,5 +1,9 @@
 class AppImages {
   static const logo = "/images/logo.jpg";
+  static const logo1 = "/images/image/LOGO.jpg";
+  static const logoVertical = "/logo-vertical.png";
+  static const logoVertical2 = "/logo2.png";
+  static const logoVertical3 = "/logo3.png";
   static const caixa = "/images/icons/caixa111.png";
   static const agenda = "/images/icons/AGENDA.png";
   static const aniversario = "/images/icons/aniversario.png";

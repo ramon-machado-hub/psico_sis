@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../themes/app_colors.dart';
+import 'package:flutter/services.dart';
 
 class InputTextWidget extends StatefulWidget {
 
@@ -41,7 +41,7 @@ class _InputTextWidgetState extends State<InputTextWidget> {
   Widget build(BuildContext context) {
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16, left: 60,right: 60),
+      padding: const EdgeInsets.only(bottom: 8, left: 30,right: 30),
       child: TextFormField(
         enableSuggestions: false,
         autocorrect: false,
@@ -51,32 +51,15 @@ class _InputTextWidgetState extends State<InputTextWidget> {
         initialValue: widget.initalValue,
         validator: widget.validator,
         onChanged: widget.onChanged,
-        // style: AppTextStyles.labelBlack12,
-
         decoration: InputDecoration(
             fillColor: widget.backgroundColor,
             filled: true,
-            // contentPadding: EdgeInsets.zero,
             labelText: widget.label,
             labelStyle: widget.textStyle,
             icon: Icon(
               widget.icon,
               color: widget.iconColor,
             ),
-            // icon: Row(
-            //   mainAxisSize: MainAxisSize.min,
-            //   children: [
-            //     Icon(
-            //       widget.icon,
-            //       color: widget.iconColor,
-            //     ),
-            //     Container(
-            //       width: 1,
-            //       height: 48,
-            //       color: AppColors.shape,
-            //     )
-            //   ],
-            // ),
             border: InputBorder.none),
       ),
 

@@ -1,14 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import '../themes/app_colors.dart';
 import '../themes/app_text_styles.dart';
-import '../widgets/alert_dialog.dart';
 import '../widgets/app_bar_widget.dart';
 import '../widgets/button_widget.dart';
-import '../widgets/input_text_widget.dart';
-import '../widgets/input_text_widget2.dart';
 
 class CadastroProfissional4 extends StatefulWidget {
   const CadastroProfissional4({Key? key}) : super(key: key);

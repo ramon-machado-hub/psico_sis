@@ -1,16 +1,21 @@
-import 'dart:convert';
+import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:psico_sis/model/pacientes_parceiros.dart';
+import 'package:psico_sis/provider/parceiro_provider.dart';
 import 'package:psico_sis/themes/app_colors.dart';
-
-import '../daows/UsuarioWS.dart';
+import 'package:psico_sis/widgets/app_bar_widget2.dart';
 import '../model/Paciente.dart';
+import '../model/Parceiro.dart';
 import '../model/Usuario.dart';
+import '../provider/paciente_parceiro_provider.dart';
+import '../provider/usuario_provider.dart';
+import '../service/prefs_service.dart';
 import '../themes/app_text_styles.dart';
-import '../widgets/app_bar_widget.dart';
+import '../widgets/alert_dialog.dart';
 import '../widgets/button_widget.dart';
-import '../widgets/input_text_widget.dart';
 
 class Pacientes extends StatefulWidget {
   const Pacientes({Key? key}) : super(key: key);
@@ -20,108 +25,231 @@ class Pacientes extends StatefulWidget {
 }
 
 class _PacientesState extends State<Pacientes> {
-  late List<Paciente> _lp = [];
 
-  Future<List<Paciente>> ReadJsonData() async {
-    final jsondata =
-        await rootBundle.loadString('jsonfile/pacientes_json.json');
-    final list = json.decode(jsondata) as List<dynamic>;
-    // list.sort((a, b) => a.toString().compareTo(b.toString()));
-    // list.
-    return list.map((e) => Paciente.fromJson(e)).toList();
-  }
-
+  List<Paciente> items = [];
+  StreamSubscription<QuerySnapshot>? pacienteSubscription;
   String dropdownValue = 'Consulta Avaliativa';
   bool checkParceiro = false;
+  var db = FirebaseFirestore.instance;
+  String _uid = "";
+  late Usuario _usuario = Usuario(
+    idUsuario: 1,
+    senhaUsuario: "",
+    loginUsuario: "",
+    dataNascimentoUsuario: "",
+    telefone: "",
+    nomeUsuario: "",
+    emailUsuario: "",
+    statusUsuario: "",
+    tokenUsuario: "",
+  );
+
+  Future<Usuario> getUsuarioByUid(String uid) async {
+    print("uid getUsuarioByUid $uid");
+    if (uid.isEmpty) {
+      print("empity");
+      String _uidGet = "";
+      print("_uidGet $_uidGet");
+      return Provider.of<UsuarioProvider>(context, listen: false)
+          .getUsuarioByUid2(uid);
+    } else {
+      print(" not empity");
+      return Provider.of<UsuarioProvider>(context, listen: false)
+          .getUsuarioByUid2(uid);
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    pacienteSubscription?.cancel();
+    pacienteSubscription =
+        db.collection("pacientes").snapshots().listen(
+                (snapshot) {
+                  setState((){
+                    items = snapshot.docs.map(
+                            (documentSnapshot) => Paciente.fromMap(
+                          documentSnapshot.data(),
+                          int.parse(documentSnapshot.id),
+                        )
+                    ).toList();
+                    if (this.mounted){
+                      items.sort((a, b) => a.nome.toString().compareTo(b.nome.toString()));
+                      setState((){});
+                    }
+                  });
+
+            });
+
+    Future.wait([
+      PrefsService.isAuth().then((value) {
+        if (value) {
+          print("usuário autenticado");
+          PrefsService.getUid().then((value) {
+            _uid = value;
+            print("_uid initState $_uid");
+            getUsuarioByUid(_uid).then((value) {
+              _usuario = value;
+              print("Nome ${_usuario.nomeUsuario}");
+              if (this.mounted){
+                setState(() {});
+              }
+            });
+          });
+        } else {
+          print("usuário não conectado initState Home Assistente");
+
+          ///nav
+          Navigator.pushReplacementNamed(context, "/login");
+        }
+      }),
+    ]);
+
+  }
+
+
+
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    pacienteSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return FutureBuilder(
-        future: ReadJsonData(),
-        builder: (context, data) {
-          if (data.hasError) {
-            print("erro ao carregar o json");
-            return Center(child: Text("${data.error}"));
-          } else if (data.hasData) {
-            _lp = data.data as List<Paciente>;
-            _lp.sort((a, b) => a.nome.toString().compareTo(b.nome.toString()));
-            for (var item in _lp) print(item.nome);
-          }
-          return SafeArea(
-              child: Scaffold(
-                  appBar: const PreferredSize(
-                    preferredSize: Size.fromHeight(80),
-                    child: AppBarWidget(),
-                  ),
-                  body: Container(
-                    decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                      radius: 2.0,
-                      colors: [
-                        AppColors.shape,
-                        AppColors.primaryColor,
-                      ],
-                    )),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Center(
-                            child: Container(
-                              width: size.width * 0.45,
-                              height: size.height * 0.7,
-                              decoration: BoxDecoration(
-                                  border: Border.fromBorderSide(
-                                    BorderSide(
-                                      color: AppColors.line,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: AppColors.shape),
-                              child: SingleChildScrollView(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 16.0, right: 16.0, left: 16.0),
-                                  child: Column(
-                                    children: [
-                                      for (var item in _lp)
-                                        Card(
-                                          elevation: 8,
-                                          child: ListTile(
-                                            trailing:  InkWell(
-                                                onTap: (){},
-                                                child: const Icon(Icons.search_rounded)),
-                                            title: Column(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(item.nome.toString()),
-                                                Text("Fone: ${item.telefone}", style: AppTextStyles.labelBold16,),
-                                              ],
-                                            ),
-
-                                          ),
-                                        )
-                                    ],
-                                  ),
-                                ),
+    return SafeArea(
+        child: Scaffold(
+            appBar:  PreferredSize(
+              preferredSize: const Size.fromHeight(80),
+              child: AppBarWidget2(nomeUsuario: _usuario.nomeUsuario!),
+            ),
+            body: Container(
+              decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    radius: 2.0,
+                    colors: [
+                      AppColors.shape,
+                      AppColors.primaryColor,
+                    ],
+                  )),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Container(
+                        width: size.width * 0.45,
+                        height: size.height * 0.7,
+                        decoration: BoxDecoration(
+                            border: Border.fromBorderSide(
+                              BorderSide(
+                                color: AppColors.line,
+                                width: 1,
                               ),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                            color: AppColors.shape),
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 16.0, right: 16.0, left: 16.0),
+                            child: Column(
+                              children: [
+                                for (var item in items)
+                                  Card(
+                                    elevation: 8,
+                                    child: ListTile(
+                                      trailing:  InkWell(
+                                          onTap: (){
+                                            print(item.endereco);
+                                            String idParceiro = "";
+                                            Provider.of<PacientesParceirosProvider>(context, listen: false)
+                                                .getParceiroByPaciente(item.idPaciente!).then((value) {
+                                                  print("value $value");
+                                                idParceiro=value;
+                                                List<PacientesParceiros> listPP = [];
+                                                Provider.of<PacientesParceirosProvider>(context, listen: false)
+                                                  .getListAll().then((value)
+                                                  {
+                                                    listPP=value;
+
+                                                    List<Parceiro> listP = [];
+                                                    Provider.of<ParceiroProvider>(context, listen: false)
+                                                        .getListParceiros().then((value) {
+                                                      listP=value;
+                                                      print("existParceiro $idParceiro");
+                                                      if (idParceiro.compareTo("0")==0){
+                                                        //NÃO POSSUI PARCEIRO
+                                                        print("NÃO POSSUI PARCEIRO");
+
+                                                        print("listP ${listP.length}");
+                                                        print("idParceiro $idParceiro");
+
+                                                        print("listPP ${listPP.length}");
+                                                        print(listP.first.razaoSocial);
+                                                        ///ordenar lista parceiros
+                                                        listP.sort((a,b)=> a.razaoSocial.toString().compareTo(b.razaoSocial.toString()));
+                                                        // items.sort((a, b) => a.nome.toString().compareTo(b.nome.toString()));
+                                                        Dialogs.AlertAlterarPaciente(context, item,listP.first.razaoSocial!, idParceiro, listP,listPP, _uid);
+                                                        // Navigator.pop(context);
+                                                      } else {
+                                                        print("POSSUI PARCEIRO");
+                                                        listP.sort((a,b)=> a.razaoSocial.toString().compareTo(b.razaoSocial.toString()));
+                                                        print("idParceiro POSSUI $idParceiro");
+
+                                                        print("listPP ${listPP.length}");
+                                                        print("listP ${listP.length}");
+                                                        print("listP.first.razaoSocial! ${listP.first.razaoSocial!}");
+                                                        // print(item.)
+                                                        Dialogs.AlertAlterarPaciente(context, item,listP.first.razaoSocial!, idParceiro, listP,listPP,_uid);
+                                                        // Navigator.pushReplacementNamed(
+                                                        //     context, "/cadastro_paciente");
+                                                      }
+                                                    });
+                                                  });
+
+
+                                            } );
+                                          },
+                                          child: const Icon(Icons.edit_rounded)),
+                                      title: Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(item.nome.toString()),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text("Fone: ${item.telefone}", style: AppTextStyles.labelBold16,),
+                                              Text("Data Nascimento: ${item.dataNascimento}", style: AppTextStyles.labelBold16,),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+
+                                    ),
+                                  )
+                              ],
                             ),
                           ),
                         ),
-                        ButtonWidget(
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          height: MediaQuery.of(context).size.height * 0.1,
-                          label: "Cadastrar Paciente",
-                          onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, "/cadastro_paciente");
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                  )));
-        });
+                  ),
+                  ButtonWidget(
+                    width: MediaQuery.of(context).size.width * 0.2,
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    label: "Cadastrar Paciente",
+                    onTap: () {
+
+                      Navigator.pushReplacementNamed(
+                          context, "/cadastro_paciente");
+                    },
+                  ),
+                ],
+              ),
+            )));
   }
 }

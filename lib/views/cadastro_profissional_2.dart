@@ -4,13 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:psico_sis/model/Especialidade.dart';
-
 import '../themes/app_colors.dart';
 import '../themes/app_text_styles.dart';
-import '../widgets/alert_dialog.dart';
 import '../widgets/app_bar_widget.dart';
 import '../widgets/button_widget.dart';
-import '../widgets/input_text_widget.dart';
 import '../widgets/input_text_widget2.dart';
 
 class CadastroProfissional2 extends StatefulWidget {
@@ -44,7 +41,6 @@ class _CadastroProfissional2State extends State<CadastroProfissional2> {
     false,
   ];
 
-  late bool _valueAdulto = false;
 
   Future<List<Especialidade>> getEspecialidades() async {
     // return await PerfilWs.getInstance().getPerfis(widget.usuarioModel.tokenUsuario);

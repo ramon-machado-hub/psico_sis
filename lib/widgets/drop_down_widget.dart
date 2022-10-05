@@ -4,7 +4,9 @@ import '../themes/app_colors.dart';
 
 class DropDownWidget extends StatefulWidget {
   final List<String> list;
-  const DropDownWidget({Key? key, required this.list}) : super(key: key);
+  final String valueDrop1;
+  final void Function(String? value)? onChanged;
+  const DropDownWidget({Key? key, required this.list, required this.valueDrop1, this.onChanged}) : super(key: key);
 
   @override
   State<DropDownWidget> createState() => _DropDownWidgetState();
@@ -13,10 +15,9 @@ class DropDownWidget extends StatefulWidget {
 class _DropDownWidgetState extends State<DropDownWidget> {
 
 
-  String valueDrop = "10%";
+
   @override
   Widget build(BuildContext context) {
-
     return Container(
       height: 50,
       width: 100,
@@ -25,7 +26,7 @@ class _DropDownWidgetState extends State<DropDownWidget> {
           color: AppColors.secondaryColor),
       child: Center(
         child: DropdownButton<String>(
-          value: valueDrop,
+          value: widget.valueDrop1,
           icon: const Icon(
               Icons.arrow_drop_down_sharp),
           elevation: 16,
@@ -35,18 +36,19 @@ class _DropDownWidgetState extends State<DropDownWidget> {
             height: 2,
             color: AppColors.line,
           ),
-          onChanged: (String? newValue) {
-            setState(() {
-              print(valueDrop);
-              valueDrop = newValue!;
-              print(valueDrop);
-            });
-          },
+          onChanged: widget.onChanged,
+          // onChanged: (String? newValue) {
+          //   setState(() {
+          //     print(valueDrop);
+          //     valueDrop = newValue!;
+          //     print(valueDrop);
+          //   });
+          // },
           items: widget.list.map<DropdownMenuItem<String>>(
                   (String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text("$value %"),
                 );
               }).toList(),
         ),

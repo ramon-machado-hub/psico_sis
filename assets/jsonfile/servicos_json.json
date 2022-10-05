@@ -2,12 +2,12 @@
 
   {
     "id": 1,
-    "descricao": "AVALIAÇÃO NUTRICIONAL",
+      "descricao": "AVALIAÇÃO NUTRICIONAL",
     "qtd_pacientes": 1
   },
   {
     "id": 2,
-    "descricao": "AVALIAÇÃO PSICOLOGICA",
+    "descricao": "AVALIAÇÃO PSICOLóGICA",
     "qtd_pacientes": 1
   },
   {

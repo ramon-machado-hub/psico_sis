@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../themes/app_colors.dart';
 
 class InputTextWidget2 extends StatefulWidget {
 
@@ -42,7 +41,7 @@ class _InputTextWidget2State extends State<InputTextWidget2> {
   Widget build(BuildContext context) {
 
     return Padding(
-      padding: const EdgeInsets.only(left: 13.0),
+      padding: const EdgeInsets.only(bottom: 8, left: 30,right: 30),
       child: TextFormField(
         enableSuggestions: false,
         autocorrect: false,
@@ -55,6 +54,7 @@ class _InputTextWidget2State extends State<InputTextWidget2> {
         // style: AppTextStyles.labelBlack12,
         inputFormatters: [
           FilteringTextInputFormatter(RegExp(r'[0-9]'), allow: true)
+
         ],
         decoration: InputDecoration(
             fillColor: widget.backgroundColor,
@@ -69,5 +69,13 @@ class _InputTextWidget2State extends State<InputTextWidget2> {
             border: InputBorder.none),
       ),
     );
+  }
+}
+
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return newValue.copyWith(text: newValue.text.toUpperCase());
   }
 }

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:psico_sis/model/log_sistema.dart';
+import 'package:psico_sis/provider/log_provider.dart';
+import 'package:psico_sis/service/prefs_service.dart';
+import '../provider/usuario_provider.dart';
+import '../service/authenticate_service.dart';
 import '../themes/app_colors.dart';
+import '../themes/app_images.dart';
 import '../themes/app_text_styles.dart';
 import '../widgets/button_widget.dart';
+import '../widgets/input_text_lower_widget.dart';
 import '../widgets/input_text_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,11 +20,48 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+
+  String _email1 ="";
+  String _password1="";
+
+  //mensagem de avisos
+  void showSnackBar(String message) {
+    SnackBar snack = SnackBar(
+      backgroundColor: AppColors.secondaryColor,
+      content: Text(
+        message,
+        style: AppTextStyles.labelWhite16Lex,
+        textAlign: TextAlign.center,
+      ),
+      duration: const Duration(seconds: 2),
+      margin: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+      behavior: SnackBarBehavior.floating,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snack);
+  }
+
+
+
+  @override
+  void initState(){
+    super.initState();
+    Future.wait([
+      PrefsService.isAuth().then((value) {
+        if (value){
+          print("inistate login");
+          Navigator.pushReplacementNamed(
+                    context, "/home_assistente");
+        }
+      }),
+    ]);
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
     final _form = GlobalKey<FormState>();
-    String _email;
-    String _password;
+
     return Container(
       child: Scaffold(
         backgroundColor: AppColors.shape,
@@ -26,6 +71,19 @@ class _LoginPageState extends State<LoginPage> {
               key: _form,
               child: Column(
                 children: [
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.asset(
+                          height: 175,
+                          width:  350,
+                          fit: BoxFit.fill,
+                          AppImages.logoVertical3),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30,
+                  ),
                   Container(
                     decoration: BoxDecoration(
                       color: AppColors.primaryColor,
@@ -48,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
 
                         //email
-                        InputTextWidget(
+                        InputTextLowerWidget(
                           backgroundColor: AppColors.shape,
                           borderColor: AppColors.line,
                           icon: Icons.email,
@@ -65,7 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                             return null;
                           },
                           onChanged: (value) {
-                            _email = value;
+                            _email1 = value;
                           },
                         ),
                         SizedBox(
@@ -94,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                             // value?.isEmpty ?? true ? "O email não pode ser vazio" : null;
                           },
                           onChanged: (value) {
-                            _email = value;
+                            _password1 = value;
                           },
                         )
                       ],
@@ -108,7 +166,48 @@ class _LoginPageState extends State<LoginPage> {
                     height: MediaQuery.of(context).size.height * 0.1,
                     label: "Entrar",
                     onTap: () {
-                      Navigator.pushReplacementNamed(context, "/home_assistente");
+                      if (_form.currentState!.validate()){
+                        AuthenticateService().signIn(email: _email1, password: _password1).then((result) {
+                          if (result == null) {
+                            print("logou");
+                            String uid = Provider.of<UsuarioProvider>(context, listen: false)
+                                .getDataUid();
+                            print("uid antes do save $uid");
+                            PrefsService.save(uid).then((value) {
+                              PrefsService.isAuth().then((value) => print("value $value"));
+                              PrefsService.getUid().then((value) => print("uidPrefs $value"));
+                            });
+                            Provider.of<UsuarioProvider>(
+                                context, listen: false).getUsuarioByUid2(uid)
+                                .then((usuario)  {
+
+                                  Provider.of<LogProvider>(context, listen: false)
+                                      .put(LogSistema(
+                                    data: DateTime.now().toString(),
+                                    uid_usuario: uid,
+                                    descricao: "Login",
+                                    id_transacao: 0,
+                                  )).then((value)  {
+                                    if (usuario.tipoUsuario=="ASSISTENTE"){
+                                      Navigator.pushReplacementNamed(context, "/home_assistente",);
+                                      // Navigator.pushNamedAndRemoveUntil(context, "/home_assistente",(_) => false);
+                                    } else {
+                                      Navigator.pushReplacementNamed(context, "/login",);
+                                    }
+                                  });
+                                });
+
+
+                            // Navigator.pushReplacementNamed(context, "/home_assistente", arguments: uid);
+
+                          } else {
+                            showSnackBar(
+                                "Login inválido ou senha inválida");
+                          }
+                        });
+
+                      }
+
                     },
                   ),
 

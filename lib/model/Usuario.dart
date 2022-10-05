@@ -1,11 +1,15 @@
 class Usuario {
-  int? _idUsuario;
-  String? _nomeUsuario;
-  String? _loginUsuario;
-  String? _emailUsuario;
-  String? _senhaUsuario;
-  String? _statusUsuario;
-  String? _tokenUsuario;
+  int? idUsuario;
+  String? UidUsuario;
+  String? nomeUsuario;
+  String? loginUsuario;
+  String? emailUsuario;
+  String? senhaUsuario;
+  String? statusUsuario;
+  String? tokenUsuario;
+  String? dataNascimentoUsuario;
+  String? telefone;
+  String? tipoUsuario;
 
   Usuario(
       {int? idUsuario,
@@ -14,64 +18,111 @@ class Usuario {
         String? emailUsuario,
         String? senhaUsuario,
         String? statusUsuario,
-        String? tokenUsuario}) {
+        String? tokenUsuario,
+        String? dataNascimentoUsuario,
+        String? telefone,
+        String? tipoUsuario
+      }) {
     if (idUsuario != null) {
-      this._idUsuario = idUsuario;
+      this.idUsuario = idUsuario;
     }
     if (nomeUsuario != null) {
-      this._nomeUsuario = nomeUsuario;
+      this.nomeUsuario = nomeUsuario;
     }
     if (loginUsuario != null) {
-      this._loginUsuario = loginUsuario;
+      this.loginUsuario = loginUsuario;
     }
     if (emailUsuario != null) {
-      this._emailUsuario = emailUsuario;
+      this.emailUsuario = emailUsuario;
     }
     if (senhaUsuario != null) {
-      this._senhaUsuario = senhaUsuario;
+      this.senhaUsuario = senhaUsuario;
     }
     if (statusUsuario != null) {
-      this._statusUsuario = statusUsuario;
+      this.statusUsuario = statusUsuario;
     }
     if (tokenUsuario != null) {
-      this._tokenUsuario = tokenUsuario;
+      this.tokenUsuario = tokenUsuario;
     }
+    if (dataNascimentoUsuario != null) {
+      this.dataNascimentoUsuario = dataNascimentoUsuario;
+    }
+    if (telefone != null) {
+      this.telefone = telefone;}
+    if (tipoUsuario != null) {
+      this.tipoUsuario = tipoUsuario;
+    }
+
   }
 
-  int? get idUsuario => _idUsuario;
-  set idUsuario(int? idUsuario) => _idUsuario = idUsuario;
-  String? get nomeUsuario => _nomeUsuario;
-  set nomeUsuario(String? nomeUsuario) => _nomeUsuario = nomeUsuario;
-  String? get loginUsuario => _loginUsuario;
-  set loginUsuario(String? loginUsuario) => _loginUsuario = loginUsuario;
-  String? get emailUsuario => _emailUsuario;
-  set emailUsuario(String? emailUsuario) => _emailUsuario = emailUsuario;
-  String? get senhaUsuario => _senhaUsuario;
-  set senhaUsuario(String? senhaUsuario) => _senhaUsuario = senhaUsuario;
-  String? get statusUsuario => _statusUsuario;
-  set statusUsuario(String? statusUsuario) => _statusUsuario = statusUsuario;
-  String? get tokenUsuario => _tokenUsuario;
-  set tokenUsuario(String? tokenUsuario) => _tokenUsuario = tokenUsuario;
 
   Usuario.fromJson(Map<String, dynamic> json) {
-    _idUsuario = json['idUsuario'];
-    _nomeUsuario = json['nomeUsuario'];
-    _loginUsuario = json['loginUsuario'];
-    _emailUsuario = json['emailUsuario'];
-    _senhaUsuario = json['senhaUsuario'];
-    _statusUsuario = json['statusUsuario'];
-    _tokenUsuario = json['tokenUsuario'];
+    idUsuario = json['idUsuario'];
+    nomeUsuario = json['nomeUsuario'];
+    loginUsuario = json['loginUsuario'];
+    emailUsuario = json['emailUsuario'];
+    senhaUsuario = json['senhaUsuario'];
+    statusUsuario = json['statusUsuario'];
+    tokenUsuario = json['tokenUsuario'];
+    dataNascimentoUsuario = json['dataNascimentoUsuario'];
+    telefone = json['telefone'];
+    tipoUsuario = json['tipoUsuario'];
+  }
+
+  factory Usuario.fromJson1(dynamic json) {
+    return Usuario(
+        idUsuario: int.parse(json['idUsuario']),
+        nomeUsuario: json['nomeUsuario'] as String,
+        loginUsuario: json['loginUsuario'] as String,
+        emailUsuario: json['emailUsuario'] as String,
+        senhaUsuario: json['senhaUsuario'] as String,
+        statusUsuario: json['statusUsuario'] as String,
+        tokenUsuario: json['tokenUsuario'] as String,
+        dataNascimentoUsuario: json['dataNascimentoUsuario'] as String,
+        telefone: json['telefone'] as String,
+        tipoUsuario: json['tipoUsuario'] as String,
+    );
+  }
+
+    Usuario.fromSnapshot(String uid, Map<String, dynamic> snapshot){
+    print("Usuario.fromSnapshot");
+    this.idUsuario = int.parse(snapshot['idUsuario']);
+    this.emailUsuario = snapshot['emailUsuario'];
+    this.senhaUsuario = snapshot['senhaUsuario'];
+    this.statusUsuario = snapshot['statusUsuario'];
+    this.nomeUsuario = snapshot['nomeUsuario'];
+    this.loginUsuario = snapshot['loginUsuario'];
+    this.tokenUsuario = snapshot['tokenUsuario'];
+    this.dataNascimentoUsuario = snapshot['dataNascimentoUsuario'];
+    this.telefone = snapshot['telefone'];
+    this.tipoUsuario = snapshot['tipoUsuario'];
+  }
+
+  Usuario.fromMap(Map<String, dynamic> map, int id){
+    this.idUsuario = id;
+    this.emailUsuario = map['emailUsuario'];
+    this.senhaUsuario = map['senhaUsuario'];
+    this.statusUsuario = map['statusUsuario'];
+    this.nomeUsuario = map['nomeUsuario'];
+    this.loginUsuario = map['loginUsuario'];
+    this.tokenUsuario = map['tokenUsuario'];
+    this.dataNascimentoUsuario = map['dataNascimentoUsuario'];
+    this.telefone = map['telefone'];
+    this.tipoUsuario = map['tipoUsuario'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['idUsuario'] = this._idUsuario;
-    data['nomeUsuario'] = this._nomeUsuario;
-    data['loginUsuario'] = this._loginUsuario;
-    data['emailUsuario'] = this._emailUsuario;
-    data['senhaUsuario'] = this._senhaUsuario;
-    data['statusUsuario'] = this._statusUsuario;
-    data['tokenUsuario'] = this._tokenUsuario;
+    data['idUsuario'] = this.idUsuario;
+    data['nomeUsuario'] = this.nomeUsuario;
+    data['loginUsuario'] = this.loginUsuario;
+    data['emailUsuario'] = this.emailUsuario;
+    data['senhaUsuario'] = this.senhaUsuario;
+    data['statusUsuario'] = this.statusUsuario;
+    data['tokenUsuario'] = this.tokenUsuario;
+    data['dataNascimentoUsuario'] = this.dataNascimentoUsuario;
+    data['telefone'] = this.telefone;
+    data['tipoUsuario'] = this.tipoUsuario;
     return data;
   }
 }

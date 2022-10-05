@@ -22,7 +22,6 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
 
   late List<Usuario> _ls = [];
   late List<Profissional> _lp = [];
-  late List<Profissional> _lpacientes = [];
 
   Future<void> carregarUsuarios() async {
     _ls = await UsuarioWS.getInstance().getAll("");
@@ -118,7 +117,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                           child: ListTile(
                                             leading: Icon(Icons.person),
                                             title: Text(item.nome.toString()),
-                                            subtitle: Text(item.especialidade.toString()),
+                                            subtitle: Text(item.telefone.toString()),
 
                                           ),
                                         )
@@ -495,7 +494,6 @@ Widget linhaAgenda(context, String text, Color color1, Color color2) {
 showAlertDialog(
     BuildContext context, String paciente, String hora, String profissional) {
   bool _check1 = false;
-  bool _check2 = false;
   bool _check3 = false;
   // Create button
   Widget okButton = ElevatedButton(

@@ -7,14 +7,9 @@ import 'package:psico_sis/model/dias_salas_profissionais.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
 import 'package:psico_sis/widgets/alert_dialog.dart';
-import 'package:psico_sis/widgets/app_bar_widget.dart';
-
-import '../daows/UsuarioWS.dart';
 import '../model/Paciente.dart';
-import '../model/Usuario.dart';
 import '../model/Profissional.dart';
 import '../model/consulta.dart';
-import 'pacientes.dart';
 
 class Agenda extends StatefulWidget {
   const Agenda({Key? key}) : super(key: key);
@@ -307,7 +302,9 @@ class _AgendaState extends State<Agenda> {
                     child:  IconButton(
                       iconSize: 200,
                       onPressed: (){
-                        Dialogs.AlertOpcoesConsulta(context, consulta);
+
+                        Dialogs.AlertFinalizarConsulta(context, consulta);
+                        // Dialogs.AlertOpcoesConsulta(context, consulta);
                       },
                       icon: Icon(
                           Icons.assignment_turned_in_rounded,

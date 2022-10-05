@@ -5,8 +5,8 @@ class Profissional {
   String? endereco;
   String? telefone;
   String? dataNascimento;
-  String? especialidade;
-  String? codigoEspecialidade;
+  String? numero;
+  String? status;
 
   Profissional(
       {this.id,
@@ -15,8 +15,9 @@ class Profissional {
         this.endereco,
         this.telefone,
         this.dataNascimento,
-        this.especialidade,
-        this.codigoEspecialidade});
+        this.numero,
+        this.status
+      });
 
   Profissional.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -25,8 +26,18 @@ class Profissional {
     endereco = json['endereco'];
     telefone = json['telefone'];
     dataNascimento = json['data_nascimento'];
-    especialidade = json['especialidade'];
-    codigoEspecialidade = json['codigo_especialidade'];
+    numero = json['numero'];
+    status = json['status'];
+  }
+  Profissional.fromMap(Map<String, dynamic> map, int id){
+    this.id = id;
+    this.status = map['status'];
+    this.telefone = map['telefone'];
+    this.endereco = map['endereco'];
+    this.nome = map['nome'];
+    this.cpf = map['cpf'];
+    this.dataNascimento = map['data_nascimento'];
+    this.numero = map['numero'];
   }
 
   Map<String, dynamic> toJson() {
@@ -37,8 +48,8 @@ class Profissional {
     data['endereco'] = this.endereco;
     data['telefone'] = this.telefone;
     data['data_nascimento'] = this.dataNascimento;
-    data['especialidade'] = this.especialidade;
-    data['codigo_especialidade'] = this.codigoEspecialidade;
+    data['numero'] = this.numero;
+    data['status'] = this.status;
     return data;
   }
 }

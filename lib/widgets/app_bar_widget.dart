@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
 
 import '../themes/app_colors.dart';
 
 class AppBarWidget extends StatefulWidget {
+
   const AppBarWidget({Key? key}) : super(key: key);
 
   @override
@@ -19,7 +19,6 @@ class _AppBarWidgetState extends State<AppBarWidget> {
   Widget build(BuildContext context) {
     DateTime  data  = DateTime.now();
     String hora = "${data.hour}:${data.minute}";
-    String dataAtual = "${data.day}/${data.month}";
     return AppBar(
         toolbarHeight: 80,
         centerTitle: true,
