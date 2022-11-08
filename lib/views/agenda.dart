@@ -9,7 +9,7 @@ import 'package:psico_sis/themes/app_text_styles.dart';
 import 'package:psico_sis/widgets/alert_dialog.dart';
 import '../model/Paciente.dart';
 import '../model/Profissional.dart';
-import '../model/consulta.dart';
+import '../model/sessao.dart';
 
 class Agenda extends StatefulWidget {
   const Agenda({Key? key}) : super(key: key);
@@ -30,7 +30,7 @@ class _AgendaState extends State<Agenda> {
   late String _data;
   late String _dia;
   late List<Profissional> _lprofissionais;
-  late List<Consulta> _lconsultas = [];
+  late List<Sessao> _lconsultas = [];
   late List<Paciente> _lpacientes = [];
   late List<DiasSalasProfissionais> _ldiasSalasProfissionais = [];
 
@@ -80,11 +80,11 @@ class _AgendaState extends State<Agenda> {
   }
 
   //carrega consultas para o futurebuilder
-  Future<List<Consulta>> readConsultas() async {
+  Future<List<Sessao>> readConsultas() async {
     final jsondata =
         await rootBundle.loadString('jsonfile/consultas_json.json');
     final list = json.decode(jsondata) as List<dynamic>;
-    return list.map((e) => Consulta.fromJson(e)).toList();
+    return list.map((e) => Sessao.fromJson(e)).toList();
   }
 
   DiasSalasProfissionais? getDiasSalasProfissionaisByDiaSalaHora(
@@ -92,12 +92,12 @@ class _AgendaState extends State<Agenda> {
     try {
       for (int i = 0; i < _ldiasSalasProfissionais.length; i++) {
         if ((_ldiasSalasProfissionais[i]
-                    .descDia
+                    .dia
                     ?.toLowerCase()
                     .compareTo(dia.toLowerCase()) ==
                 0) &&
             (_ldiasSalasProfissionais[i]
-                    .descSala
+                    .sala
                     ?.toLowerCase()
                     .compareTo(sala.toLowerCase()) ==
                 0) &&
@@ -119,13 +119,13 @@ class _AgendaState extends State<Agenda> {
   }
 
   //pesquisa se existe alguma consulta naquela data hora e sala
-  Consulta? getConsultaByDataAndHoraAndSala(
-      List<Consulta> list, String data, String sala, String hora) {
+  Sessao? getConsultaByDataAndHoraAndSala(
+      List<Sessao> list, String data, String sala, String hora) {
     try {
       for (int i = 0; i < list.length; i++) {
-        if ((list[i].dataConsulta?.compareTo(data) == 0) &&
-            (list[i].salaConsulta?.compareTo(sala) == 0) &&
-            (list[i].horarioConsulta?.compareTo(hora) == 0)) {
+        if ((list[i].dataSessao?.compareTo(data) == 0) &&
+            (list[i].salaSessao?.compareTo(sala) == 0) &&
+            (list[i].horarioSessao?.compareTo(hora) == 0)) {
           print("data saldata sala hora verificada");
           return list[i];
         }
@@ -222,8 +222,8 @@ class _AgendaState extends State<Agenda> {
 
   //retorna card com informações daquele horario
   Widget getWidgetAgenda(
-      List<Consulta> list, String data, String hora, String sala) {
-    Consulta? consulta =
+      List<Sessao> list, String data, String hora, String sala) {
+    Sessao? consulta =
         getConsultaByDataAndHoraAndSala(list, data, sala, hora);
     DiasSalasProfissionais? diasSalas =
         getDiasSalasProfissionaisByDiaSalaHora(_dia, sala, hora);
@@ -274,7 +274,7 @@ class _AgendaState extends State<Agenda> {
                         height: MediaQuery.of(context).size.height * 0.019,
                         child: FittedBox(
                             child: Text(
-                          consulta.horarioConsulta.toString(),
+                          consulta.horarioSessao.toString(),
                           style: AppTextStyles.subTitleBlack14,
                         )),
                       ),
@@ -508,8 +508,8 @@ class _AgendaState extends State<Agenda> {
             print("entrou");
             // _lprofissionais = data.data as List<Profissional>;
             if (_lconsultas.isEmpty) {
-              _lconsultas = data.data as List<Consulta>;
-              for (var item in _lconsultas) print(item.horarioConsulta);
+              _lconsultas = data.data as List<Sessao>;
+              for (var item in _lconsultas) print(item.horarioSessao);
             }
           }
           return SafeArea(

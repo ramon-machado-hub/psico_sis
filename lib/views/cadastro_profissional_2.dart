@@ -68,10 +68,10 @@ class _CadastroProfissional2State extends State<CadastroProfissional2> {
               _le = data.data as List<Especialidade>;
               _le.sort((a, b) =>
                   a.descricao.toString().compareTo(b.descricao.toString()));
-              dropdownEspecialidade = _le[0].descricao;
+              dropdownEspecialidade = _le[0].descricao!;
               especialidadeSelected = _le[0];
               for (var item in _le){
-                _dropEspecialidades.add(item.descricao);
+                _dropEspecialidades.add(item.descricao!);
                 print(item.descricao);
               }
             }

@@ -1,4 +1,5 @@
 class Usuario {
+
   int? idUsuario;
   String? UidUsuario;
   String? nomeUsuario;
@@ -10,6 +11,11 @@ class Usuario {
   String? dataNascimentoUsuario;
   String? telefone;
   String? tipoUsuario;
+  late final String _id;
+  String get id1 => _id;
+  set id1(String value) {
+    _id = value;
+  }
 
   Usuario(
       {int? idUsuario,
@@ -57,7 +63,7 @@ class Usuario {
 
 
   Usuario.fromJson(Map<String, dynamic> json) {
-    idUsuario = json['idUsuario'];
+    idUsuario = int.parse(json['idUsuario']);
     nomeUsuario = json['nomeUsuario'];
     loginUsuario = json['loginUsuario'];
     emailUsuario = json['emailUsuario'];
@@ -84,7 +90,7 @@ class Usuario {
     );
   }
 
-    Usuario.fromSnapshot(String uid, Map<String, dynamic> snapshot){
+  Usuario.fromSnapshot(String uid, Map<String, dynamic> snapshot){
     print("Usuario.fromSnapshot");
     this.idUsuario = int.parse(snapshot['idUsuario']);
     this.emailUsuario = snapshot['emailUsuario'];

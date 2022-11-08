@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../model/Usuario.dart';
 
 class UsuarioProvider  with ChangeNotifier{
+
+  List<Usuario> listUsuario = [];
   var db = FirebaseFirestore.instance;
 
   Future<int> getCount() async {
@@ -25,7 +27,13 @@ class UsuarioProvider  with ChangeNotifier{
     return db.collection('usuarios').doc(uid).snapshots();
   }
 
+  Future<QuerySnapshot> getUsuarios2() async{
+    return await db.collection('usuarios').get();
+  }
 
+  void setListUsuarios(List<Usuario> list){
+      this.listUsuario = list;
+  }
   
   Future<Usuario> getUsuarioByUid2(String uid) async {
         DocumentSnapshot documentSnapshot = await
@@ -56,6 +64,9 @@ class UsuarioProvider  with ChangeNotifier{
   }
 
 
+
+
+
   String getDataUid()  {
     FirebaseAuth auth = FirebaseAuth.instance;
     final User? user = auth.currentUser;
@@ -64,8 +75,38 @@ class UsuarioProvider  with ChangeNotifier{
     return uid.toString();
   }
 
-  Future<void> put(Usuario usuario) async {
+  Future<List<Usuario>> getUsuarios() async {
+    final querySnapshot = await db.collection('usuarios').get();
+    final login = querySnapshot.docs.map((e) {
+      final json = e.data();
+      // Now here is where the magic happens.
+      // We transform the data in to Product object.
+      final user = Usuario.fromJson(e.data());
+      // Setting the id value of the product object.
+      user.id1 = e.id;
+      return user;
+    }).toList();
+    return login;
+  }
 
+  Future<void> put2(Usuario usuario, String id) async {
+    // Usuario usuarioSave;
+        db.collection('back_usuarios').doc(id).set({
+          'idUsuario': usuario.idUsuario,
+          'nomeUsuario': usuario.nomeUsuario,
+          'loginUsuario': usuario.loginUsuario,
+          'emailUsuario': usuario.emailUsuario,
+          'senhaUsuario': usuario.senhaUsuario,
+          'statusUsuario': usuario.statusUsuario,
+          'tokenUsuario': usuario.tokenUsuario,
+          'dataNascimentoUsuario': usuario.dataNascimentoUsuario,
+          'telefone': usuario.telefone,
+          'tipoUsuario': usuario.tipoUsuario
+        });
+  }
+
+  Future<int?> put(Usuario usuario) async {
+    // Usuario usuarioSave;
     if (usuario.idUsuario == null) {
       String uid = getDataUid();
       print("uid putTTT $uid");
@@ -85,11 +126,13 @@ class UsuarioProvider  with ChangeNotifier{
           'telefone': usuario.telefone,
           'tipoUsuario': usuario.tipoUsuario
         });
+        return id;
       });
 
     }else {
       //alterar
       db.collection('usuarios').doc(usuario.idUsuario.toString()).set({
+        'idUsuario': usuario.idUsuario,
         'nomeUsuario': usuario.nomeUsuario,
         'loginUsuario': usuario.loginUsuario,
         'emailUsuario': usuario.emailUsuario,
@@ -100,6 +143,7 @@ class UsuarioProvider  with ChangeNotifier{
         'telefone': usuario.telefone,
         'tipoUsuario': usuario.tipoUsuario
       });
+      return usuario.idUsuario!;
     }
   }
 }

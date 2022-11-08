@@ -67,11 +67,6 @@ class _CadastroParceiroState extends State<CadastroParceiro> {
 
   }
 
-  bool containParceiro(String cnpj){
-    return false;
-  }
-
-
   @override
   void initState(){
     super.initState();
@@ -350,7 +345,7 @@ class _CadastroParceiroState extends State<CadastroParceiro> {
                           data: DateTime.now().toString(),
                           uid_usuario: _uid,
                           descricao: "INSERIU PARCEIRO",
-                          id_transacao: value1+1,
+                          id_transacao: (value1+1).toString(),
                         ));
                         // Navigator.pushReplacementNamed(context, "/home_assistente");
                           Navigator.pushReplacementNamed(context, "/cadastro_parceiro");

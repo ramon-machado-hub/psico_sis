@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psico_sis/model/log_sistema.dart';
 import 'package:psico_sis/provider/log_provider.dart';
+import 'package:psico_sis/provider/login_provider.dart';
 import 'package:psico_sis/service/prefs_service.dart';
 import '../provider/usuario_provider.dart';
 import '../service/authenticate_service.dart';
@@ -177,26 +178,56 @@ class _LoginPageState extends State<LoginPage> {
                               PrefsService.isAuth().then((value) => print("value $value"));
                               PrefsService.getUid().then((value) => print("uidPrefs $value"));
                             });
-                            Provider.of<UsuarioProvider>(
-                                context, listen: false).getUsuarioByUid2(uid)
-                                .then((usuario)  {
-
+                            // Provider.of<>
+                            bool teste = false;
+                            Provider.of<LoginProvider>(context, listen: false)
+                              .getLoginByUid2(uid).then((value) {
+                                if (value.tipo_usuario!.compareTo("ASSISTENTE")==0){
                                   Provider.of<LogProvider>(context, listen: false)
                                       .put(LogSistema(
                                     data: DateTime.now().toString(),
                                     uid_usuario: uid,
                                     descricao: "Login",
-                                    id_transacao: 0,
-                                  )).then((value)  {
-                                    if (usuario.tipoUsuario=="ASSISTENTE"){
-                                      Navigator.pushReplacementNamed(context, "/home_assistente",);
-                                      // Navigator.pushNamedAndRemoveUntil(context, "/home_assistente",(_) => false);
-                                    } else {
-                                      Navigator.pushReplacementNamed(context, "/login",);
-                                    }
-                                  });
-                                });
+                                    id_transacao: "0",
+                                  )).then((value) =>
+                                  Navigator.pushReplacementNamed(context, "/home_assistente",));
+                                } else
+                                  if( (value.tipo_usuario!.compareTo("PROFISSIONAL")==0))
+                                    Provider.of<LogProvider>(context, listen: false)
+                                        .put(LogSistema(
+                                    data: DateTime.now().toString(),
+                                    uid_usuario: uid,
+                                    descricao: "Login",
+                                    id_transacao: "0",
+                                    )).then((value) => Navigator.pushReplacementNamed(context, "/home",));
+                                    // Navigator.pushReplacementNamed(context, "/home_page",);
 
+                                  });
+
+                            // Provider.of<UsuarioProvider>(
+                            //     context, listen: false).getUsuarioByUid2(uid)
+                            //     .then((usuario)  {
+                            //       teste = true;
+
+                                  // Provider.of<LogProvider>(context, listen: false)
+                                  //     .put(LogSistema(
+                                  //   data: DateTime.now().toString(),
+                                  //   uid_usuario: uid,
+                                  //   descricao: "Login",
+                                  //   id_transacao: 0,
+                                  // )).then((value)  {
+                                  //   if (usuario.tipoUsuario=="ASSISTENTE"){
+                                  //     Navigator.pushReplacementNamed(context, "/home_assistente",);
+                                  //     // Navigator.pushNamedAndRemoveUntil(context, "/home_assistente",(_) => false);
+                                  //   } else {
+                                  //
+                                  //     Navigator.pushReplacementNamed(context, "/login",);
+                                  //   }
+                                  // });
+                                // });
+                              if (teste=false){
+                                    //re
+                              }
 
                             // Navigator.pushReplacementNamed(context, "/home_assistente", arguments: uid);
 

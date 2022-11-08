@@ -1,28 +1,35 @@
 class DiasSalasProfissionais {
   int? id;
-  String? descDia;
-  String? descSala;
+  String? dia;
+  String? sala;
   int? idProfissional;
   String? hora;
+  late final String _id;
+  String get id1 => _id;
+  set id1(String value) {
+    _id = value;
+  }
 
   DiasSalasProfissionais(
-      {this.id, this.descDia, this.descSala, this.idProfissional, this.hora});
+      {this.id, this.dia, this.sala, this.idProfissional, this.hora});
 
   DiasSalasProfissionais.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    descDia = json['desc_dia'];
-    descSala = json['desc_sala'];
-    idProfissional = json['id_profissional'];
+    id = int.parse(json['id']);
+    dia = json['dia'];
+    sala = json['sala'];
+    idProfissional = int.parse(json['id_profissional']);
     hora = json['hora'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
-    data['desc_dia'] = this.descDia;
-    data['desc_sala'] = this.descSala;
+    data['dia'] = this.dia;
+    data['sala'] = this.sala;
     data['id_profissional'] = this.idProfissional;
     data['hora'] = this.hora;
     return data;
   }
+
+
 }

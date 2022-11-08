@@ -10,6 +10,7 @@ class InputTextWidgetMask extends StatefulWidget {
   final Color backgroundColor;
   final Color borderColor;
   final Color iconColor;
+  final double? padding;
   final String? initalValue;
   final String? Function(String?)? validator;
   final TextEditingController? controller;
@@ -32,6 +33,7 @@ class InputTextWidgetMask extends StatefulWidget {
     this.onChanged,
     this.initalValue,
     this.validator,
+    this.padding,
     this.controller}) : super(key: key);
 
   @override
@@ -43,7 +45,9 @@ class _InputTextWidgetMaskState extends State<InputTextWidgetMask> {
   Widget build(BuildContext context) {
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8, left: 30,right: 30),
+      padding: EdgeInsets.only(bottom: 8,
+          left: (widget.padding!=null) ? widget.padding! : 30,
+          right: (widget.padding!=null) ? widget.padding! : 30,),
       child: TextFormField(
         enableSuggestions: false,
         autocorrect: false,

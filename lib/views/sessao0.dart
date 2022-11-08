@@ -376,11 +376,14 @@ class _Sessao0State extends State<Sessao0> {
                                                         child: FittedBox(
                                                           fit: BoxFit.scaleDown,
                                                           alignment: Alignment.centerLeft,
-                                                          child: Text(getDescServicoById(
-                                                              _lServByProfissional[
-                                                              index]
-                                                                  .idServico,
-                                                              _lServicos),
+                                                          child: Text(
+
+                                                              "id",
+                                                              // getDescServicoById(
+                                                              // _lServByProfissional[
+                                                              // index]
+                                                              //     .idServico,
+                                                              // _lServicos),
                                                             style: AppTextStyles.labelBlack14Lex,),
                                                         ),
                                                       ),
@@ -424,11 +427,11 @@ class _Sessao0State extends State<Sessao0> {
                                                               _selectValorServico =
                                                                 _lServByProfissional[index].valor! as double;
                                                               _servicoProfissional = _lServByProfissional[index];
-                                                              _selectServico = getDescServicoById(
-                                                                  _lServByProfissional[
-                                                                  index]
-                                                                      .idServico,
-                                                                  _lServicos);
+                                                              // _selectServico = getDescServicoById(
+                                                              //     _lServByProfissional[
+                                                              //     index]
+                                                              //         .idServico,
+                                                              //     _lServicos);
                                                               setState((){});
                                                             }
                                                           },

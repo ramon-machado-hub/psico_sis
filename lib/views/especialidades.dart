@@ -90,7 +90,7 @@ class _EspecialidadesState extends State<Especialidades> {
           items = snapshot.docs
               .map((documentSnapshot) => Especialidade.fromMap(
             documentSnapshot.data(),
-            int.parse(documentSnapshot.id),
+            documentSnapshot.id,
           ))
               .toList();
           items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));

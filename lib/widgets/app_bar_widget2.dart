@@ -138,7 +138,7 @@ class _AppBarWidget2State extends State<AppBarWidget2> {
                       data: DateTime.now().toString(),
                       uid_usuario: uid,
                       descricao: "Logout",
-                      id_transacao: 0,
+                      id_transacao: "0",
                     )).then((value) {
                         PrefsService.logout();
                         Navigator.pushReplacementNamed(context, "/login");

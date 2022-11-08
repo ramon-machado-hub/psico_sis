@@ -2,7 +2,7 @@ class LogSistema {
   int? id;
   String? uid_usuario;
   String? descricao;
-  int? id_transacao;
+  String? id_transacao;
   String? data;
 
   LogSistema({this.id, this.uid_usuario, this.descricao, this.id_transacao, this.data});

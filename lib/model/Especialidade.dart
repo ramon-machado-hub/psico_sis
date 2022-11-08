@@ -1,28 +1,37 @@
 class Especialidade {
-  int? idEspecialidade;
-  late String descricao;
+  String? idEspecialidade;
+  String? descricao;
+  late final String _id;
+  String get id1 => _id;
+  set id1(String value) {
+    _id = value;
+  }
 
-  Especialidade({this.idEspecialidade, required this.descricao});
+  Especialidade({
+    this.idEspecialidade,
+    this.descricao});
+
+  // Usuario.fromJson(Map<String, dynamic> json) {
 
   Especialidade.fromJson(Map<String, dynamic> json) {
-    idEspecialidade = json['id_especialidade'];
+    // idEspecialidade = json['id_especialidade'];
     descricao = json['descricao'];
   }
 
   factory Especialidade.fromJson1(dynamic json) {
     return Especialidade(
-      idEspecialidade: int.parse(json['id']),
+      idEspecialidade: (json['id']),
       descricao: json['descricao'],
     );
   }
 
-  Especialidade.fromMap(Map<String, dynamic> map, int id){
+  Especialidade.fromMap(Map<String, dynamic> map, String id){
     this.idEspecialidade = id;
     this.descricao = map['descricao'];
   }
 
-  Especialidade.fromSnapshot(int id, Map<String, dynamic> snapshot){
-    print("fromSnapshot Especialidades");
+  Especialidade.fromSnapshot(String id, Map<String, dynamic> snapshot){
+    print("fromSnapshot Especialidade");
     this.idEspecialidade = id;
     this.descricao = snapshot['descricao'];
   }

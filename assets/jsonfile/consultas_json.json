@@ -1,13 +1,13 @@
 [
   {
     "id_consulta": 1,
+    "id_profissional":1,
+    "id_paciente": 1,
     "data_consulta": "13/08/2022",
     "horario_consulta": "08:00",
     "valor": 150,
-    "tp_consulta": "CONSULTA PRESENCIAL",
+    "tp_sessao": "CONSULTA PRESENCIAL",
     "desc_consulta": "CONSULTA",
-    "id_profissional":1,
-    "id_paciente": 1,
     "sala_consulta": "SALA 1",
     "status_consulta": "AGENDADA",
     "situacao_consulta": "PENDENTE"

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:psico_sis/arguments/sessao4_arguments.dart';
-import '../model/consulta.dart';
+import '../model/sessao.dart';
 import '../model/servico.dart';
 import '../themes/app_colors.dart';
 import '../themes/app_text_styles.dart';
@@ -20,7 +20,7 @@ class Sessao4 extends StatefulWidget {
 class _Sessao4State extends State<Sessao4> {
 
 
-  late List<Consulta> _lSessoes = [];
+  late List<Sessao> _lSessoes = [];
   late List<Servico> _lServicos = [];
 
   Future<void> ReadJsonDataServico() async {
@@ -42,7 +42,7 @@ class _Sessao4State extends State<Sessao4> {
 
     final list = json.decode(jsondata) as List<dynamic>;
     setState(() {
-      _lSessoes = list.map((e) => Consulta.fromJson(e)).toList();
+      _lSessoes = list.map((e) => Sessao.fromJson(e)).toList();
       print("_lSessoes ${_lSessoes.length}");
     });
   }
@@ -168,9 +168,9 @@ class _Sessao4State extends State<Sessao4> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   const Text("Tipo de Serviço: "),
-                                  Text(getDescServicoById(
-                                      widget.arguments.servicoProfissional.idServico),
-                                    style: AppTextStyles.labelBold16,),
+                                  // Text(getDescServicoById(
+                                  //     widget.arguments.servicoProfissional.idServico),
+                                  //   style: AppTextStyles.labelBold16,),
                                 ],
                               ),
                             )

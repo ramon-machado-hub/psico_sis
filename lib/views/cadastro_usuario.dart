@@ -453,7 +453,7 @@ class _CadastroUsuarioState extends State<CadastroUsuario> {
                                         data: DateTime.now().toString(),
                                         uid_usuario: _uid,
                                         descricao: "INSERIU ASSISTENTE",
-                                        id_transacao: value1,
+                                        id_transacao: value1.toString(),
                                       ));
                               Navigator.pushReplacementNamed(context, "/home_assistente");
                             });

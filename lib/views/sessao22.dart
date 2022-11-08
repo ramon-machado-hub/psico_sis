@@ -9,7 +9,7 @@ import 'package:psico_sis/model/dias_salas_profissionais.dart';
 import 'package:psico_sis/model/slot_horas.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/widgets/button_widget.dart';
-import '../model/consulta.dart';
+import '../model/sessao.dart';
 import '../model/servico.dart';
 import '../themes/app_text_styles.dart';
 import '../widgets/app_bar_widget.dart';
@@ -31,7 +31,7 @@ class _Sessao22State extends State<Sessao22> {
   late List<SlotHoras> _lSlotHoras = [];
   late List<String> _lSlotHorasOfertadas = [];
   late List<Servico> _lServicos = [];
-  late List<Consulta> _lConsulta = [];
+  late List<Sessao> _lConsulta = [];
   late List<DiasSalasProfissionais> _lDiasSalasProfissionais = [];
   late List<String> _lDias = [];
   late List<String> _lDatasSelecionadas = [];
@@ -61,7 +61,7 @@ class _Sessao22State extends State<Sessao22> {
         await rootBundle.loadString('jsonfile/consultas_json.json');
     final list = json.decode(jsondata) as List<dynamic>;
     setState(() {
-      _lConsulta = list.map((e) => Consulta.fromJson(e)).toList();
+      _lConsulta = list.map((e) => Sessao.fromJson(e)).toList();
     });
   }
 
@@ -283,8 +283,8 @@ class _Sessao22State extends State<Sessao22> {
   bool getHoraOfertadaProfissional(String dia, String hora, int? id) {
     bool value = false;
     _lDiasSalasProfissionais.forEach((element) {
-      if ((element.descDia == dia) &&
-          (element.hora == hora) &&
+      if ((element.dia?.compareTo(dia)==0) &&
+          (element.hora?.compareTo(hora) == 0) &&
           (element.idProfissional == id)) {
         value = true;
       }
@@ -301,13 +301,13 @@ class _Sessao22State extends State<Sessao22> {
     String diaSemana1 = getData(_selectData);
     bool validou = false;
     if (_lConsulta.isNotEmpty) {
-      Consulta consulta = _lConsulta[0];
+      Sessao consulta = _lConsulta[0];
       //pesquisa se contem sessão com aquele profissional
       // naquela hora e naquela data
       _lConsulta.forEach((element) {
         if ((element.idProfissional == id_profissional) &&
-            (element.horarioConsulta == hora) &&
-            (element.dataConsulta == diaSemana1)) {
+            (element.horarioSessao == hora) &&
+            (element.dataSessao == diaSemana1)) {
           consulta = element;
           validou = true;
           return;
@@ -327,7 +327,7 @@ class _Sessao22State extends State<Sessao22> {
                     width: size.width * 0.12,
                     child: FittedBox(
                         fit: BoxFit.contain,
-                        child: Text(consulta.descConsulta.toString())),
+                        child: Text(consulta.descSessao.toString())),
                   ),
                   SizedBox(
                       height: size.height * 0.02,
@@ -614,7 +614,8 @@ class _Sessao22State extends State<Sessao22> {
                               Expanded(
                                   flex: 3,
                                   child: Text(
-                                    "${getDescServicoById(widget.arguments.servico.idServico)}",
+                                    "id",
+                                    // "${getDescServicoById(widget.arguments.servico.idServico)}",
                                     style: AppTextStyles.labelBlack14Lex,
                                   )),
                             ],
@@ -1064,7 +1065,8 @@ class _Sessao22State extends State<Sessao22> {
                       height: MediaQuery.of(context).size.height * 0.1,
                       label: "AVANÇAR >>",
                       onTap: () {
-                        int qtd = getQtdPacientesServicoById(widget.arguments.servico.idServico);
+                        // int qtd = getQtdPacientesServicoById(widget.arguments.servico.idServico);
+                       int qtd = 0;
                         print(qtd.toString()+" aaaa ");
                        Sessao3Arguments arguments3 = Sessao3Arguments(widget.arguments.profissional,
                             widget.arguments.servico, qtd, widget.arguments.sessoes,

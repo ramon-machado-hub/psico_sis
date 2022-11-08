@@ -11,15 +11,20 @@ import 'package:psico_sis/atividade2/views/perfis_atv.dart';
 import 'package:psico_sis/atividade2/views/servicos_atv.dart';
 import 'package:psico_sis/atividade2/views/transacoes_atv.dart';
 import 'package:psico_sis/atividade2/views/usuarios_atv.dart';
+import 'package:psico_sis/provider/dias_horarios_provider.dart';
 import 'package:psico_sis/provider/dias_provider.dart';
+import 'package:psico_sis/provider/dias_salas_profissionais_provider.dart';
+import 'package:psico_sis/provider/especialidade_profissional_provider.dart';
 import 'package:psico_sis/provider/especialidade_provider.dart';
 import 'package:psico_sis/provider/forma_pagamento_provider.dart';
 import 'package:psico_sis/provider/log_provider.dart';
+import 'package:psico_sis/provider/login_provider.dart';
 import 'package:psico_sis/provider/paciente_parceiro_provider.dart';
 import 'package:psico_sis/provider/paciente_provider.dart';
 import 'package:psico_sis/provider/parceiro_provider.dart';
 import 'package:psico_sis/provider/profissional_provider.dart';
 import 'package:psico_sis/provider/publico_alvo_provider.dart';
+import 'package:psico_sis/provider/servico_profissional_provider.dart';
 import 'package:psico_sis/provider/servico_provider.dart';
 import 'package:psico_sis/provider/slots_horas_provider.dart';
 import 'package:psico_sis/provider/tipo_pagamento_provider.dart';
@@ -78,6 +83,12 @@ class AppWidget extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (ctx) => DiasSalasProfissionaisProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => EspecialidadeProfissionalProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => DiasHorariosProvider(),),
+        ChangeNotifierProvider(
           create: (ctx) => PacientesParceirosProvider(),),
         ChangeNotifierProvider(
             create: (ctx) => ParceiroProvider(),),
@@ -88,7 +99,11 @@ class AppWidget extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => EspecialidadeProvider(),),
         ChangeNotifierProvider(
+          create: (ctx) => LoginProvider(),),
+        ChangeNotifierProvider(
           create: (ctx) => ServicoProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => ServicoProfissionalProvider(),),
         ChangeNotifierProvider(
           create: (ctx) => SlotsHorasProvider(),),
         ChangeNotifierProvider(

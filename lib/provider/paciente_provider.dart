@@ -38,6 +38,31 @@ class PacienteProvider  with ChangeNotifier{
     }
   }
 
+  Future<List<Paciente>> getListByParteOfName(String parteName) async {
+    print("parteName $parteName");
+    List<Paciente> list = [];
+    var documents = await db.collection('pacientes').where(
+        "nome_paciente".substring(0, parteName.length), isEqualTo: parteName).get();
+    if (documents.size>0){
+      for (int i =0; i<documents.docs.length; i++) {
+        list.add(
+            Paciente(
+              idPaciente: int.parse(documents.docs[i]['id']),
+              numero: documents.docs[i]['numero'],
+              endereco:documents.docs[i]['endereco'],
+              telefone: documents.docs[i]['telefone'],
+              cpf:documents.docs[i]['cpf'],
+              dataNascimento:documents.docs[i]['data_nascimento'],
+              nome:documents.docs[i]['nome_paciente'],
+        ));
+      };
+    } else {
+      print("não encontrou");
+    }
+    print(list.length.toString()+" return");
+    return list;
+  }
+
   Future<List<Paciente>> getListByName(String nome) async{
     List<Paciente> list = [];
     var documents = await db.collection('pacientes').where("nome_paciente", isEqualTo: nome).get();

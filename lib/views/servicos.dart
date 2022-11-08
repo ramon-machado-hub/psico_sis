@@ -11,6 +11,7 @@ import '../service/prefs_service.dart';
 import '../themes/app_colors.dart';
 import '../widgets/alert_dialog.dart';
 import '../widgets/button_widget.dart';
+import '../widgets/input_text_uper_widget.dart';
 
 class Servicos extends StatefulWidget {
   const Servicos({Key? key}) : super(key: key);
@@ -21,10 +22,12 @@ class Servicos extends StatefulWidget {
 
 class _ServicosState extends State<Servicos> {
 
-
+  String _parteName = "";
   List<Servico> items = [];
+  List<Servico> _lServFinal = [];
   StreamSubscription<QuerySnapshot>? servicoSubscription;
   String _uid = "";
+
   var db = FirebaseFirestore.instance;
   late Usuario _usuario = Usuario(
     idUsuario: 1,
@@ -38,6 +41,46 @@ class _ServicosState extends State<Servicos> {
     tokenUsuario: "",
   );
 
+  List<Servico> getServParteName(String parteName){
+    List<Servico> list = [];
+    if (parteName.length==0) {
+      list = _lServFinal;
+    } else {
+      _lServFinal.forEach((element) {
+        if (element.descricao?.substring(0,parteName.length).compareTo(parteName)==0)
+          list.add(element);
+      });
+    }
+    return list;
+  }
+  //List<Paciente> getPaciParteName(String parteName){
+  //     List<Paciente> list = [];
+  //     print("parteName = ${parteName.length}");
+  //     print("_lpFinal = ${_lpFinal.length}");
+  //
+  //     if (parteName.length==0){
+  //       list = _lpFinal;
+  //       // return list;
+  //     } else {
+  //       _lpFinal.forEach((element) {
+  //         if (element.nome?.substring(0,parteName.length).compareTo(parteName)==0)
+  //           list.add(element);
+  //       });
+  //     }
+  //
+  //
+  //     // if(list.length>0){
+  //     //   // items.clear();
+  //     //   items = list;
+  //     // } else {
+  //     //   // items.clear();
+  //     //   list = _lpFinal;
+  //     // }
+  //
+  //     // setState((){});
+  //     print("list = ${list.length}");
+  //     return list;
+  //   }
 
   Future<Usuario> getUsuarioByUid(String uid) async {
     print("uid getUsuarioByUid $uid");
@@ -64,11 +107,12 @@ class _ServicosState extends State<Servicos> {
                     items = snapshot.docs.map(
                             (documentSnapshot) => Servico.fromMap(
                           documentSnapshot.data(),
-                          int.parse(documentSnapshot.id),
+                          documentSnapshot.id,
                         )
                     ).toList();
                     setState((){
                       items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+                      _lServFinal = items;
                     });
             });
     Future.wait([
@@ -141,64 +185,111 @@ class _ServicosState extends State<Servicos> {
                             ),
                             borderRadius: BorderRadius.circular(8),
                             color: AppColors.shape),
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 16, left: 16,right: 16),
-                            child: Column(
-                              children: [
-                                for (var item in items)
-                                  Card(
-                                    elevation: 8,
-                                    child: ListTile(
-                                      trailing: InkWell(
-                                          onTap: (){
-                                            Dialogs.AlertAlterarServico(context, item, _uid);
-                                          },
-                                          child: Icon(Icons.edit)),
-                                      title: Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(item.descricao.toString()),
-                                          // Row(
-                                          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          //   children: [
-                                          //     Row(children: [
-                                          //       Text("Qtd Pacientes: "),
-                                          //       Text(item.qtd_sessoes.toString(),
-                                          //         style: AppTextStyles.labelBlack14Lex,),
-                                          //     ],),
-                                          //     Row(children: [
-                                          //       Text("Qtd Sessões "),
-                                          //       Text(item.qtd_sessoes.toString(),
-                                          //         style: AppTextStyles.labelBlack14Lex,),
-                                          //     ],)
-                                          //   ],
-                                          // ),
-
-                                        ],
-                                      ),
-                                      subtitle: Row(
-                                        children: [
-                                          Row(children: [
-                                            Text("Qtd Pacientes: "),
-                                            Text(item.qtd_pacientes.toString(),
-                                              style: AppTextStyles.labelBlack14Lex,),
-                                          ],),
-                                          SizedBox(width: 30,),
-                                          Row(children: [
-                                            Text("Qtd Sessões "),
-                                            Text(item.qtd_sessoes.toString(),
-                                              style: AppTextStyles.labelBlack14Lex,),
-                                          ],)
-                                        ],
-                                      ),
-
-                                    ),
-                                  )
-                              ],
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12.0, right: 16.0, left: 16.0),
+                              child: SizedBox(
+                                width: size.width * 0.45,
+                                height: size.height * 0.08,
+                                child: InputTextUperWidget(
+                                  label: "Pesquisar por nome", icon: Icons.search_rounded,
+                                  keyboardType: TextInputType.text,
+                                  obscureText: false,
+                                  onChanged: (value) async{
+                                    print("------------------------");
+                                    _parteName = value;
+                                    print("_parteName $_parteName length ${_parteName.length}");
+                                    print("_lpFinal length ${_lServFinal.length}");
+                                    if(_parteName.length==0){
+                                      print("parteName = 0 $_parteName");
+                                      // items.clear();
+                                      print("items = getPaciParteName($_parteName)");
+                                      items = getServParteName(_parteName);
+                                      print(items.length.toString()+"aaa");
+                                    } else {
+                                      print("getPaciParteName");
+                                      print("items = getPaciParteName($_parteName)");
+                                      items = getServParteName(_parteName);
+                                      print("items.length "+items.length.toString()+" aaa");
+                                    }
+                                    setState((){});
+                                  },
+                                  backgroundColor: AppColors.secondaryColor,
+                                  borderColor: AppColors.line,
+                                  textStyle:  AppTextStyles.subTitleBlack12,
+                                  iconColor: AppColors.labelBlack,),
+                              ),
                             ),
-                          ),
+                            Divider(
+                              thickness: 2,
+                            ),
+
+                            SizedBox(
+                              height: size.height * 0.56,
+                              child: SingleChildScrollView(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 16,right: 16),
+                                  child: Column(
+                                    children: [
+
+
+                                      for (var item in items)
+                                        Card(
+                                          elevation: 8,
+                                          child: ListTile(
+                                            trailing: InkWell(
+                                                onTap: (){
+                                                  Dialogs.AlertAlterarServico(context, item, _uid);
+                                                },
+                                                child: Icon(Icons.edit)),
+                                            title: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(item.descricao.toString()),
+                                                // Row(
+                                                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                //   children: [
+                                                //     Row(children: [
+                                                //       Text("Qtd Pacientes: "),
+                                                //       Text(item.qtd_sessoes.toString(),
+                                                //         style: AppTextStyles.labelBlack14Lex,),
+                                                //     ],),
+                                                //     Row(children: [
+                                                //       Text("Qtd Sessões "),
+                                                //       Text(item.qtd_sessoes.toString(),
+                                                //         style: AppTextStyles.labelBlack14Lex,),
+                                                //     ],)
+                                                //   ],
+                                                // ),
+
+                                              ],
+                                            ),
+                                            subtitle: Row(
+                                              children: [
+                                                Row(children: [
+                                                  Text("Qtd Pacientes: "),
+                                                  Text(item.qtd_pacientes.toString(),
+                                                    style: AppTextStyles.labelBlack14Lex,),
+                                                ],),
+                                                SizedBox(width: 30,),
+                                                Row(children: [
+                                                  Text("Qtd Sessões "),
+                                                  Text(item.qtd_sessoes.toString(),
+                                                    style: AppTextStyles.labelBlack14Lex,),
+                                                ],)
+                                              ],
+                                            ),
+
+                                          ),
+                                        )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

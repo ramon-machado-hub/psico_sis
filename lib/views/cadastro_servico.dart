@@ -228,7 +228,8 @@ class _CadastroServicoState extends State<CadastroServico> {
                           data: DateTime.now().toString(),
                           uid_usuario: _uid,
                           descricao: "INSERIU SERVICO",
-                          id_transacao: count,
+                          ///id transação via put serviço
+                          id_transacao: count.toString(),
                         ));
                         Navigator.pushReplacementNamed(context, "/cadastro_servico");
                       });

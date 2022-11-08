@@ -208,7 +208,8 @@ class _Sessao3State extends State<Sessao3> {
                                 ),
                               ),
                               Text(
-                                "${getDescServicoById(widget.arguments.servico.idServico)}",
+                                "aaa",
+                                // "${getDescServicoById(widget.arguments.servico.idServico)}",
                                 style: AppTextStyles.labelBlack14Lex,
                               ),
                             ],

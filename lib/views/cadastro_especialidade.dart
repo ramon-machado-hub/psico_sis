@@ -223,7 +223,8 @@ class _CadastroEspecialidadeState extends State<CadastroEspecialidade> {
                           data: DateTime.now().toString(),
                           uid_usuario: _uid,
                           descricao: "Cadastro especialidade",
-                          id_transacao: count,
+                          ///id transação via put
+                          id_transacao: count.toString(),
                         ));
                         Navigator.pushReplacementNamed(context, "/cadastro_especialidade");
                       });
