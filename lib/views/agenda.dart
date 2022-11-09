@@ -194,7 +194,7 @@ class _AgendaState extends State<Agenda> {
     return "";
   }
 
-  String? getNomeProfissionalById(int? id) {
+  String? getNomeProfissionalById(String? id) {
     if (_lprofissionais.isNotEmpty) {
       for (int i = 0; i < _lprofissionais.length; i++) {
         if (_lprofissionais[i].id == id) {
@@ -251,7 +251,7 @@ class _AgendaState extends State<Agenda> {
                     child: FittedBox(
                         fit: BoxFit.contain,
                         child: Text(
-                          getNomeProfissionalById(consulta.idProfissional)
+                          getNomeProfissionalById(consulta.idProfissional!)
                               .toString(),
                           style: AppTextStyles.subTitleBlack14,
                         ))),

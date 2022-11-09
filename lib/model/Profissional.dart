@@ -1,5 +1,5 @@
 class Profissional {
-  int? id;
+  String? id;
   String? nome;
   String? cpf;
   String? endereco;
@@ -9,6 +9,11 @@ class Profissional {
   String? status;
   String? email;
   String? senha;
+  late final String _id;
+  String get id1 => _id;
+  set id1(String value) {
+    _id = value;
+  }
 
   Profissional(
       {this.id,
@@ -24,8 +29,8 @@ class Profissional {
       });
 
   Profissional.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    nome = json['nome'];
+    id = json['id'].toString();
+    nome = json['nome_profissional'];
     cpf = json['cpf'];
     endereco = json['endereco'];
     telefone = json['telefone'];
@@ -38,7 +43,7 @@ class Profissional {
 
   factory Profissional.fromJson1(dynamic json, Map<String, dynamic> doc) {
     return Profissional(
-      id: int.parse(json['id']),
+      id: json['id'],
       nome: json['nome_profissional'] as String,
       email: json['email'] as String,
       senha: json['senha'] as String,
@@ -53,7 +58,7 @@ class Profissional {
 
   Profissional.fromSnapshot(String uid, Map<String, dynamic> snapshot){
     print("Profissional.fromSnapshot");
-    this.id = int.parse(snapshot['id']);
+    this.id = snapshot['id'];
     this.email = snapshot['email'];
     this.senha = snapshot['senha'];
     this.status = snapshot['status'];
@@ -65,7 +70,7 @@ class Profissional {
     this.numero = snapshot['numero'];
   }
 
-  Profissional.fromMap(Map<String, dynamic> map, int id){
+  Profissional.fromMap(Map<String, dynamic> map, String id){
     this.id = id;
     this.status = map['status'];
     this.telefone = map['telefone'];

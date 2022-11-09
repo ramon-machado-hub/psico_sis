@@ -1,6 +1,6 @@
 class ServicosProfissional {
   int? id;
-  int? idProfissional;
+  String? idProfissional;
   String? idServico;
   String? valor;
 
@@ -8,7 +8,7 @@ class ServicosProfissional {
       {this.id, this.idProfissional, this.idServico, this.valor});
 
   ServicosProfissional.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = int.parse(json['id']);
     idProfissional = json['id_profissional'];
     idServico = json['id_servico'];
     valor = json['valor'];
@@ -16,7 +16,7 @@ class ServicosProfissional {
 
   ServicosProfissional.fromMap(Map<String, dynamic> map, int id){
     this.id = id;
-    this.idProfissional = int.parse(map['id_profissional']);
+    this.idProfissional = map['id_profissional'];
     this.idServico = map['id_servico'];
     this.valor = map['valor'];
   }
@@ -24,7 +24,7 @@ class ServicosProfissional {
   factory ServicosProfissional.fromJson1(dynamic json) {
     return ServicosProfissional(
       id: int.parse(json['id']),
-      idProfissional: int.parse(json['id_profissional']),
+      idProfissional: json['id_profissional'],
       idServico: json['id_servico'],
       valor: json['valor'],
     );

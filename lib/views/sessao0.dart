@@ -129,11 +129,11 @@ class _Sessao0State extends State<Sessao0> {
   }
 
   List<ServicosProfissional> getServProfByIdProfissional(
-      int? idProfissional, List<ServicosProfissional> list) {
+      String? idProfissional, List<ServicosProfissional> list) {
     List<ServicosProfissional> listServ = [];
 
     list.forEach((element) {
-      if (element.idProfissional == idProfissional) {
+      if (element.idProfissional!.compareTo(idProfissional!)==0) {
         listServ.add(element);
       }
     });

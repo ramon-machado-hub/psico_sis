@@ -32,32 +32,25 @@ class ServicoProfissionalProvider  with ChangeNotifier{
   }
 
   Future<List<ServicosProfissional>> getListServicosProfissional() async {
-    List<ServicosProfissional> _list = [];
-    // Get docs from collection reference
-    if(listServProf.length==0){
-      QuerySnapshot querySnapshot = await db.collection('servicos_profissional').get();
-      notifyListeners();
-      // Get data from docs and convert map to List
-      final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+    final querySnapshot = await db.collection('servicos_profissional').get();
+    final allData = querySnapshot.docs.map((doc) {
+      final serv = ServicosProfissional.fromJson(doc.data());
+      // prof.id1 = doc.id;
+      return serv;
+    }).toList();
+    print("serv provider list = ${allData.length}");
+    return allData;
+  }
 
-      allData.forEach((element) {
-        print(element);
-        ServicosProfissional servico = ServicosProfissional.fromJson1(element);
-        // servico.
-        _list.add(servico);
-        print("add");
-      });
-    } else {
-      _list = listServProf;
-    }
-
-    print("_list.hhl ${_list.length}");
-    // listServ = _list;
-    return _list;
+  Future<void> updateIdProf(ServicosProfissional servico) async {
+    db.collection('servicos_profissional').doc(servico.id.toString())
+        .update({
+      'id_profissional': servico.idProfissional.toString(),
+    });
   }
 
   Future<void> put2(ServicosProfissional servico) async {
-      db.collection('back_servicos_profissional').doc(servico.id.toString()).set({
+      db.collection('servicos_profissional').doc(servico.id.toString()).set({
         'id': servico.id.toString(),
         'id_profissional': servico.idProfissional.toString(),
         'id_servico': servico.idServico.toString(),

@@ -549,7 +549,7 @@ class DialogsProfissional {
     }
 
     Future<String?>getNome(int i, int j) async {
-      int idProfissional = 0;
+      String idProfissional = "0";
       String? nomeProfissional = "";
       listOcupados.forEach((element) {
         if ((element.sala?.compareTo(_listDescSalas[i]) == 0) &&
@@ -1675,62 +1675,62 @@ class DialogsProfissional {
                         if (result == null){
 
 
-                          //salvando profissional
-                          int idProf = 0;
-                          await Provider.of<ProfissionalProvider>(context, listen: false)
-                              .putInt(profissional).then((value) {
-                                idProf = value;
-                                print("entrou = prof = $idProf");
-                                //salvando usuario
-                                Provider.of<LoginProvider>(context, listen: false)
-                                    .put(Login(
-                                    id_usuario: idProf,
-                                    tipo_usuario: "PROFISSIONAL"
-                                ));
-                          } );
+                          ///salvando profissional
+                          String idProf = "0";
+                          // await Provider.of<ProfissionalProvider>(context, listen: false)
+                          //     .putInt(profissional).then((value) {
+                          //       idProf = value;
+                          //       print("entrou = prof = $idProf");
+                          //       //salvando usuario
+                          //       Provider.of<LoginProvider>(context, listen: false)
+                          //           .put(Login(
+                          //           id_usuario: idProf,
+                          //           tipo_usuario: "PROFISSIONAL"
+                          //       ));
+                          // } );
 
                           print(idProf);
 
-                          Provider.of<LogProvider>(
-                              context, listen: false)
-                              .put(LogSistema(
-                            data: DateTime.now().toString(),
-                            uid_usuario: uid,
-                            descricao: "INSERIU PROFISSIONAL",
-                            id_transacao: idProf.toString(),
-                          ));
+                          // Provider.of<LogProvider>(
+                          //     context, listen: false)
+                          //     .put(LogSistema(
+                          //   data: DateTime.now().toString(),
+                          //   uid_usuario: uid,
+                          //   descricao: "INSERIU PROFISSIONAL",
+                          //   id_transacao: idProf.toString(),
+                          // ));
 
                           //dias salas profissional
-                          for (var item in listSelectDay){
-                            item.idProfissional=idProf;
-                            await Provider.of<DiasSalasProfissionaisProvider>(context, listen: false)
-                                .put(item);
-                          }
+                          // for (var item in listSelectDay){
+                          //   item.idProfissional=idProf;
+                          //   await Provider.of<DiasSalasProfissionaisProvider>(context, listen: false)
+                          //       .put(item);
+                          // }
 
 
 
-                          for (var espProf in especialidadesProfissional){
-                            espProf.idProfissional=idProf;
-                            await Provider.of<EspecialidadeProfissionalProvider>
-                              (context, listen: false).put(espProf);
-
-                          }
+                          // for (var espProf in especialidadesProfissional){
+                          //   espProf.idProfissional=idProf;
+                          //   await Provider.of<EspecialidadeProfissionalProvider>
+                          //     (context, listen: false).put(espProf);
+                          //
+                          // }
 
                           //serviços profissional
                           print(servicosProfissional.length);
                           print("serviços length");
                           // for (var serv in servicosProfissional){
-                          for (int i =0; i<servicosProfissional.length; i++){
-                            print(servicosProfissional.length);
-                            print("serviços length");
-                            servicosProfissional[i].idProfissional=idProf;
-                            await Provider.of<ServicoProfissionalProvider>
-                              (context, listen: false).put(servicosProfissional[i]);
-                            if (i==(servicosProfissional.length-1)) {
-                              Navigator.pushReplacementNamed(
-                                  context, "/profissionais");
-                            }
-                          }
+                          // for (int i =0; i<servicosProfissional.length; i++){
+                          //   print(servicosProfissional.length);
+                          //   print("serviços length");
+                          //   servicosProfissional[i].idProfissional=idProf;
+                          //   await Provider.of<ServicoProfissionalProvider>
+                          //     (context, listen: false).put(servicosProfissional[i]);
+                          //   if (i==(servicosProfissional.length-1)) {
+                          //     Navigator.pushReplacementNamed(
+                          //         context, "/profissionais");
+                          //   }
+                          // }
 
                           // print("idProf $idProf");
                         }

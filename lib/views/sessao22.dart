@@ -280,12 +280,12 @@ class _Sessao22State extends State<Sessao22> {
   }
 
   //checa se aquele profissional está disponivel pra determinado horário
-  bool getHoraOfertadaProfissional(String dia, String hora, int? id) {
+  bool getHoraOfertadaProfissional(String dia, String hora, String id) {
     bool value = false;
     _lDiasSalasProfissionais.forEach((element) {
       if ((element.dia?.compareTo(dia)==0) &&
           (element.hora?.compareTo(hora) == 0) &&
-          (element.idProfissional == id)) {
+          (element.idProfissional!.compareTo(id)==0)) {
         value = true;
       }
     });
@@ -294,7 +294,7 @@ class _Sessao22State extends State<Sessao22> {
 
   //retorna o card com informações dos horários da data selecionada
   Widget getHoraResult(
-      int? id_profissional, String hora, String data, Size size) {
+      String id_profissional, String hora, String data, Size size) {
     String diaSemana = getDescDia(DateFormat(
       "EEEE",
     ).format(_selectData));
@@ -305,7 +305,7 @@ class _Sessao22State extends State<Sessao22> {
       //pesquisa se contem sessão com aquele profissional
       // naquela hora e naquela data
       _lConsulta.forEach((element) {
-        if ((element.idProfissional == id_profissional) &&
+        if ((element.idProfissional!.compareTo(id_profissional)==0) &&
             (element.horarioSessao == hora) &&
             (element.dataSessao == diaSemana1)) {
           consulta = element;
@@ -342,7 +342,7 @@ class _Sessao22State extends State<Sessao22> {
         //pesquisa se o profissional trabalha naquele horario
         // e naquele dia da semana
         if (getHoraOfertadaProfissional(
-            diaSemana, hora, widget.arguments.profissional.id)) {
+            diaSemana, hora, widget.arguments.profissional.id!)) {
           return Card(
               color: AppColors.primaryColor.withOpacity(0.2),
               child: Padding(
@@ -426,7 +426,7 @@ class _Sessao22State extends State<Sessao22> {
                     height: size.height * 0.04,
                     color: AppColors.shape,
                     child: getHoraResult(
-                        widget.arguments.profissional.id,
+                        widget.arguments.profissional.id!,
                         _lSlotHorasOfertadas[index],
                         DateFormat(
                           "EEEE",

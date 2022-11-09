@@ -73,18 +73,7 @@ class LoginProvider  with ChangeNotifier{
     List<Login> list = [];
     var documents = await db.collection('users').get();
 
-    // .then((QuerySnapshot snapshot) {
-    //   snapshot.docs.forEach((f) {
-    //     list.add(
-    //
-    //         Login(
-    //           id: int.parse(f.id),
-    //           id_usuario: documents.docs[i]['id_usuario'],
-    //           tipo_usuario: documents.docs[i]['tipo_usuario'],
-    //         )
-    //     );
-    //   });
-    // });
+
     for(int i =0; i<documents.size; i++){
       // String id = documents.docs.;/
       list.add(Login(

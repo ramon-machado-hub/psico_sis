@@ -12,6 +12,7 @@ class ProfissionalProvider  with ChangeNotifier{
   void setListProfissional(List<Profissional>list){
     this.listProfissional = list;
   }
+
   Future<int> getCount() async {
     QuerySnapshot _myDoc = await FirebaseFirestore.instance.collection('profissional')
         .get();
@@ -52,13 +53,36 @@ class ProfissionalProvider  with ChangeNotifier{
     return db.collection('profissional').doc(id).snapshots();
   }
 
-  Future<List<Profissional>> getListProfissionaisAtivos()async {
+
+  Future<List<Profissional>> getListProfissionais()async {
+    final querySnapshot = await db.collection('profissional_teste2').get();
+    final allData = querySnapshot.docs.map((doc) {
+      final prof = Profissional.fromJson(doc.data());
+      prof.id1 = doc.id;
+      return prof;
+    }).toList();
+    print("prof provider list = ${allData.length}");
+    return allData;
+  }
+
+  Future<List<Profissional>> getListProfissionais2()async {
+    final querySnapshot = await db.collection('profissional_teste2').get();
+    final allData = querySnapshot.docs.map((doc) {
+      final prof = Profissional.fromJson(doc.data());
+      prof.id1 = doc.id;
+      return prof;
+    }).toList();
+    print("prof provider list = ${allData.length}");
+    return allData;
+  }
+
+    Future<List<Profissional>> getListProfissionaisAtivos()async {
 
     List<Profissional> list = [];
     var documents = await db.collection('profissional').where("status", isEqualTo: "ATIVO").get();
     for(int i =0; i<documents.size; i++){
         list.add(Profissional(
-          id: int.parse(documents.docs[i]['id']),
+          id: documents.docs[i]['id'],
           nome: documents.docs[i]['nome_profissional'],
           email: documents.docs[i]['email'],
           endereco: documents.docs[i]['endereco'],
@@ -88,10 +112,6 @@ class ProfissionalProvider  with ChangeNotifier{
     }
   }
 
-  Stream<QuerySnapshot> getListProfissionais() {
-    return db.collection('profissional').snapshots();
-  }
-
 
   String getDataUid()  {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -101,12 +121,30 @@ class ProfissionalProvider  with ChangeNotifier{
     return uid.toString();
   }
 
+  Future<void> put3(Profissional profissional, String id) async {
+    // String uid = getDataUid();
+    // print("put 3");
+    // var itemRef = db.collection("profissional_teste");
+    // var doc = itemRef.doc().id;
+    await db.collection('profissional_teste2').doc(id).set({
+      'id': profissional.id,
+      'nome_profissional': profissional.nome,
+      'cpf': profissional.cpf,
+      'endereco': profissional.endereco,
+      'data_nascimento': profissional.dataNascimento,
+      'numero': profissional.numero,
+      'telefone': profissional.telefone,
+      'status': profissional.status,
+      'email': profissional.email,
+      'senha': profissional.senha,
+    });
+    // return doc;
+  }
+
+
   Future<void> put2(Profissional profissional) async {
-    String uid = getDataUid();
     print("put 2");
-
-
-      db.collection('back_profissional').doc(profissional.id.toString()).set({
+      db.collection('profissional').doc(profissional.id1.toString()).set({
         'id': profissional.id,
         'nome_profissional': profissional.nome,
         'cpf': profissional.cpf,
@@ -118,7 +156,6 @@ class ProfissionalProvider  with ChangeNotifier{
         'email': profissional.email,
         'senha': profissional.senha,
       });
-
   }
 
   Future<int?> put(Profissional profissional) async {
@@ -189,7 +226,7 @@ class ProfissionalProvider  with ChangeNotifier{
         'email': profissional.email,
         'senha': profissional.senha,
       });
-      return profissional.id!;
+      return int.parse(profissional.id!);
     }
   }
 

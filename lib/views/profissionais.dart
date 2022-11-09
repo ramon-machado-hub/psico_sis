@@ -152,7 +152,7 @@ class _ProfissionaisState extends State<Profissionais> {
                 items = snapshot.docs.map(
                         (documentSnapshot) => Profissional.fromMap(
                       documentSnapshot.data(),
-                      int.parse(documentSnapshot.id),
+                      documentSnapshot.id,
                     )
                 ).toList();
                 if(this.mounted){
@@ -248,22 +248,17 @@ class _ProfissionaisState extends State<Profissionais> {
 
     String result ="";
     var nome = itemsServ.firstWhere((element) => element.id==id,);
-    // itemsServ.forEach((element) {
-    //   print("element.id = ${element.id}");
-    //   if (element.id==id){
-    //     result = element.descricao!;
-    //   }
-    // });
+
     print("result $result");
     print("nome $nome");
     return nome.descricao!;
   }
 
-  List<ServicosProfissional> getListServProf(int id){
+  List<ServicosProfissional> getListServProf(String id){
     List<ServicosProfissional> result = [];
     itemsServProf.forEach((element) {
       print(element);
-      if (element.idProfissional==id){
+      if (element.idProfissional!.compareTo(id)==0){
         result.add(element);
       }
     });
@@ -272,27 +267,27 @@ class _ProfissionaisState extends State<Profissionais> {
     return result;
   }
 
-  List<Especialidade> getListEspById(int? id) {
+  List<Especialidade> getListEspById(String id) {
     List<Especialidade> result = [];
     itemsEspProf.forEach((element) {
-        if (element.idProfissional==id){
+        if (element.idProfissional!.compareTo(id)==0){
           result.add(getEspById(element.idEspecialidade!));
         }
     });
     return result;
   }
 
-  int getCountServProf(int id){
+  int getCountServProf(String id){
     int count =0;
     itemsServProf.forEach((element) {
-      if(element.idProfissional==id){
+      if(element.idProfissional!.compareTo(id)==0){
         count++;
       }
     });
     return count;
   }
 
-  double getHeigth(int id){
+  double getHeigth(String id){
     // print(getCountEspProf(id));
     // print(getCountServProf(id));
     int count = 0;
@@ -311,7 +306,7 @@ class _ProfissionaisState extends State<Profissionais> {
     return result;
   }
 
-  double getHeigthSerEsp(int id){
+  double getHeigthSerEsp(String id){
     // print(getCountEspProf(id));
     // print(getCountServProf(id));
     int count = 0;
@@ -333,13 +328,13 @@ class _ProfissionaisState extends State<Profissionais> {
     return result;
   }
 
-  int getCountEspProf(int? id) {
+  int getCountEspProf(String id) {
     int count = 0;
     // print("id");
     // print(itemsEspProf.length);
     itemsEspProf.forEach((element) {
 
-      if(element.idProfissional==id){
+      if(element.idProfissional!.compareTo(id)==0){
         count++;
       }
     });
@@ -688,7 +683,7 @@ class _ProfissionaisState extends State<Profissionais> {
                                                                   Divider(
                                                                     color: AppColors.line,
                                                                   ),
-                                                                  for (var items in getListEspById(item.id))
+                                                                  for (var items in getListEspById(item.id!))
                                                                     FittedBox(
                                                                         fit: BoxFit.scaleDown,
                                                                         child: Text(items.descricao!, style: AppTextStyles.labelBlack12Lex,))

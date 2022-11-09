@@ -84,6 +84,59 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
 
   }
 
+  String getIdProfByIdInteiro(List<Login> list, String id) {
+    String result ="";
+    list.forEach((element) {
+      if ((element.id_usuario.toString().compareTo(id)==0)&&
+          (element.tipo_usuario!.compareTo('PROFISSIONAL')==0)
+        ){
+        result = element.id1;
+        print("result = $result");
+      }
+    });
+    print("getNewIdProfById = $result");
+    return result;
+  }
+
+
+  String getNewIdProfById(List<Profissional> list, String id) {
+    String result ="";
+    list.forEach((element) {
+      if (element.id!.compareTo(id)==0){
+        result = element.id1;
+        print("result = $result");
+      }
+    });
+    print("getNewIdProfById = $result");
+
+    return result;
+  }
+
+  String getIdProfTeste(List<Profissional> list1, String id) {
+    String result ="";
+    list1.forEach((element) {
+      if (element.id1.compareTo(id)==0){
+        result = element.id!;
+        print("result = $result");
+      }
+    });
+    print("getNewIdProfById = $result");
+
+    return result;
+  }
+  String getIdProfUsers(List<Profissional> list2, String id) {
+    String result ="";
+    list2.forEach((element) {
+      if (element.id!.compareTo(id)==0){
+        result = element.id1;
+        print("result = $result");
+      }
+    });
+    print("getNewIdProfById = $result");
+
+    return result;
+  }
+
   @override
   void initState(){
     super.initState();
@@ -320,188 +373,9 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         width: size.width * 0.1,
                         iconData: Icons.local_pharmacy_rounded,
                         onTap: () async {
-                          List<Servico> list = [];
-                          List<ServicosProfissional> listServProf = [];
-                          List<Profissional> listProf = [];
-                          List<Especialidade> listEsp = [];
-                          List<EspecialidadeProfissional> listEspProf = [];
-                          List<DiasSalasProfissionais> listDiasSalas = [];
-                          List<Login> listUsers = [];
-                          List<Usuario> listUsuarios = [];
-
-                          //alterando serviços id automatico
-                          // await Provider.of<ServicoProvider>(context, listen: false)
-                          //   .getListServicos1().then((value) {
-                          //     print("entrou 1");
-                          //     list = value;
-                          //     // alterar todos os id serviços
-                          //     list.forEach((element) async {
-                          //       await Provider.of<ServicoProfissionalProvider>(context, listen: false)
-                          //           .getListServicosProfissional().then((value1) async{
-                          //         print("entrou 2");
-                          //         listServProf = value1;
-                          //         String id= "";
-                          //         await Provider.of<ServicoProvider>(context, listen: false)
-                          //             .put3(Servico(
-                          //             descricao: element.descricao,
-                          //             qtd_pacientes: element.qtd_pacientes,
-                          //             qtd_sessoes: element.qtd_sessoes)).then((value2)  {
-                          //           print("id = $value2");
-                          //           print("servProf = ${listServProf.length}");
-                          //           id = value2;
-                          //           //alterar todos os id servicos contido em serv_prof
-                          //           listServProf.forEach((element1) async {
-                          //             print("----");
-                          //             print("id = ${element1.idServico}");
-                          //             print("id = ${element.id}");
-                          //             if (element1.idServico!.compareTo(element.id!)==0) {
-                          //               print("alterando");
-                          //               await Provider.of<ServicoProfissionalProvider>(context, listen: false)
-                          //                   .put(ServicosProfissional(
-                          //                 id: element1.id,
-                          //                 idProfissional: element1.idProfissional,
-                          //                 idServico: id,
-                          //                 valor: element1.valor, )).then((value) => print('alterou ${element1.id}'));
-                          //             }
-                          //           });
-                          //         });
-                          //       });
-                          //     });
-                          //
-                          // });
-
-                          //----------
-
-                          // back  users
-                          // await Provider.of<LoginProvider>(context, listen: false)
-                          //   .getUsers().then((value) {
-                          //     print("entrou");
-                          //     listUsers = value;
-                          //     listUsers.forEach((element) async {
-                          //       await Provider.of<LoginProvider>(context, listen: false)
-                          //           .put2(element, element.id1).then((value) =>
-                          //           print("inseriu back users ${element.id} - ${element.id1}"));
-                          //     });
-                          // });
 
 
-                          //---------
 
-                          //back  usuarios
-                          // await Provider.of<UsuarioProvider>(context, listen: false)
-                          //   .getUsuarios().then((value) {
-                          //     print("entrou");
-                          //     listUsuarios = value;
-                          //     listUsuarios.forEach((element) async {
-                          //       await Provider.of<UsuarioProvider>(context, listen: false)
-                          //           .put2(element, element.id1).then((value) =>
-                          //           print("inseriu back users ${element.idUsuario} - ${element.id1}"));
-                          //     });
-                          // });
-
-                          //----------
-
-                          //back  profissional
-                          // await Provider.of<ProfissionalProvider>(context, listen: false)
-                          //   .getListProfissionaisAtivos().then((value) {
-                          //     listProf = value;
-                          //     listProf.forEach((element) {
-                          //       Provider.of<ProfissionalProvider>(context, listen: false)
-                          //           .put2(element).then((value) => print("inseriu back prof ${element.id}"));
-                          //     });
-                          // });
-
-
-                          //----------
-
-                          //back  especialidade
-                          // await Provider.of<EspecialidadeProvider>(context, listen: false)
-                          //   .getListEspecialidades1().then((value) {
-                          //     listEsp = value;
-                          //     listEsp.forEach((element) {
-                          //       Provider.of<EspecialidadeProvider>(context, listen: false)
-                          //           .put2(element).then((value) => print("inseriu back prof ${element.id1}"));
-                          //     });
-                          // });
-
-
-                          //----------
-
-                          //back  especialidadeProfissional
-                          // await Provider.of<EspecialidadeProfissionalProvider>(context, listen: false)
-                          //   .getListEspecialidades().then((value) {
-                          //     listEspProf = value;
-                          //     listEspProf.forEach((element) {
-                          //       Provider.of<EspecialidadeProfissionalProvider>(context, listen: false)
-                          //           .put2(element).then((value) => print("inseriu back prof ${element.id1}"));
-                          //     });
-                          // });
-
-                          //----------
-
-                          //back  diasSalasProfissional
-                          await Provider.of<DiasSalasProfissionaisProvider>(context, listen: false)
-                            .getListDiasSalas().then((value) {
-                              listDiasSalas = value;
-                              listDiasSalas.forEach((element) {
-                                Provider.of<DiasSalasProfissionaisProvider>(context, listen: false)
-                                    .put2(element).then((value) => print("inseriu back dias ${element.id}"));
-                              });
-                          });
-
-                          //----------
-
-                          //back serv prof
-                          // await Provider.of<ServicoProfissionalProvider>(context, listen: false)
-                          //   .getListServicosProfissional().then((value) {
-                          //     listServProf = value;
-                          //     listServProf.forEach((element) {
-                          //       Provider.of<ServicoProfissionalProvider>(context, listen: false)
-                          //           .put2(element);
-                          //     });
-                          // });
-
-                          //serviços back
-                          // await Provider.of<ServicoProvider>(context, listen: false)
-                          //   .getListServicos1().then((value) {
-                          //     list = value;
-                          //     list.forEach((element) {
-                          //       Provider.of<ServicoProvider>(context, listen: false)
-                          //           .put2(element);
-                          //     });
-                          //
-                          // });
-
-
-                            // List<String> list = [
-                            //   "PSICOLOGIA",
-                            //   "NUTRIÇÃO ADULTO",
-                            //   "FONOAUDIOLOGIA",
-                            //   "NUTRIÇÃO MATERNO-INFANTIL",
-                            //   "PSICOPEDAGOGIA",
-                            //   "ENFERMEIRA ESTÉTICA",
-                            //   "TERAPIA OCUPACIONAL",
-                            //   "PSICOMOTRICISTA",
-                            //   "ACOMPANHANTE TERAPÊUTICA",
-                            //   "PEDIATRIA",
-                            // ];
-                            //ALTERANDO especialidade Parceiro
-                            // list.forEach((element) async {
-                            //   await Provider.of<EspecialidadeProvider>(context, listen: false)
-                            //               .put2(Especialidade(
-                            //     descricao: element
-                            //   ));
-                            // });
-                            // await Provider.of<EspecialidadeProvider>(context, listen: false)
-                            //     .getListEspecialidades1().then((value) {
-                            //       list = value;
-                            //       list.forEach((element) {
-                            //          Provider.of<EspecialidadeProvider>(context, listen: false)
-                            //             .put2(element);
-                            //          Provider.of<EspecialidadeProvider>(context, listen: false)
-                            //             .remove(element.idEspecialidade.toString());
-                            //       });
-                            // });
 
 
 

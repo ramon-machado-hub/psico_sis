@@ -14,7 +14,7 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
         .where("sala", isEqualTo: sala).get();
     if (documents.size>0){
       dias = DiasSalasProfissionais(
-        idProfissional: int.parse(documents.docs[0]['id_profissional']),
+        idProfissional: documents.docs[0]['id_profissional'],
         dia: documents.docs[0]['dia'],
         sala: documents.docs[0]['sala'],
         hora: documents.docs[0]['hora'],
@@ -44,7 +44,7 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     for(int i =0; i<documents.size; i++){
       result.add(DiasSalasProfissionais(
         id: int.parse(documents.docs[i]['id']),
-        idProfissional: int.parse(documents.docs[i]['id_profissional']),
+        idProfissional: documents.docs[i]['id_profissional'],
         dia: documents.docs[i]['dia'],
         sala: documents.docs[i]['sala'],
         hora: documents.docs[i]['hora'],
@@ -82,11 +82,32 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     return allData;
   }
 
+  Future<List<DiasSalasProfissionais>> getListDiasSalasByProfissional(String id) async{
+    final querySnapshot = await db.collection('dias_salas_profissionais')
+        .where("id_profissional", isEqualTo: id).get();
+    final allData = querySnapshot.docs.map((doc) {
+      final dias = DiasSalasProfissionais.fromJson(doc.data());
+      dias.id1 = doc.id;
+      return dias;
+    }).toList();
+    return allData;
+  }
+
+  Future<void> updateIdProf(DiasSalasProfissionais diasSalasProfissionais) async {
+      db.collection('dias_salas_profissionais').doc(diasSalasProfissionais.id.toString())
+          .update({
+        'id_profissional': diasSalasProfissionais.idProfissional.toString(),
+      });
+  }
+
+
   Future<void> put2(DiasSalasProfissionais diasSalasProfissionais) async {
-    if (diasSalasProfissionais.id != null){
-      db.collection('back_dias_salas_profissionais').doc(diasSalasProfissionais.id.toString())
+    var itemRef = db.collection("teste_dias");
+    var doc = itemRef.doc().id;
+    print(doc);
+    if (diasSalasProfissionais.id1 != null){
+      db.collection('teste_dias').doc(doc)
           .set({
-        'id': diasSalasProfissionais.id.toString(),
         'dia': diasSalasProfissionais.dia,
         'hora': diasSalasProfissionais.hora,
         'id_profissional': diasSalasProfissionais.idProfissional.toString(),

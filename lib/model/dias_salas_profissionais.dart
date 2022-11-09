@@ -2,7 +2,7 @@ class DiasSalasProfissionais {
   int? id;
   String? dia;
   String? sala;
-  int? idProfissional;
+  String? idProfissional;
   String? hora;
   late final String _id;
   String get id1 => _id;
@@ -17,7 +17,7 @@ class DiasSalasProfissionais {
     id = int.parse(json['id']);
     dia = json['dia'];
     sala = json['sala'];
-    idProfissional = int.parse(json['id_profissional']);
+    idProfissional = json['id_profissional'];
     hora = json['hora'];
   }
 

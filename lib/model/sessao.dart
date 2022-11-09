@@ -5,7 +5,7 @@ class Sessao {
   int? valorSessao;
   String? tipoSessao;
   String? descSessao;
-  int? idProfissional;
+  String? idProfissional;
   int? idPaciente;
   String? salaSessao;
   String? statusSessao;

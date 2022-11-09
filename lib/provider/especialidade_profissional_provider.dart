@@ -150,10 +150,18 @@ class EspecialidadeProfissionalProvider  with ChangeNotifier{
     return _list;
   }
 
+  Future<void> updateIdProf(EspecialidadeProfissional especialidadeProfissional) async {
+    db.collection('especialidades_profissional').doc(especialidadeProfissional.id.toString())
+        .update({
+      'id_profissional': especialidadeProfissional.idProfissional.toString(),
+    });
+  }
+
   Future<List<EspecialidadeProfissional>> getListEspecialidades() async {
     final querySnapshot = await db.collection('especialidades_profissional').get();
     final allData = querySnapshot.docs.map((doc) {
       final espProf = EspecialidadeProfissional.fromJson(doc.data());
+      print(espProf.idProfissional);
       espProf.id1 = doc.id;
       return espProf;
     }).toList();
@@ -161,9 +169,21 @@ class EspecialidadeProfissionalProvider  with ChangeNotifier{
     return allData;
   }
 
+  Future<List<EspecialidadeProfissional>> getListEspecialidade22() async {
+    final querySnapshot = await db.collection('back_especialidades_profissional').get();
+    final allData = querySnapshot.docs.map((doc) {
+      final espProf = EspecialidadeProfissional.fromJson(doc.data());
+      print(espProf.idProfissional);
+      espProf.id1 = doc.id;
+      return espProf;
+    }).toList();
+    print("backEspProfProvider getListEspecialidades = _list.length ${allData.length}");
+    return allData;
+  }
+
   Future<void> put2(EspecialidadeProfissional especialidade) async {
     if (especialidade.id1 != null) {
-      db.collection('back_especialidades_profissional').doc((especialidade.id1).toString()).set({
+      db.collection('especialidades_profissional').doc(especialidade.id.toString()).set({
         'id': especialidade.id,
         'id_especialidade': especialidade.idEspecialidade.toString(),
         'id_profissional': especialidade.idProfissional.toString(),

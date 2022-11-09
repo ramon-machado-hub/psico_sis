@@ -1,6 +1,6 @@
 class EspecialidadeProfissional {
   int? id;
-  int? idProfissional;
+  String? idProfissional;
   String? idEspecialidade;
   String? codigoEspecialidade;
   late final String _id;
@@ -12,8 +12,8 @@ class EspecialidadeProfissional {
   EspecialidadeProfissional({this.id, this.idProfissional, this.idEspecialidade, this.codigoEspecialidade });
 
   EspecialidadeProfissional.fromJson(Map<String, dynamic> json) {
-    id = int.parse(json['id']);
-    idProfissional = int.parse(json['id_profissional']);
+    id = json['id'];
+    idProfissional = json['id_profissional'];
     idEspecialidade = json['id_especialidade'];
     codigoEspecialidade = json['codigo_especialidade'];
   }
@@ -23,12 +23,12 @@ class EspecialidadeProfissional {
     print("json esp_prof");
     print(int.parse(json['id']));
     print(json['id_especialidade']);
-    print(int.parse(json['id_profissional']));
+    print(json['id_profissional']);
 
     EspecialidadeProfissional esp = EspecialidadeProfissional(
       id: int.parse(json['id']),
       idEspecialidade:  json['id_especialidade'],
-      idProfissional: int.parse(json['id_profissional']),
+      idProfissional: json['id_profissional'],
       codigoEspecialidade: json['codigo_especialidade']
     );
 
@@ -38,7 +38,7 @@ class EspecialidadeProfissional {
 
   EspecialidadeProfissional.fromMap(Map<String, dynamic> map, int id){
     this.id = id;
-    this.idProfissional = int.parse(map['id_profissional']);
+    this.idProfissional = map['id_profissional'];
     this.codigoEspecialidade = map['codigo_especialidade'];
     this.idEspecialidade = map['id_especialidade'];
   }
