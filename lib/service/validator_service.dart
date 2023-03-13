@@ -7,6 +7,40 @@ class ValidatorService {
     return false;
   }
 
+  static String getDiaCorrente(DateTime data) {
+    String dia = DateFormat('EEEE').format(data);
+    switch (dia) {
+      case 'Monday':
+        {
+          return "SEGUNDA";
+        }
+      case 'Tuesday':
+        {
+          return "TERÇA";
+        }
+      case 'Wednesday':
+        {
+          return "QUARTA";
+        }
+      case 'Thursday':
+        {
+          return "QUINTA";
+        }
+      case 'Friday':
+        {
+          return "SEXTA";
+        }
+      case 'Saturday':
+        {
+          return "SÁBADO";
+        }
+      case 'Sunday':
+        {
+          return "Domingo";
+        }
+    }
+    return "";
+  }
   static bool validateAniversariante (String data){
     int dia = DateTime.now().day;
     int mes = DateTime.now().month;

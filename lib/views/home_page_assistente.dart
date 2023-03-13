@@ -2,25 +2,19 @@ import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:psico_sis/model/dias_salas_profissionais.dart';
-import 'package:psico_sis/model/especialidades_profissional.dart';
-import 'package:psico_sis/model/servicos_profissional.dart';
-import 'package:psico_sis/provider/dias_salas_profissionais_provider.dart';
-import 'package:psico_sis/provider/especialidade_provider.dart';
+import 'package:psico_sis/model/transacao_caixa.dart';
+import 'package:psico_sis/provider/paciente_provider.dart';
+import 'package:psico_sis/provider/servico_profissional_provider.dart';
+import 'package:psico_sis/provider/transacao_provider.dart';
 import 'package:psico_sis/service/prefs_service.dart';
 import 'package:psico_sis/themes/app_images.dart';
 import 'package:psico_sis/widgets/menu_button_widget.dart';
-import '../model/Especialidade.dart';
+import '../model/Paciente.dart';
 import '../model/Profissional.dart';
 import '../model/Usuario.dart';
 import '../model/login.dart';
-import '../model/servico.dart';
-import '../provider/especialidade_profissional_provider.dart';
-import '../provider/login_provider.dart';
-import '../provider/profissional_provider.dart';
-import '../provider/servico_profissional_provider.dart';
-import '../provider/servico_provider.dart';
 import '../provider/usuario_provider.dart';
 import '../themes/app_colors.dart';
 import '../widgets/app_bar_widget2.dart';
@@ -29,8 +23,6 @@ import '../widgets/menu_icon_button_widget.dart';
 
 class HomePageAssistente extends StatefulWidget {
 
-  // final String uid;
-  // const HomePageAssistente({Key? key, required this.uid,}) : super(key: key);
   const HomePageAssistente({Key? key}) : super(key: key);
 
   @override
@@ -52,21 +44,6 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
     statusUsuario:  "",
     tokenUsuario: "",
   );
-  final List<String> _listHoras = [
-    "07:00",
-    "08:00",
-    "09:00",
-    "10:00",
-    "11:00",
-    "12:00",
-    "13:00",
-    "14:00",
-    "15:00",
-    "16:00",
-    "17:00",
-    "18:00",
-    "19:00"
-  ];
 
   Future<Usuario> getUsuarioByUid(String uid) async {
     print("uid getUsuarioByUid $uid");
@@ -84,58 +61,6 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
 
   }
 
-  String getIdProfByIdInteiro(List<Login> list, String id) {
-    String result ="";
-    list.forEach((element) {
-      if ((element.id_usuario.toString().compareTo(id)==0)&&
-          (element.tipo_usuario!.compareTo('PROFISSIONAL')==0)
-        ){
-        result = element.id1;
-        print("result = $result");
-      }
-    });
-    print("getNewIdProfById = $result");
-    return result;
-  }
-
-
-  String getNewIdProfById(List<Profissional> list, String id) {
-    String result ="";
-    list.forEach((element) {
-      if (element.id!.compareTo(id)==0){
-        result = element.id1;
-        print("result = $result");
-      }
-    });
-    print("getNewIdProfById = $result");
-
-    return result;
-  }
-
-  String getIdProfTeste(List<Profissional> list1, String id) {
-    String result ="";
-    list1.forEach((element) {
-      if (element.id1.compareTo(id)==0){
-        result = element.id!;
-        print("result = $result");
-      }
-    });
-    print("getNewIdProfById = $result");
-
-    return result;
-  }
-  String getIdProfUsers(List<Profissional> list2, String id) {
-    String result ="";
-    list2.forEach((element) {
-      if (element.id!.compareTo(id)==0){
-        result = element.id1;
-        print("result = $result");
-      }
-    });
-    print("getNewIdProfById = $result");
-
-    return result;
-  }
 
   @override
   void initState(){
@@ -236,14 +161,14 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         }),
 
 
-                    // MenuIconButtonWidget(
-                    //     label: "Caixa",
-                    //     height: size.width * 0.1,
-                    //     width: size.width * 0.1,
-                    //     iconData: Icons.monetization_on,
-                    //     onTap: () {
-                    //       Navigator.pushReplacementNamed(context, "/caixa");
-                    //     }),
+                    MenuIconButtonWidget(
+                        label: "Caixa",
+                        height: size.width * 0.1,
+                        width: size.width * 0.1,
+                        iconData: Icons.monetization_on,
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, "/caixa");
+                        }),
 
                     MenuIconButtonWidget(
                         label: "Cadastro Usuário",
@@ -253,17 +178,18 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         onTap: () {
                           Navigator.pushReplacementNamed(
                               context, "/cadastro_usuario");
-                        }),
+                    }),
 
-                    // MenuButtonWidget(
-                    //   label: "Sessões",
-                    //   height: size.width * 0.1,
-                    //   width: size.width * 0.1,
-                    // C:\Users\Windows\Documents\Sistema\psico_sisrofi      //   image: AppImages.consulta_icon,
-                    //   onTap: () {
-                    //     Navigator.pushReplacementNamed(context, "/sessao");
-                    //   },
-                    // ),
+                    MenuButtonWidget(
+                      label: "Sessões",
+                      height: size.width * 0.1,
+                      width: size.width * 0.1,
+                      image: AppImages.consulta,
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, "/sessao");
+                      },
+                    ),
+
                     MenuButtonWidget(
                       label: "Especialidades",
                       height: size.width * 0.1,
@@ -309,31 +235,10 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         onTap: () async{
                           Navigator.pushReplacementNamed(
                               context, "/profissionais");
-
-                          // DialogsProfissional
-                          //     .AlertDialogConfirmarEspecialidadeProfissional
-                          //   (context, Profissional(
-                          //   id: 1,
-                          //   numero: "100",
-                          //   nome: "Teste",
-                          //   telefone: "100",
-                          //   endereco: "100",
-                          //   dataNascimento: "100",
-                          //   cpf: "100",
-                          //   status: "100",
-                          //   senha: "100",
-                          //   email: "teste@gmail",
-                          // ));
-
-
-                          //inserir em
-                          // List<DiasSalasProfissionais> _listOcupadas = [];
-                          // await Provider.of<DiasSalasProfissionaisProvider>
-                          //   (context, listen: false).getListOcupadas().then((value) {
-                          //     _listOcupadas = value;
-                          // });
-                          // DialogsProfissional.AlertDialogConfirmarDiasProfissional(context, _listOcupadas);
-
+                          // await Provider.of<ServicoProfissionalProvider>(context,
+                          //   listen: false).getListServicosProfissional().then((value)
+                          // => );
+                          
                         }),
 
                     MenuIconButtonWidget(
@@ -345,41 +250,178 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                           Navigator.pushReplacementNamed(
                               context, "/servicos");
                         }),
+                    //inserindo responsavel em paciente
+                  //   MenuIconButtonWidget(
+                  //       label: "Alterar Paciente",
+                  //       height: size.width * 0.1,
+                  //       width: size.width * 0.1,
+                  //       iconData: Icons.ac_unit,
+                  //       onTap: () async{
+                  //         await Provider.of<PacienteProvider>(context, listen: false)
+                  //             .getListPacientes().then((value) {
+                  //             List<Paciente> list = [];
+                  //             list = value;
+                  //             list.forEach((element) async{
+                  //                await Provider.of<PacienteProvider>(context,
+                  //                listen: false).updateNomeResponsavel(element.id1,"NÃO INFORMADO");
+                  //             });
+                  //         });
+                  //         //             .put(ServicosProfissional(
+                  // }),
 
                     // MenuIconButtonWidget(
-                    //     label: "adicionar servico profissional",
+                    //     label: "TESTE",
+                    //     height: size.width * 0.05,
+                    //     width: size.width * 0.05,
+                    //     iconData: Icons.local_pharmacy_rounded,
+                    //     onTap: () async {
+                    //       String valor = "90,00";
+                    //       String valorFinal = valor.substring(0,valor.length-3);
+                    //       String comissao = (double.parse(valorFinal)*0.73).toStringAsFixed(2).replaceAll('.', ',');
+                    //           // *0.7;
+                    //       print(comissao.toString());
+                    //
+                    //       print(valorFinal);
+                    //       // servicoProfissional!.valor!.substring(0,servicoProfissional!.valor!.length-3);
+                    //
+                    //     }),
+
+                    //transacoes
+                    // MenuIconButtonWidget(
+                    //     label: "adicionar  social",
+                    //     height: size.width * 0.05,
+                    //     width: size.width * 0.05,
+                    //     iconData: Icons.local_pharmacy_rounded,
+                    //     onTap: () async {
+                    //       List<String> list = [
+                    //         '4Bfp2wqXtx0m2PYxBaYs',
+                    //         '5LGIZZgEMg1sn8GW9sXU',
+                    //         'DO7p7P5Nv1ENzr9elV1c',
+                    //         'HUv8fznaNZ3RbBlQGSJh',
+                    //         'LGVfsVwGAWUnZDte7vHu',
+                    //         'O5OlYeX2vhQimmnD0k4S',
+                    //         'OJkB60vA35OrZFQD5ChE',
+                    //         'PaEdPQ2esQ1D8tCJ0tE7',
+                    //         'RZyr2XxEybTixJyc8UFr',
+                    //         'SThvIW0MPZdyLQj5m5Gk',
+                    //         'SplHY2TM1jBGoDCEXokd',
+                    //         'b5rCot5PkIZjUxBtFYgL',
+                    //         'beJouyDypPKSCNpoHMCS',
+                    //         'iH9KLENKeHr9iZSXLlLZ',
+                    //         'kZZQbOA0jBRvsOtfHx7N',
+                    //         'pf6OoIATgSGFgMiQBm5O',
+                    //         'wKPotxwTM5bbArFLbC5u',
+                    //         'wj69tIESkDKxD6nifq4z',
+                    //       ];
+                    //       for (int i =0; i<list.length;i++){
+                    //         await Provider.of<TransacaoProvider>(context, listen: false)
+                    //         // .putBack(element);
+                    //             .updateBack(list[i]);
+                    //       }
+                    //         //SALVANDO transacao
+                    //         // await Provider.of<TransacaoProvider>(context, listen: false)
+                    //         //     .getTransacoes().then((value) {
+                    //         //    List<TransacaoCaixa> list = [];
+                    //         //    list = value;
+                    //         //    list.forEach((element) async {
+                    //         //      print(element.id1);
+                    //         //      print(element.valorTransacao);
+                    //         //
+                    //         //      await Provider.of<TransacaoProvider>(context, listen: false)
+                    //         //       // .putBack(element);
+                    //         //       .updateBack(element.id1);
+                    //         //    });
+                    //         // });
+                    //     }),
+
+                    //inserindo diasProfissional
+                    // MenuIconButtonWidget(
+                    //     label: "alterando ",
+                    //     height: size.width * 0.1,
+                    //     width: size.width * 0.1,
+                    //     iconData: Icons.local_pharmacy_rounded,
+                    //     onTap: () async{
+                    //           List<DiasSalasProfissionais> listDSP = [];
+                    //           List<DiasProfissional> listDias= [];
+                    //           await Provider.of<DiasSalasProfissionaisProvider>
+                    //             (context, listen: false).getList().then((value) {
+                    //               listDSP = value;
+                    //               bool result = false;
+                    //               listDSP.forEach((element) {
+                    //                 result = true;
+                    //                 listDias.forEach((element1) {
+                    //                   if ((element.dia!.compareTo(element1.dia!)==0) &&
+                    //                       (element.idProfissional!.compareTo(element1.idProfissional!)==0)
+                    //                   ) {
+                    //                     result= false;
+                    //                   }
+                    //                 });
+                    //                 if (result){
+                    //                   print("inseriu");
+                    //                   print("idProfissional = ${element.idProfissional}");
+                    //                   print("dia ${element.dia}");
+                    //                   listDias.add(DiasProfissional(idProfissional: element.idProfissional, dia: element.dia));
+                    //                 }
+                    //               });
+                    //               print(listDSP.length);
+                    //               print(listDias.length);
+                    //               listDias.forEach((element) async {
+                    //                 await Provider.of<DiasProfissionalProvider>(context, listen: false).put(element);
+                    //               });
+                    //
+                    //           });
+                    //     }) ,
+
+                    // MenuIconButtonWidget(
+                    //     label: "alterando ",
                     //     height: size.width * 0.1,
                     //     width: size.width * 0.1,
                     //     iconData: Icons.local_pharmacy_rounded,
                     //     onTap: () async {
+                    //       // List<Paciente> list = [];
+                    //       // await Provider.of<PacienteProvider>
+                    //       //   (context, listen: false).getListPacientes()
+                    //       //     .then((value) {
+                    //       //       print("entrou");
+                    //       //     list = value;
+                    //       //     int count =0;
+                    //       //     list.forEach((element)async {
+                    //       //       print(count);
+                    //       //       count++;
+                    //       //       await Provider.of<PacienteProvider>
+                    //       //         (context,listen: false).put2(element);
+                    //       //       // .then((value1) => print('inseriu ${element.id} = $value1 '));
+                    //       //     });
                     //
                     //
-                    //         //SALVANDO Parceiro
-                    //         await Provider.of<ServicoProfissionalProvider>(context, listen: false)
-                    //             .put(ServicosProfissional(
-                    //           idServico: 2,
-                    //           idProfissional: 1,
-                    //           valor: "120,00"
-                    //         ));
+                    //           // for (int i =0; i<list.length; i++)
+                    //           // {
+                    //           //   list.forEach((element)async {
+                    //           //     if ((list[i].nome!.trim().compareTo(element.nome!.trim())==0)&&
+                    //           //         (list[i].idPaciente!.compareTo(element.idPaciente!)!=0)
+                    //           //     ){
+                    //           //       print("id1 = ${list[i].idPaciente}");
+                    //           //       print("id2 = ${element.idPaciente}");
+                    //           //       print(element.nome);
+                    //           //       print(element.idPaciente);
+                    //           //
+                    //           //     }
+                    //               // print(element.nome);
+                    //               // print(element.idPaciente);
+                    //               // print('---------------');
+                    //               // await Provider.of<PacienteProvider>
+                    //               //   (context,listen: false).put2(element);
+                    //               // .then((value1) => print('inseriu ${element.id} = $value1 '));
+                    //             // });
+                    //           // }
+                    //
+                    //       // });
+                    //
+                    //
                     //
                     //
                     //
                     //     }),
-
-
-                    MenuIconButtonWidget(
-                        label: "alterando serviços",
-                        height: size.width * 0.1,
-                        width: size.width * 0.1,
-                        iconData: Icons.local_pharmacy_rounded,
-                        onTap: () async {
-
-
-
-
-
-
-                        }),
 
                   ],
                 ),

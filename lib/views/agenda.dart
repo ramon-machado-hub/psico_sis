@@ -250,9 +250,9 @@ class _AgendaState extends State<Agenda> {
                     ),
                     child: FittedBox(
                         fit: BoxFit.contain,
-                        child: Text(
-                          getNomeProfissionalById(consulta.idProfissional!)
-                              .toString(),
+                        child: Text("",
+                          // getNomeProfissionalById(consulta.idProfissional!)
+                          //     .toString(),
                           style: AppTextStyles.subTitleBlack14,
                         ))),
               ),
@@ -281,8 +281,8 @@ class _AgendaState extends State<Agenda> {
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.019,
                         child: FittedBox(
-                            child: Text(
-                          getNomePacienteById(consulta.idPaciente).toString(),
+                            child: Text("",
+                          // getNomePacienteById(consulta.descSessao).toString(),
                           style: AppTextStyles.subTitleBlack14,
                         )),
                       ),

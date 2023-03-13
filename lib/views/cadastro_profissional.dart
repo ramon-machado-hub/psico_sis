@@ -125,8 +125,7 @@ class _CadastroProfissionalState extends State<CadastroProfissional> {
   void initState() {
     super.initState();
     getData();
-    _listProfissional = Provider.of<ProfissionalProvider>(context, listen: false)
-      .listProfissional;
+
 
     Future.wait([
       PrefsService.isAuth().then((value) {
@@ -151,6 +150,10 @@ class _CadastroProfissionalState extends State<CadastroProfissional> {
         }
       }),
     ]);
+    if(_listProfissional.length==0){
+      Provider.of<ProfissionalProvider>(context, listen: false)
+          .getListProfissionais().then((value) => _listProfissional=value);
+    }
   }
 
   @override

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../model/Especialidade.dart';
 import '../model/Usuario.dart';
+import '../provider/especialidade_provider.dart';
 import '../provider/usuario_provider.dart';
 import '../service/prefs_service.dart';
 import '../themes/app_colors.dart';
@@ -21,8 +21,8 @@ class Especialidades extends StatefulWidget {
 }
 
 class _EspecialidadesState extends State<Especialidades> {
-  List<Especialidade> items = [];
-  StreamSubscription<QuerySnapshot>? especialidadeSubscription;
+  List<Especialidade> especialidades = [];
+  // StreamSubscription<QuerySnapshot>? especialidadeSubscription;
   var db = FirebaseFirestore.instance;
   String _uid = "";
   late Usuario _usuario = Usuario(
@@ -84,22 +84,30 @@ class _EspecialidadesState extends State<Especialidades> {
       }),
     ]);
 
+    if (especialidades.length==0){
+      Provider.of<EspecialidadeProvider>(context,listen: false)
+          .getEspecialidades().then((value) {
+            especialidades = value;
+            especialidades.sort((a,b)=>a.descricao!.compareTo(b.descricao!));
+            setState((){});
+      });
+    }
     // especialidadeSubscription?.cancel();
-    especialidadeSubscription =
-        db.collection("especialidades").snapshots().listen((snapshot) {
-          items = snapshot.docs
-              .map((documentSnapshot) => Especialidade.fromMap(
-            documentSnapshot.data(),
-            documentSnapshot.id,
-          ))
-              .toList();
-          items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
-
-          // setState(() {
-          //   items.sort(
-          //       (a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
-          // });
-        });
+    // especialidadeSubscription =
+    //     db.collection("especialidades").snapshots().listen((snapshot) {
+    //       items = snapshot.docs
+    //           .map((documentSnapshot) => Especialidade.fromMap(
+    //         documentSnapshot.data(),
+    //         documentSnapshot.id,
+    //       ))
+    //           .toList();
+    //       items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+    //
+    //       // setState(() {
+    //       //   items.sort(
+    //       //       (a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+    //       // });
+    //     });
 
 
   }
@@ -107,13 +115,13 @@ class _EspecialidadesState extends State<Especialidades> {
   @override
   void dispose() {
     // TODO: implement dispose
-    especialidadeSubscription?.cancel();
+    // especialidadeSubscription?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("uario builder especialidade = ${_usuario.nomeUsuario}");
+    // print("uario builder especialidade = ${_usuario.nomeUsuario}");
     Size size = MediaQuery.of(context).size;
     return SafeArea(
         child: Scaffold(
@@ -153,7 +161,7 @@ class _EspecialidadesState extends State<Especialidades> {
                                 top: 16, left: 16, right: 16),
                             child: Column(
                               children: [
-                                for (var item in items)
+                                for (var item in especialidades)
                                   Card(
                                     elevation: 8,
                                     child: ListTile(

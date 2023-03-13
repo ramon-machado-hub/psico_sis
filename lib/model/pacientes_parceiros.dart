@@ -1,6 +1,6 @@
 class PacientesParceiros {
   int? idPacientesParceiros;
-  int? idPaciente;
+  String? idPaciente;
   int? idParceiro;
   String? status;
 
@@ -21,7 +21,7 @@ class PacientesParceiros {
     print("json['id'] ${json['idParceiro']}");
     return PacientesParceiros(
       idPacientesParceiros: int.parse(json['id']),
-      idPaciente: int.parse(json['idPaciente']),
+      idPaciente: json['idPaciente'],
       idParceiro: int.parse(json['idParceiro']),
       status: json['status'],
     );
@@ -30,7 +30,7 @@ class PacientesParceiros {
   PacientesParceiros.fromMap(Map<String, dynamic> map, int id){
     this.idPacientesParceiros = id;
     this.idParceiro = int.parse(map['idParceiro']);
-    this.idPaciente = int.parse(map['idPaciente']);
+    this.idPaciente = map['idPaciente'];
     this.status = map['status'];
   }
 

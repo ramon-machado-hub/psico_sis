@@ -6,21 +6,7 @@ import 'package:psico_sis/model/Especialidade.dart';
 
 class EspecialidadeProvider  with ChangeNotifier{
   var db = FirebaseFirestore.instance;
-
-  Future<int> getCount() async {
-    QuerySnapshot _myDoc = await FirebaseFirestore.instance.collection('especialidades')
-        .get();
-    List<DocumentSnapshot> _myDocCount = _myDoc.docs;
-    if (_myDocCount.isEmpty){
-      return 0;
-    }
-    return _myDocCount.length;
-  }
-
-  int count() {
-    int count = int.parse(getCount().toString());
-    return count;
-  }
+  List<Especialidade> especialidades = [];
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> getEspecialidadeById(String id) {
     return db.collection('especialidades').doc(id).snapshots();
@@ -31,7 +17,7 @@ class EspecialidadeProvider  with ChangeNotifier{
   }
 
   Especialidade getEspByDesc(String desc, List<Especialidade> listEsp){
-    Especialidade especialidade = Especialidade(idEspecialidade: "", descricao: "");
+    Especialidade especialidade = Especialidade(descricao: "");
     listEsp.forEach((element) {
       if (element.descricao!.compareTo(desc)==0){
         especialidade = element;
@@ -51,7 +37,7 @@ class EspecialidadeProvider  with ChangeNotifier{
       return Especialidade.fromSnapshot(id,doc);
     } else {
       return Especialidade(
-          idEspecialidade: "0",
+          // idEspecialidade: "0",
           descricao: "");
     }
   }
@@ -64,18 +50,55 @@ class EspecialidadeProvider  with ChangeNotifier{
   //     }).toList();
   //     return login;
   //   }
-  Future<List<Especialidade>> getListEspecialidades1() async {
-    List<Especialidade> _list = [];
-    final querySnapshot = await db.collection('especialidades').get();
-    final allData = querySnapshot.docs.map((e) {
-      final json = e.data();
-      final espec = Especialidade.fromJson(e.data());
-      espec.id1 = e.id;
-      return espec;
-    }).toList();
-    print("_list.l especialidade ${_list.length}");
-    return allData;
+
+  // Future<List<Especialidade>> getListEspecialidades1() async {
+  //   if (especialidades.length==0){
+  //     final querySnapshot = await db.collection('especialidades').get();
+  //     final allData = querySnapshot.docs.map((e) {
+  //       final espec = Especialidade.fromJson(e.data());
+  //       espec.id1 = e.id;
+  //       return espec;
+  //     }).toList();
+  //     print("especialidade retornou allData = ${allData.length}");
+  //     especialidades = allData;
+  //     return allData;
+  //   }  else {
+  //     print("Especialidades retornou listEspecialidades = ${especialidades.length}");
+  //     return especialidades;
+  //   }
+  //
+  // }
+
+  Future<List<Especialidade>> getEspecialidades() async {
+    print("getListEspecialidades22");
+    print(especialidades.length);
+    if (especialidades.length==0){
+      final querySnapshot = await db.collection('especialidades').snapshots().listen((event) {
+        especialidades.clear();
+        print("aaassqsqs");
+          for (var doc in event.docs){
+            final data = doc.data();
+            final esp = Especialidade.fromJson(data);
+            esp.id1 = doc.id;
+            print(esp.descricao);
+            especialidades.add(esp);
+          }
+      });
+      // final allData = querySnapshot.
+      //   final espec = Especialidade.fromJson(e.data());
+      //   espec.id1 = e.id;
+      //   return espec;
+      // }).toList();
+      print("espec retornou especialidades = ${especialidades.length}");
+      // // especialidades = allData;
+      return especialidades;
+    }  else {
+      print("Espec retornou listEspecialidades = ${especialidades.length}");
+      return especialidades;
+    }
+
   }
+
   //método antigo
   // Future<List<Especialidade>> getListEspecialidades1() async {
   //   List<Especialidade> _list = [];
@@ -94,36 +117,39 @@ class EspecialidadeProvider  with ChangeNotifier{
   //   return _list;
   // }
 
-  Future<void> put(Especialidade especialidade) async {
-    if (especialidade.idEspecialidade == null) {
-      int id = await getCount();
-      print("id $id put Especialidade");
-      db.collection('especialidades').doc((id + 1).toString()).set({
-        'id': id+1,
+  Future<String> put(Especialidade especialidade) async {
+    // if (especialidade.idEspecialidade == null) {
+    //   int id = await getCount();
+    //   print("id $id put Especialidade");
+    var itemRef = db.collection("especialidades");
+    var doc = itemRef.doc().id;
+      db.collection('especialidades').doc(doc).set({
+        // 'id': id+1,
         'descricao': especialidade.descricao,
-      });
-    }else {
-      db.collection('especialidades').doc(especialidade.idEspecialidade.toString()).set({
-        'descricao': especialidade.descricao,
-      });
-    }
+      }).then((value) => print("Inseriu especialidade $doc"));
+      return doc;
+    // }else {
+    //   db.collection('especialidades').doc(especialidade.idEspecialidade.toString()).set({
+    //     'descricao': especialidade.descricao,
+    //   });
+    // }
   }
 
 
-  Future<void> put2(Especialidade especialidade) async {
-    if (especialidade.id1 == null) {
-      // int id = await getCount();
-      // print("id $id put Especialidade");
-      db.collection('back_especialidades').doc().set({
-        // 'id': document.referrer,
-        'descricao': especialidade.descricao,
-      }).then((value) => print('deu certo'));
-    }else {
-      db.collection('back_especialidades').doc(especialidade.id1.toString()).set({
-        'descricao': especialidade.descricao,
-      });
-    }
-  }
+  // Future<void> put2(Especialidade especialidade) async {
+  //   if (especialidade.id1 == null) {
+  //     // int id = await getCount();
+  //     // print("id $id put Especialidade");
+  //     db.collection('back_especialidades').doc().set({
+  //       // 'id': document.referrer,
+  //       'descricao': especialidade.descricao,
+  //     }).then((value) => print('deu certo'));
+  //   }else {
+  //     db.collection('back_especialidades').doc(especialidade.id1.toString()).set({
+  //       'descricao': especialidade.descricao,
+  //     });
+  //   }
+  // }
 
   void remove(String id) async {
     db.collection("especialidades").doc(id).delete().then((value) => print('removeu com sucesso'));

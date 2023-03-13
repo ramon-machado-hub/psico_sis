@@ -41,7 +41,7 @@ class Profissional {
     senha = json['senha'];
   }
 
-  factory Profissional.fromJson1(dynamic json, Map<String, dynamic> doc) {
+  factory Profissional.fromJson1(dynamic json) {
     return Profissional(
       id: json['id'],
       nome: json['nome_profissional'] as String,
@@ -57,7 +57,7 @@ class Profissional {
   }
 
   Profissional.fromSnapshot(String uid, Map<String, dynamic> snapshot){
-    print("Profissional.fromSnapshot");
+    // print("Profissional.fromSnapshot");
     this.id = snapshot['id'];
     this.email = snapshot['email'];
     this.senha = snapshot['senha'];

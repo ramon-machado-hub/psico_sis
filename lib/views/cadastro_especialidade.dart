@@ -212,19 +212,13 @@ class _CadastroEspecialidadeState extends State<CadastroEspecialidade> {
                       Provider.of<EspecialidadeProvider>(context, listen: false)
                           .put(Especialidade(
                         descricao: _descricao,
-                      ));
-                      //id especialidade gerada
-                      Provider.of<EspecialidadeProvider>(context, listen: false)
-                          .getCount().then((value1) {
-                        int count = value1+1;
-                        //salvando no log
+                      )).then((value) {
                         Provider.of<LogProvider>(context, listen: false)
                             .put(LogSistema(
                           data: DateTime.now().toString(),
                           uid_usuario: _uid,
                           descricao: "Cadastro especialidade",
-                          ///id transação via put
-                          id_transacao: count.toString(),
+                          id_transacao: value,
                         ));
                         Navigator.pushReplacementNamed(context, "/cadastro_especialidade");
                       });

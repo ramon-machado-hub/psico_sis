@@ -11,7 +11,12 @@ import 'package:psico_sis/atividade2/views/perfis_atv.dart';
 import 'package:psico_sis/atividade2/views/servicos_atv.dart';
 import 'package:psico_sis/atividade2/views/transacoes_atv.dart';
 import 'package:psico_sis/atividade2/views/usuarios_atv.dart';
+import 'package:psico_sis/provider/agendamento_provider.dart';
+import 'package:psico_sis/provider/categoria_despesa_provider.dart';
+import 'package:psico_sis/provider/comissao_provider.dart';
+import 'package:psico_sis/provider/despesa_provider.dart';
 import 'package:psico_sis/provider/dias_horarios_provider.dart';
+import 'package:psico_sis/provider/dias_profissional_provider.dart';
 import 'package:psico_sis/provider/dias_provider.dart';
 import 'package:psico_sis/provider/dias_salas_profissionais_provider.dart';
 import 'package:psico_sis/provider/especialidade_profissional_provider.dart';
@@ -21,13 +26,16 @@ import 'package:psico_sis/provider/log_provider.dart';
 import 'package:psico_sis/provider/login_provider.dart';
 import 'package:psico_sis/provider/paciente_parceiro_provider.dart';
 import 'package:psico_sis/provider/paciente_provider.dart';
+import 'package:psico_sis/provider/pagamento_profissional_provider.dart';
 import 'package:psico_sis/provider/parceiro_provider.dart';
 import 'package:psico_sis/provider/profissional_provider.dart';
 import 'package:psico_sis/provider/publico_alvo_provider.dart';
 import 'package:psico_sis/provider/servico_profissional_provider.dart';
 import 'package:psico_sis/provider/servico_provider.dart';
+import 'package:psico_sis/provider/sessao_provider.dart';
 import 'package:psico_sis/provider/slots_horas_provider.dart';
 import 'package:psico_sis/provider/tipo_pagamento_provider.dart';
+import 'package:psico_sis/provider/transacao_provider.dart';
 import 'package:psico_sis/provider/usuario_provider.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/views/agenda.dart';
@@ -36,6 +44,7 @@ import 'package:psico_sis/views/cadastro_especialidade.dart';
 import 'package:psico_sis/views/cadastro_servico.dart';
 import 'package:psico_sis/views/cadastro_usuario.dart';
 import 'package:psico_sis/views/servicos.dart';
+import 'package:psico_sis/views/sessaoPage.dart';
 import 'package:psico_sis/views/sessao22.dart';
 import 'package:psico_sis/views/sessao3.dart';
 import 'package:psico_sis/views/sessao0.dart';
@@ -69,13 +78,20 @@ class AppWidget extends StatelessWidget {
 
   final Future<FirebaseApp> _initialization = Firebase.initializeApp(
     options: const FirebaseOptions(
-
         apiKey: "AIzaSyAH9ggxvRR0CbfNYFJUmw7Sh4qUZniZnqA",
         appId: "1:958457414591:web:d2b88697cc6f97ee97d70a",
         messagingSenderId: "958457414591",
         projectId: "psico-sys")
   );
 
+  //TESTE
+  // final Future<FirebaseApp> _initialization = Firebase.initializeApp(
+  //     options: const FirebaseOptions(
+  //         apiKey: "AIzaSyDOoW2lcLfDPBe0P8KfwCKi2AJjYIXYO5Q",
+  //         appId: "1:10171222830:web:4c0be5319de48c8fc508bf",
+  //         messagingSenderId: "10171222830",
+  //         projectId: "conscientemente-teste")
+  // );
 
 
   @override
@@ -83,7 +99,19 @@ class AppWidget extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (ctx) => SessaoProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => AgendamentoProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => CategoriaDespesaProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => ComissaoProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => DiasProfissionalProvider(),),
+        ChangeNotifierProvider(
           create: (ctx) => DiasSalasProfissionaisProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => DespesaProvider(),),
         ChangeNotifierProvider(
           create: (ctx) => EspecialidadeProfissionalProvider(),),
         ChangeNotifierProvider(
@@ -93,9 +121,11 @@ class AppWidget extends StatelessWidget {
         ChangeNotifierProvider(
             create: (ctx) => ParceiroProvider(),),
         ChangeNotifierProvider(
-          create: (ctx) => ProfissionalProvider(),),
-        ChangeNotifierProvider(
           create: (ctx) => PacienteProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => PagamentoProfissionalProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => ProfissionalProvider(),),
         ChangeNotifierProvider(
           create: (ctx) => EspecialidadeProvider(),),
         ChangeNotifierProvider(
@@ -114,6 +144,8 @@ class AppWidget extends StatelessWidget {
           create: (ctx) => DiasProvider(),),
         ChangeNotifierProvider(
           create: (ctx) => TipoPagamentoProvider(),),
+        ChangeNotifierProvider(
+          create: (ctx) => TransacaoProvider(),),
         ChangeNotifierProvider(
           create: (ctx) => LogProvider(),),
         ChangeNotifierProvider(
@@ -159,7 +191,8 @@ class AppWidget extends StatelessWidget {
             "/cadastro_usuario": (context) => const CadastroUsuario(),
             "/caixa": (context) => const Caixa(),
             "/servicos": (context) => const Servicos(),
-            "/sessao": (context) => const Sessao0(),
+            "/sessao": (context) => const SessaoPage(),
+            "/sessao0": (context) => const Sessao0(),
             "/sessao1": (context) => const Sessao1(),
             "/sessao2": (context) => const Sessao2(),
             "/sessao22": (context) => Sessao22(arguments: ModalRoute.of(context)!.settings.arguments as Sessao2Arguments,),

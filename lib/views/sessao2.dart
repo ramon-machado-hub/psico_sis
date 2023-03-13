@@ -66,7 +66,8 @@ class _Sessao2State extends State<Sessao2> {
                 print("entrou");
 
                 print(color1);
-                setState(() { color1 = AppColors.blue; });
+                setState(() {
+                  color1 = AppColors.blue; });
                 print(color1);
                 // Navigator.pushReplacementNamed(context, "/home_assistente");
               },

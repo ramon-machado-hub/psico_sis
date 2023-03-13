@@ -5,6 +5,7 @@ import 'package:psico_sis/model/dias_salas_profissionais.dart';
 
 class DiasSalasProfissionaisProvider  with ChangeNotifier{
   var db = FirebaseFirestore.instance;
+  List<DiasSalasProfissionais> diasProfissionais = [];
 
   Future<DiasSalasProfissionais?> exist(String hora, String dia, String sala)async{
     DiasSalasProfissionais dias;
@@ -24,6 +25,20 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     return null;
   }
 
+  Future<List<DiasSalasProfissionais>> getHorariosDoDiaByProfissional(String id, String dia) async{
+    // List<DiasSalasProfissionais> list = [];
+    var documents = await db.collection('dias_salas_profissionais')
+      .where("dia", isEqualTo: dia)
+      .where("id_profissional", isEqualTo: id).get();
+    final allData = documents.docs.map((doc) {
+      final dias = DiasSalasProfissionais.fromJson(doc.data());
+      dias.id1 = doc.id;
+      return dias;
+    }).toList();
+    return allData;
+
+  }
+
   ///checar somente o dia outras validações fazer na propria página
   Future<bool?> salaOcupada(String hora, String dia, String sala)async{
     DiasSalasProfissionais dias;
@@ -38,33 +53,50 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     }
   }
 
-  Future<List<DiasSalasProfissionais>> getListOcupadas() async{
-    List<DiasSalasProfissionais> result= [];
-    var documents = await db.collection('dias_salas_profissionais').get();
-    for(int i =0; i<documents.size; i++){
-      result.add(DiasSalasProfissionais(
-        id: int.parse(documents.docs[i]['id']),
-        idProfissional: documents.docs[i]['id_profissional'],
-        dia: documents.docs[i]['dia'],
-        sala: documents.docs[i]['sala'],
-        hora: documents.docs[i]['hora'],
-      ));
-    }
-    return result;
-  }
+  Future<List<DiasSalasProfissionais>> getList() async{
 
-
-  Future<int> getCount() async {
-    QuerySnapshot _myDoc = await FirebaseFirestore.instance.collection('dias_salas_profissionais')
-        .get();
-
-    if(_myDoc.docs.isEmpty){
-      return 0;
+    if (diasProfissionais.length==0){
+      final  querySnapshot = await db.collection('dias_salas_profissionais').get();
+      final allData = querySnapshot.docs.map((doc) {
+        final dias = DiasSalasProfissionais.fromJson(doc.data());
+        dias.id1 = doc.id;
+        diasProfissionais.add(dias);
+        return dias;
+      }).toList();
+      return allData;
     } else {
-      List<DocumentSnapshot> _myDocCount = _myDoc.docs;
-      return _myDocCount.length;
+      return diasProfissionais;
     }
+
   }
+
+  Future<List<DiasSalasProfissionais>> getListOcupadas(String dia) async{
+    if (diasProfissionais.length==0){
+      final  querySnapshot = await db.collection('dias_salas_profissionais')
+          .where("dia", isEqualTo: dia).get();
+
+      final allData = querySnapshot.docs.map((doc) {
+        final dias = DiasSalasProfissionais.fromJson(doc.data());
+        dias.id1 = doc.id;
+        return dias;
+      }).toList();
+      print(allData.length);
+      print('object');
+      return allData;
+    }  else {
+      List<DiasSalasProfissionais> result = [];
+      diasProfissionais.forEach((element) {
+        if (element.dia!.compareTo(dia)==0){
+          result.add(element);
+        }
+      });
+      return result;
+    }
+
+  }
+
+
+
 
 
 
@@ -72,65 +104,80 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     return db.collection('dias_salas_profissionais').doc(id).snapshots();
   }
 
-  Future<List<DiasSalasProfissionais>> getListDiasSalas() async{
-    final querySnapshot = await db.collection('dias_salas_profissionais').get();
-    final allData = querySnapshot.docs.map((doc) {
-      final dias = DiasSalasProfissionais.fromJson(doc.data());
-      dias.id1 = doc.id;
-      return dias;
-    }).toList();
-    return allData;
-  }
+  // Future<List<DiasSalasProfissionais>> getListDiasSalas() async{
+  //   final querySnapshot = await db.collection('back_dias_salas_profissionais2').get();
+  //   final allData = querySnapshot.docs.map((doc) {
+  //     final dias = DiasSalasProfissionais.fromJson(doc.data());
+  //     dias.id1 = doc.id;
+  //     return dias;
+  //   }).toList();
+  //   return allData;
+  // }
 
   Future<List<DiasSalasProfissionais>> getListDiasSalasByProfissional(String id) async{
-    final querySnapshot = await db.collection('dias_salas_profissionais')
-        .where("id_profissional", isEqualTo: id).get();
-    final allData = querySnapshot.docs.map((doc) {
-      final dias = DiasSalasProfissionais.fromJson(doc.data());
-      dias.id1 = doc.id;
-      return dias;
-    }).toList();
-    return allData;
-  }
-
-  Future<void> updateIdProf(DiasSalasProfissionais diasSalasProfissionais) async {
-      db.collection('dias_salas_profissionais').doc(diasSalasProfissionais.id.toString())
-          .update({
-        'id_profissional': diasSalasProfissionais.idProfissional.toString(),
+    if (diasProfissionais.length==0){
+      final querySnapshot = await db.collection('dias_salas_profissionais')
+          .where("id_profissional", isEqualTo: id).get();
+      final allData = querySnapshot.docs.map((doc) {
+        final dias = DiasSalasProfissionais.fromJson(doc.data());
+        dias.id1 = doc.id;
+        return dias;
+      }).toList();
+      return allData;
+    } else {
+      List<DiasSalasProfissionais> result = [];
+      diasProfissionais.forEach((element) {
+        if (element.idProfissional!.compareTo(id)==0){
+          result.add(element);
+        }
       });
+      return result;
+    }
   }
 
+  // Future<void> updateIdProf(DiasSalasProfissionais diasSalasProfissionais) async {
+  //     db.collection('dias_salas_profissionais').doc(diasSalasProfissionais.id.toString())
+  //         .update({
+  //       'id_profissional': diasSalasProfissionais.idProfissional.toString(),
+  //     });
+  // }
 
-  Future<void> put2(DiasSalasProfissionais diasSalasProfissionais) async {
-    var itemRef = db.collection("teste_dias");
-    var doc = itemRef.doc().id;
-    print(doc);
+
+  Future<String> put2(DiasSalasProfissionais diasSalasProfissionais) async {
+    String result = "";
+    // var itemRef = db.collection("dias_salas_profissionais");
+    // var doc = itemRef.doc().id;
+    // print(doc);
     if (diasSalasProfissionais.id1 != null){
-      db.collection('teste_dias').doc(doc)
+      result = diasSalasProfissionais.id1;
+      db.collection('dias_salas_profissionais').doc(diasSalasProfissionais.id1)
           .set({
+        // 'id': diasSalasProfissionais.id.toString(),
         'dia': diasSalasProfissionais.dia,
         'hora': diasSalasProfissionais.hora,
         'id_profissional': diasSalasProfissionais.idProfissional.toString(),
         'sala': diasSalasProfissionais.sala,
       });
     }
+    return result;
   }
 
   Future<void> put(DiasSalasProfissionais diasSalasProfissionais) async {
-    print("put ${diasSalasProfissionais.id}");
+    print("put DiasSalas id = ${diasSalasProfissionais.id}");
     if (diasSalasProfissionais.id == null) {
-      int id = await getCount();
-      print(id);
-      db.collection('dias_salas_profissionais').doc((id + 1).toString()).set({
-        'id': (id + 1).toString(),
+      var itemRef = db.collection("dias_salas_profissionais");
+      var doc = itemRef.doc().id;
+      db.collection('dias_salas_profissionais').doc(doc).set({
         'dia': diasSalasProfissionais.dia,
         'hora': diasSalasProfissionais.hora,
         'id_profissional': diasSalasProfissionais.idProfissional.toString(),
         'sala': diasSalasProfissionais.sala,
-      });
+      }).then((value) => print("inseriu dias Salas = $doc"));
+      diasSalasProfissionais.id1 = doc;
+      diasProfissionais.add(diasSalasProfissionais);
     }else {
-      db.collection('dias_salas_profissionais').doc("${diasSalasProfissionais.id}").set({
-        'id': (diasSalasProfissionais.id).toString(),
+      db.collection('dias_salas_profissionais').doc(diasSalasProfissionais.id).set({
+        // 'id': (diasSalasProfissionais.id).toString(),
         'dia': diasSalasProfissionais.dia,
         'hora': diasSalasProfissionais.hora,
         'id_profissional': diasSalasProfissionais.idProfissional,
@@ -139,5 +186,12 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     }
   }
 
+    void remove(String id) async {
+      db.collection("dias_salas_profissionais").doc(id).delete()
+          .then((value) => print("removeu dias_salas_profissionais $id"));
+      diasProfissionais.removeWhere((element) => element.id1.compareTo(id)==0);
+      notifyListeners();
+
+    }
 
 }

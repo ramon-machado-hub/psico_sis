@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:psico_sis/provider/servico_provider.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
+import 'package:psico_sis/widgets/app_bar_widget2.dart';
 import 'package:psico_sis/widgets/input_text_widget2.dart';
 import '../model/Usuario.dart';
 import '../model/log_sistema.dart';
@@ -12,7 +13,6 @@ import '../provider/log_provider.dart';
 import '../provider/usuario_provider.dart';
 import '../service/prefs_service.dart';
 import '../themes/app_colors.dart';
-import '../widgets/app_bar_widget.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/input_text_uper_widget.dart';
 
@@ -97,9 +97,9 @@ class _CadastroServicoState extends State<CadastroServico> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-        appBar: const PreferredSize(
-          preferredSize: Size.fromHeight(80),
-          child: AppBarWidget(),
+        appBar:  PreferredSize(
+          preferredSize: const Size.fromHeight(80),
+          child: AppBarWidget2(nomeUsuario: _usuario.nomeUsuario!),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -212,27 +212,26 @@ class _CadastroServicoState extends State<CadastroServico> {
                   width: MediaQuery.of(context).size.width * 0.2,
                   height: MediaQuery.of(context).size.height * 0.1,
                   label: "Cadastrar Serviço",
-                  onTap: () {
+                  onTap: () async {
                     if (_form.currentState!.validate()) {
-                      Provider.of<ServicoProvider>(context, listen: false)
+                     await Provider.of<ServicoProvider>(context, listen: false)
                           .put(Servico(
                         descricao: _descricao,
                         qtd_pacientes: int.parse(_qtdPacientes),
                         qtd_sessoes: int.parse(_qtdSessoes),
-                      ));
-                      Provider.of<ServicoProvider>(context, listen: false)
-                          .getCount().then((value1) {
-                        int count = value1 + 1;
+                      )).then((value) {
+                        String idServ = value;
                         Provider.of<LogProvider>(context, listen: false)
                             .put(LogSistema(
                           data: DateTime.now().toString(),
                           uid_usuario: _uid,
                           descricao: "INSERIU SERVICO",
                           ///id transação via put serviço
-                          id_transacao: count.toString(),
+                          id_transacao: idServ,
                         ));
-                        Navigator.pushReplacementNamed(context, "/cadastro_servico");
-                      });
+                     }).then((value) {
+                       Navigator.pushReplacementNamed(context, "/cadastro_servico");
+                     });
                     }
                   }
                 ),

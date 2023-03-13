@@ -1,18 +1,20 @@
-import 'dart:convert';
+// import 'dart:ffi';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:psico_sis/dialogs/alert_dialog_agenda.dart';
 import 'package:psico_sis/provider/dias_salas_profissionais_provider.dart';
+import 'package:psico_sis/provider/paciente_provider.dart';
 import 'package:psico_sis/provider/profissional_provider.dart';
+import 'package:psico_sis/provider/sessao_provider.dart';
 import 'package:psico_sis/themes/app_colors.dart';
+import 'package:psico_sis/themes/app_images.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
-import 'package:psico_sis/widgets/app_bar_widget.dart';
 import 'package:psico_sis/widgets/app_bar_widget2.dart';
-
-import '../daows/UsuarioWS.dart';
+import '../model/Paciente.dart';
 import '../model/Usuario.dart';
 import '../model/Profissional.dart';
 import '../model/dias_salas_profissionais.dart';
@@ -31,9 +33,14 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
 
   late List<Profissional> itemsProf = [];
   late List<DiasSalasProfissionais> itemsDiasSalasProf = [];
+  late List<DiasSalasProfissionais> itemsBuscaSalasProf = [];
+  late List<Sessao> _sessoesDoDia = [];
   late List<Profissional> itemsProfissional = [];
   late List<Sessao> itemsSessoes = [];
+  late Sessao _sessaoAtual = Sessao(
+  );
   late DateTime diaCorrente = DateTime.now();
+
   late Usuario _usuario = Usuario(
     idUsuario:1,
     senhaUsuario: "",
@@ -123,15 +130,319 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
     }
   }
 
-  String getNomeProfById(String id){
-    String? result ="";
-    result = itemsProfissional.firstWhere((element) => element.id==(int.parse(id))).nome;
-    if (result != null)
-    return result;
-    else return "";
+  // String getNomeProfById(String id){
+  //   String result ="";
+  //   // result = itemsProfissional.firstWhere((element) => (element.id?.compareTo(id)==0)).nome;
+  //   print(itemsProfissional.length);
+  //   itemsProfissional.forEach((element) {
+  //     if (element.id1.compareTo(id)==0){
+  //       result = element.nome!;
+  //       print('aeeww');
+  //     }
+  //   });
+  //   if (result != null){
+  //     print('achou prof');
+  //     print(result);
+  //     return result;
+  //   }
+  //   else {
+  //     print('NÃO achou prof');
+  //
+  //     return "";}
+  // }
+
+  String getNomeProfissionalIniciais(String nome) {
+    String nomeAbreviado ="";
+    for (int i = 0; i < nome.length; i++) {
+       if(nome.substring(i,i+1).compareTo(" ")==0){
+          nomeAbreviado += nome.substring(0,i+2)+".";
+          break;
+       }
+    }
+    return nomeAbreviado;
   }
 
-  Widget getWidgetHora(String hora, String sala,){
+
+  bool contemSessao(String hora, String sala){
+    bool result = false;
+    for(var item in _sessoesDoDia) {
+      if ((item.salaSessao!.compareTo(sala) == 0)
+          && (item.dataSessao!.compareTo(
+              UtilData.obterDataDDMMAAAA(diaCorrente)) == 0)
+          && (item.horarioSessao!.compareTo(hora) == 0)) {
+           _sessaoAtual = item;
+           result = true;
+      }
+    }
+    return result;
+  }
+
+  Future<Widget> getWidgetAgendamentoProfissional(String hora, String sala)async{
+    bool flag = false;
+    String idProfissional = "";
+    for(var item in itemsDiasSalasProf) {
+      if ((item.sala!.compareTo(sala) == 0)
+          && (item.dia!.compareTo(getDiaCorrente(DateFormat('EEEE').format(diaCorrente))) == 0)
+          && (item.hora!.compareTo(hora) == 0)) {
+        flag = true;
+        idProfissional = item.idProfissional!;
+      }
+    }
+    // print(flag);
+    // print("flag");
+    return (flag)?
+        // Card(
+        //   child: ListTile(
+        //     title: FutureBuilder(
+        //         future: Provider.of<ProfissionalProvider>(context,listen: false)
+        //             .getProfissional(idProfissional),
+        //         builder: (context, snapshot){
+        //           if (snapshot.hasData){
+        //             Profissional profissional = snapshot.data as Profissional;
+        //             return FittedBox(
+        //                 fit: BoxFit.contain,
+        //                 child: Text(profissional.nome!,  style: AppTextStyles.labelBold12,)
+        //             );
+        //           } else {
+        //             return Center(
+        //                 child: Text("")
+        //             );
+        //           }
+        //         }),
+        //   ),
+        // )
+        // Card(
+        //   child: Text("Ocupado"),
+        // )
+        Center(
+          child: FutureBuilder(
+              future: getProfissionalById(idProfissional),
+              // future: Provider.of<ProfissionalProvider>(context,listen: false)
+              //           .getProfissional(idProfissional),
+              builder: (BuildContext parentContext, AsyncSnapshot snapshot){
+                if (snapshot.hasData){
+                  Profissional profissional = snapshot.data as Profissional;
+                  return FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(getNomeProfissionalIniciais(profissional.nome!),
+                      style: AppTextStyles.labelBold14,));
+                } else {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Center(
+                        child: Text(""));
+                  }
+                }
+              },
+          ),
+        )
+        :
+        Center(
+          child: Text("LIVRE"),
+        );
+  }
+
+  Future<Profissional> getProfissionalById(String id) async {
+     return  itemsProfissional.firstWhere((element) => element.id1.compareTo(id)==0);
+  }
+  // Future<Paciente> getPacienteById(String id) async {
+  //   return  .firstWhere((element) => element.id1.compareTo(id)==0);
+  // }
+
+  Future<Widget> getWidgetAgendamento(String hora, String sala, double height, double width) async{
+    String dia = getDiaCorrente(DateFormat('EEEE').format(diaCorrente));
+    late Profissional _profissional;
+    late Paciente _paciente;
+    bool result = false;
+    Sessao sessao = Sessao();
+    if ((dia.compareTo("Domingo")==0)||(dia.compareTo("SÁBADO")==0)){
+      return Center(child:Text("LIVRE"));
+    } 
+    //checa se existe sessão para aquele dia
+    for(var item in _sessoesDoDia) {
+      if ((item.salaSessao!.compareTo(sala) == 0)
+          && (item.dataSessao!.compareTo(
+              UtilData.obterDataDDMMAAAA(diaCorrente)) == 0)
+          && (item.horarioSessao!.compareTo(hora) == 0)) {
+        sessao = item;
+        result = true;
+      }
+    }
+
+    // print("hora: $hora sala $sala");
+    // print(contemSessao(hora, sala));
+
+    return (contemSessao(hora, sala))?
+        Row(
+          children: [
+           Container(
+             height: height,
+             width: width*0.7,
+             decoration: BoxDecoration(
+               borderRadius: BorderRadius.circular(4.0),
+               color: (sessao.statusSessao!.compareTo("FINALIZADA")==0)?AppColors.line:AppColors.shape,
+             ),
+             child: Column(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: [
+                 SizedBox(
+                   height: height/2,
+                   width: width*0.7,
+                   child: FutureBuilder(
+                       // future: Provider.of<ProfissionalProvider>(context,listen: false)
+                       //     .getProfissional(sessao.idProfissional!),
+                       future: getProfissionalById(sessao.idProfissional!),
+                       builder: (context, snapshot){
+                         if (snapshot.hasData){
+                           Profissional profissional = snapshot.data as Profissional;
+                           _profissional = profissional;
+                           return Padding(padding: EdgeInsets.only(left: 4.0, right: 4.0),
+                                  child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child:Text(
+                                    getNomeProfissionalIniciais(profissional.nome!),
+                                    style: AppTextStyles.labelBold12,)
+                               ),
+                           );
+                         } else {
+                           if (snapshot.hasError) {
+                             return Text('Error: ${snapshot.error}');
+                           } else {
+                             return Center(
+                                 child: Text(""));
+                           }
+                         }
+                       }),
+                 ),
+                 SizedBox(
+                     height: height/2,
+                     width: width*0.7,
+                     child: FutureBuilder(
+                         future: Provider.of<PacienteProvider>(context,listen: false)
+                             .getPaciente(sessao.idPaciente!),
+                         builder: (context, snapshot){
+                           if (snapshot.hasData){
+                             Paciente paciente = snapshot.data as Paciente;
+                             _paciente = paciente;
+                             return Padding(padding: EdgeInsets.only(left: 4.0, right: 4.0),
+                               child:FittedBox(
+                                 fit: BoxFit.contain,
+                                 child: Text(paciente.nome!.substring(0,15)+"...",
+                                   textAlign: TextAlign.center,
+                                   style: AppTextStyles.subTitleBlack,
+                                 )  ),
+                             );
+                           } else {
+                             if (snapshot.hasError) {
+                               return Text('Error: ${snapshot.error}');
+                             } else {
+                               return Center(
+                                   child: Text(""));
+                             }
+                           }
+                         }),
+
+                 ),
+
+               ],
+             ),
+           ),
+          SizedBox(
+            height: height,
+            width: width*0.15,
+              child:
+
+              (sessao.statusSessao!.compareTo("AGENDADA")==0)?
+
+              Center(child:  Icon(
+                // size: (25.0),
+                Icons.calendar_month_outlined,
+                color: AppColors.labelBlack,
+              ),)
+                  :
+              Icon(
+                size: (25.0),
+                ((sessao.statusSessao!.compareTo("FINALIZADA")==0)||(sessao.statusSessao!.compareTo("CONFIRMADA")==0))?
+                Icons.check_circle:Icons.date_range,
+                color: AppColors.labelBlack,
+              ),
+          ),
+          SizedBox(
+            height: height,
+            width: width*0.15,
+            child: FittedBox(
+                fit: BoxFit.contain,
+                child: InkWell(
+                    onTap: (sessao.statusSessao!.compareTo("FINALIZADA")==0)? null :
+                        ()async {
+                      Sessao sessaof = new Sessao(
+                        idProfissional: sessao.idProfissional,
+                        idTransacao:  sessao.idTransacao,
+                        idPaciente: sessao.idPaciente,
+                        dataSessao: sessao.dataSessao,
+                        horarioSessao: sessao.horarioSessao,
+                        tipoSessao: sessao.tipoSessao,
+                        statusSessao: sessao.statusSessao,
+                        salaSessao: sessao.salaSessao,
+                        situacaoSessao: sessao.situacaoSessao,
+                        descSessao: sessao.descSessao,
+                      );
+                      sessaof.id1=sessao.id1;
+                      print(sessao.id1);
+                      print("sessao.id1");
+                      await DialogsAgendaAssistente.AlertDialogOpcoes(context, _uid,
+                          sessao, sessaof,
+                          _paciente, _profissional ).then((value) {
+
+                            setState((){});
+                          });
+                    },
+                    child: Padding(padding: EdgeInsets.all(4.0),
+                      child: Container(
+                        height: height,
+                        width: width*0.15,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:(sessao.statusSessao!.compareTo("FINALIZADA")==0)?
+                          AppColors.labelBlack:AppColors.primaryColor,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Icon(
+                            size: (15.0),
+                            Icons.edit,
+                            color:(sessao.statusSessao!.compareTo("FINALIZADA")==0)?
+                            AppColors.shape:AppColors.labelWhite,
+                          ),
+                        ),
+                        
+
+                      )
+
+              )
+            ))
+          )
+        ],)
+        :
+        FutureBuilder(
+            future: getWidgetAgendamentoProfissional(hora, sala),
+            builder:  (BuildContext parentContext, AsyncSnapshot snapshot){
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return FittedBox(
+                    fit: BoxFit.contain,
+                    child: CircularProgressIndicator());
+              }
+              if (snapshot.hasData) {
+                return snapshot.data;
+              }
+              return Text("LIVRE");
+            }
+        );
+  }
+
+  Future<Widget> getWidgetHora(String hora, String sala,) async {
     // List<DiasSalasProfissionais> ias = [];
     String dia = getDiaCorrente(DateFormat('EEEE').format(diaCorrente));
     print(itemsDiasSalasProf.length);
@@ -139,45 +450,140 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
     print(hora);
     print(sala);
     print(dia);
+    String? nome = "LIVRE";
+    bool agendado = false;
+    for (var value1 in _sessoesDoDia) {
+           if(   (value1.salaSessao!.compareTo(sala)==0)
+               &&(value1.dataSessao!.compareTo(UtilData.obterDataDDMMAAAA(diaCorrente))==0)
+               &&(value1.horarioSessao!.compareTo(hora)==0)){
+                return Column(
+                  children: [
+                      FutureBuilder(
+                          future: getNomeProfissional(value1.idProfissional!),
+                          // future: Provider.of<ProfissionalProvider>(context,listen: false)
+                          //     .getProfissional(value1.idProfissional!),
+                          builder: (context, snapshot){
+                            if (snapshot.hasData){
+                              Profissional profissional = snapshot.data as Profissional;
+                              return FittedBox(
+                                fit: BoxFit.contain,
+                                child: Text(profissional.nome!,  style: AppTextStyles.labelBold12,)
+                              );
+                            } else {
+                              return Center(
+                                  child: Text("")
+                              );
+                            }
+                      }),
+                    FutureBuilder(
+                        future: Provider.of<PacienteProvider>(context,listen: false)
+                            .getPaciente(value1.idPaciente!),
+                        builder: (context, snapshot){
+                          if (snapshot.hasData){
+                            Paciente paciente = snapshot.data as Paciente;
+                            return FittedBox(
+                              fit: BoxFit.contain,
+                              child: Row(
+                                children: [
+                                  Text("PACIENTE: ",  style: AppTextStyles.labelBold12,),
+                                  Text(paciente.nome!,  style: AppTextStyles.labelBold12,)
 
+                                ],
+                              )
+                            );
+                          } else {
+                            return Center(
+                                child: Text("")
+                            );
+                          }
+                        }),
 
-    // itemsDiasSalasProf.where((element) => false);
-    for (var items in itemsDiasSalasProf){
-      print("--------");
-      print(items.hora);
-      print(items.sala);
-      print(items.dia);
-      if ((items.dia!.compareTo(dia)==0) &&
-          (items.sala!.compareTo(sala)==0)&&
-          (items.hora!.compareTo(hora)==0)){
-          print("entrooouu=====");
-          String? nome = "";
-
-          // await Provider.of<ProfissionalProvider>(context,
-          // listen: false).getProfById(items.idProfissional.toString()).then((value) {
-          //   nome=value?.nome;
-          //   print("nome $nome");
-          //   return Text(nome!);
-          // } );
-        return Card(child: Text(getNomeProfById(items.idProfissional.toString())),);
-      } else {
-        print("nçao entrou");
-      }
+                  ],
+                );
+           }
     }
-    return Text("data");
+    for (var items in itemsBuscaSalasProf) {
+      if (( items.hora!.compareTo(hora)==0) &&
+          (items.sala!.compareTo(sala)==0) &&
+          (items.dia!.compareTo(dia)==0)
+      ) {
+        await getProfissionalById(items.idProfissional!).then((value) {
+            nome = value.nome;
+            print("nome $nome");
+            return Text(nome!);
+        });
+       // await Provider.of<ProfissionalProvider>(context,
+       //            listen: false).getProfById(items.idProfissional!).then((value) {
+       //              nome = value?.nome;
+                    print("nome $nome");
+                    // return Text(nome!);
+                  // } );
+      }
+
+    }
+    // if (nome?.compareTo("LIVRE")==0){
+    if (nome!=null){
+      return Text(nome!);
+    } else {
+      return Text("Livre");
+    }
+    // }
+    // itemsDiasSalasProf.where((element) => false);
+    // var prof = itemsDiasSalasProf.firstWhere((element) =>
+    //   element.hora!.contains(hora) &&
+    //   element.sala!.contains(sala)
+    //     // ((element.hora!.compareTo(hora)==0) &&
+    //     // (element.sala!.compareTo(sala)==0)),
+    // );
+    //var nome = itemsServ.firstWhere((element) => element.id==id,);
+
+
+    // if (prof ==null){
+    //   return Text("data");
+    // } else {
+    //   Card(child: Text(getNomeProfById(prof.idProfissional!)),);
+    // }
+    // for (var items in itemsDiasSalasProf){
+    //   print("--------");
+    //   print(items.hora);
+    //   print(items.sala);
+    //   print(items.dia);
+    //   if ((items.sala!.compareTo(sala)==0)&&
+    //       (items.hora!.compareTo(hora)==0)){
+    //       print("entrooouu=====");
+    //       String? nome = "";
+    //
+    //       // await Provider.of<ProfissionalProvider>(context,
+    //       // listen: false).getProfById(items.idProfissional.toString()).then((value) {
+    //       //   nome=value?.nome;
+    //       //   print("nome $nome");
+    //       //   return Text(nome!);
+    //       // } );
+    //     return Card(child: Text(getNomeProfById(items.idProfissional.toString())),);
+    //
+    //   } else {
+    //     print("nçao entrou");
+    //   }
+    // }
+
   }
 
   @override
   void initState() {
     super.initState();
-    Provider.of<DiasSalasProfissionaisProvider>(context,listen: false)
-      .getListOcupadas().then((value) {
-      itemsDiasSalasProf = value;
-    });
-    Provider.of<ProfissionalProvider>(context, listen: false)
-      .getListProfissionaisAtivos().then((value) {
-        itemsProfissional = value;
-    });
+    String dia_inicio  = getDiaCorrente(DateFormat('EEEE').format(diaCorrente));
+    print(dia_inicio);
+    print('dia === $dia_inicio');
+    //  Provider.of<DiasSalasProfissionaisProvider>(context,listen: false)
+    //   .getListOcupadas("SEGUNDA").then((value) {
+    //     print(value.length);
+    //     print('length ===');
+    //   itemsDiasSalasProf = value;
+    // });
+    // Provider.of<ProfissionalProvider>(context, listen: false)
+    //   .getListProfissionaisAtivos().then((value) {
+    //     itemsProfissional = value;
+    // });
     Future.wait([
       PrefsService.isAuth().then((value) {
         if (value){
@@ -201,7 +607,32 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
               context, "/login");
         }
       }),
+      if (_sessoesDoDia.length==0)
+        Provider.of<SessaoProvider>(context, listen: false)
+            // .getListSessoes().then((value) {
+          .getListSessoesDoDia(UtilData.obterDataDDMMAAAA(diaCorrente)).then((value){
+          _sessoesDoDia = value;
+        }),
+      if(itemsProfissional.length==0)
+        Provider.of<ProfissionalProvider>(context, listen: false)
+            .getListProfissionaisAtivos().then((value) {
+          itemsProfissional = value;
+        }),
+      if (itemsDiasSalasProf.length==0)
+        Provider.of<DiasSalasProfissionaisProvider>(context,listen: false)
+            .getListOcupadas(dia_inicio).then((value) {
+          print(value.length);
+          print('length ===');
+          itemsDiasSalasProf = value;
+          itemsBuscaSalasProf = value;
+        })
     ]);
+  }
+
+  Future<String> getNomeProfissional(String id)async{
+    String result = " ";
+    result = itemsProfissional.firstWhere((element) => element.id1.compareTo(id)==0).nome!;
+    return result;
   }
 
   @override
@@ -228,7 +659,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                   children: [
                     //aba horarios
                     Container(
-                      width: size.width*0.2,
+                      width: size.width*0.25,
                       height: size.height*0.04,
                       decoration: BoxDecoration(
                         color: AppColors.shape,
@@ -247,11 +678,73 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           InkWell(
-                            child: Icon(
-                              Icons.keyboard_double_arrow_left,
-                              color: AppColors.labelBlack,
+                            child: Container(
+                              width: size.width*0.03,
+                              height: size.height*0.03,
+                              alignment: Alignment.center,
+                              // margin: EdgeInsets.all(100.0),
+                              decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  shape: BoxShape.circle
+                              ),
+                              child: Icon(
+                                size: size.height*0.03,
+                                Icons.keyboard_double_arrow_left,
+                                color: AppColors.labelBlack,
+                              ),
+
                             ),
-                            onTap: (){
+                            onTap: () async{
+                              diaCorrente = diaCorrente.subtract(Duration(days: 7));
+
+                              print("subtraiu");
+                              print(diaCorrente.day);
+                              print(diaCorrente.month);
+                              if (getDiaCorrente(DateFormat('EEEE').format(diaCorrente)).compareTo("SÁBADO")==0){
+                                indexHoras = 6;
+                              } else {
+                                indexHoras = 12;
+                              }
+                              await Provider.of<DiasSalasProfissionaisProvider>
+                                (context, listen: false)
+                                  .getListOcupadas(
+                                  getDiaCorrente(DateFormat('EEEE')
+                                      .format(diaCorrente))
+                              ).then((value) {
+                                print('aaa');
+                                print(value.length);
+                                itemsDiasSalasProf=value;
+                                itemsBuscaSalasProf=value;
+                              });
+                              await Provider.of<SessaoProvider>(context,
+                                  listen: false).getListSessoesDoDia(
+                                  UtilData.obterDataDDMMAAAA(diaCorrente)).then((value) {
+
+                                // _sessoesDoDia.clear();
+                                _sessoesDoDia = value;
+
+                              });
+                              setState((){});
+                            },
+                          ),
+                          InkWell(
+                            child: Container(
+                              width: size.width*0.03,
+                              height: size.height*0.03,
+                              alignment: Alignment.center,
+                              // margin: EdgeInsets.all(100.0),
+                              decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  shape: BoxShape.circle
+                              ),
+                              child: Icon(
+                                size: size.height*0.03,
+                                Icons.keyboard_arrow_left,
+                                color: AppColors.labelBlack,
+                              ),
+
+                            ),
+                            onTap: () async{
                               diaCorrente = diaCorrente.subtract(Duration(days: 1));
 
                               print("subtraiu");
@@ -262,6 +755,25 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                               } else {
                                 indexHoras = 12;
                               }
+                              await Provider.of<DiasSalasProfissionaisProvider>
+                                (context, listen: false)
+                                  .getListOcupadas(
+                                  getDiaCorrente(DateFormat('EEEE')
+                                      .format(diaCorrente))
+                              ).then((value) {
+                                print('aaa');
+                                print(value.length);
+                                itemsDiasSalasProf=value;
+                                itemsBuscaSalasProf=value;
+                              });
+                              await Provider.of<SessaoProvider>(context,
+                                  listen: false).getListSessoesDoDia(
+                                  UtilData.obterDataDDMMAAAA(diaCorrente)).then((value) {
+
+                                    // _sessoesDoDia.clear();
+                                    _sessoesDoDia = value;
+
+                              });
                               setState((){});
                             },
                           ),
@@ -272,15 +784,27 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                 alignment: Alignment.center,
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  "${getDiaCorrente(DateFormat('EEEE').format(diaCorrente))}    ${diaCorrente.day}/${diaCorrente.month}",
+                                  "${getDiaCorrente(DateFormat('EEEE').format(diaCorrente))}    ${UtilData.obterDataDDMMAAAA(diaCorrente).substring(0,5)}",
                                   style: AppTextStyles.labelBold16,)),
                           ),
                           InkWell(
-                            child: Icon(
-                              Icons.keyboard_double_arrow_right,
-                              color: AppColors.labelBlack,
+                            child: Container(
+                              width: size.width*0.03,
+                              height: size.height*0.03,
+                              alignment: Alignment.center,
+                              // margin: EdgeInsets.all(100.0),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                shape: BoxShape.circle
+                              ),
+                              child: Icon(
+                                 size: size.height*0.03,
+                                 Icons.keyboard_arrow_right,
+                                 color: AppColors.labelBlack,
+                              ),
+
                             ),
-                            onTap: (){
+                            onTap: () async{
                               diaCorrente = diaCorrente.add(Duration(days: 1));
 
                               print("add");
@@ -292,6 +816,76 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                               } else {
                                 indexHoras = 12;
                               }
+                              await Provider.of<DiasSalasProfissionaisProvider>
+                                (context, listen: false)
+                                  .getListOcupadas(
+                                  getDiaCorrente(DateFormat('EEEE')
+                                      .format(diaCorrente))
+                              ).then((value) {
+                                print('aaa');
+                                print(value.length);
+                                itemsDiasSalasProf=value;
+                                itemsBuscaSalasProf=value;
+                              });
+                              await Provider.of<SessaoProvider>(context,
+                                  listen: false).getListSessoesDoDia(
+                                  UtilData.obterDataDDMMAAAA(diaCorrente)).then((value) {
+
+                                // _sessoesDoDia.clear();
+                                _sessoesDoDia = value;
+
+                              });
+                              setState((){});
+                            },
+                          ),
+                          InkWell(
+                            child: Container(
+                              width: size.width*0.03,
+                              height: size.height*0.03,
+                              alignment: Alignment.center,
+                              // margin: EdgeInsets.all(100.0),
+                              decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  shape: BoxShape.circle
+                              ),
+                              child: Icon(
+                                size: size.height*0.03,
+                                Icons.keyboard_double_arrow_right,
+                                color: AppColors.labelBlack,
+                              ),
+
+                            ),
+                            onTap: () async{
+                              diaCorrente = diaCorrente.add(Duration(days: 7));
+
+                              print("add");
+                              print(diaCorrente.day);
+                              print(diaCorrente.month);
+                              print(diaCorrente.month);
+                              if (getDiaCorrente(DateFormat('EEEE').format(diaCorrente)).compareTo("SÁBADO")==0){
+                                indexHoras = 6;
+                              } else {
+                                indexHoras = 12;
+                              }
+                              await Provider.of<DiasSalasProfissionaisProvider>
+                                (context, listen: false)
+                                  .getListOcupadas(
+                                  getDiaCorrente(DateFormat('EEEE')
+                                      .format(diaCorrente))
+                              ).then((value) {
+                                print('aaa');
+                                print(value.length);
+                                itemsDiasSalasProf=value;
+                                itemsBuscaSalasProf=value;
+                              });
+                              await Provider.of<SessaoProvider>(context,
+                                  listen: false).getListSessoesDoDia(
+                                  UtilData.obterDataDDMMAAAA(diaCorrente)).then((value) {
+
+                                // _sessoesDoDia.clear();
+                                _sessoesDoDia = value;
+
+                              });
                               setState((){});
                             },
                           ),
@@ -300,7 +894,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                     ),
                     Container(
                       width: size.width * 0.9,
-                      height: size.height * 0.75,
+                      height: size.height * 0.81,
                       decoration: BoxDecoration(
                         color: AppColors.labelWhite,
                         // borderRadius: BorderRadius.circular(10),
@@ -311,7 +905,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                           //coluna Horários
                           Container(
                               width: size.width * 0.06,
-                              height: size.height * 0.75,
+                              height: size.height * 0.8,
                               decoration: BoxDecoration(
                                 color: AppColors.labelWhite,
                               ),
@@ -319,7 +913,10 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                 children: [
 
                                   Padding(
-                                    padding:  EdgeInsets.all(size.height*0.008),
+                                    padding:  EdgeInsets.only(
+                                        bottom:size.height*0.008,
+                                        right: size.height*0.008,
+                                        left: size.height*0.008,),
                                     child: Container(
                                         decoration: BoxDecoration(
                                             color: AppColors.line,
@@ -332,26 +929,19 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                               ),
                                             ],
                                         ),
-                                        height: size.height * (0.75 / (13))-(size.height*0.016),
+                                        height: size.height * (0.8 / (13))-(size.height*0.016),
                                         width: size.width*0.06-(size.height*0.016),
                                         child: Center(child: FittedBox(child: Text("Horário", style: AppTextStyles.labelBlack14Lex,)))),
                                   ),
+
                                   for (int i=0; i<12; i++)
-                                    Padding(
-                                      padding:  EdgeInsets.all(size.height*0.008),
+                                    Card(
                                       child: Container(
                                           decoration: BoxDecoration(
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.grey,
-                                                  offset: Offset(0.0, 1.0), //(x,y)
-                                                  blurRadius: 4.0,
-                                                ),
-                                              ],
                                             color: (i%2==0)?AppColors.secondaryColor : AppColors.secondaryColor2,
                                             borderRadius: BorderRadius.circular(4.0)
                                           ),
-                                          height: size.height * (0.75 / (13))-(size.height*0.016),
+                                          height: size.height * (0.8 / (13))-(size.height*0.013),
                                           width: size.width*0.06-(size.height*0.016),
                                           child: Center(child: FittedBox(
                                               fit: BoxFit.scaleDown,
@@ -360,10 +950,11 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                 ],
                               )),
 
+                          //salas
                           for (int i=0; i<6; i++)
                           Container(
                               width: (size.width * 0.84)/6,
-                              height: size.height * 0.75,
+                              height: size.height * 0.8,
                               decoration: BoxDecoration(
                                 color: AppColors.labelWhite,
                               ),
@@ -371,10 +962,14 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                 children: [
                                   //Sala
                                   Padding(
-                                    padding: EdgeInsets.all(size.height*0.008),
+                                    padding: EdgeInsets.only(bottom: size.height*0.008,
+                                      right: size.height*0.008, left: size.height*0.008,
+                                    ),
                                     child: Container(
                                       width: (size.width * 0.84)/6-(size.height*0.016),
-                                      height: size.height * 0.75/(13)-(size.height*0.016),
+                                      // height: size.height * (0.8 / (13))-(size.height*0.016),
+
+                                      height: ((size.height * 0.8)/(13)) - (size.height*0.012),
                                       decoration: BoxDecoration(
                                         boxShadow: [
                                           BoxShadow(
@@ -397,35 +992,92 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                       ),
                                     ),
                                   ),
+
                                   //horários sala
                                   for (int j=0; j<indexHoras; j++)
-                                    Padding(
-                                      padding: EdgeInsets.all(size.height*0.008),
-                                      child: Container(
+                                    Card(
+                                      child:Container(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(4.0),
                                           color: (j%2==0)?AppColors.secondaryColor : AppColors.secondaryColor2,
+                                          borderRadius: BorderRadius.circular(4.0),
                                         ),
-                                          width: (size.width * 0.84)/6 - (size.height*0.016),
-                                          height: (size.height * 0.75/(13))- (size.height*0.016),
-                                          child: Center(child: FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              //getWidget?
-                                              child: getWidgetHora(_listHoras[j], _listSalas[i],),
-                                              // FutureBuilder(
-                                              //   future: getWidgetHora(_listHoras[j], _listSalas[i],),
-                                              //   builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
-                                              //     if (snapshot.hasData) {
-                                              //       return snapshot.data;
-                                              //     } else {
-                                              //       return Text('Livres');
-                                              //     }
-                                              //   }),
-                                              // getWidgetHora(_listHoras[j], _listSalas[i],),))!,
+                                        width: ( (size.width * 0.84)/6) - (size.height*0.016),
+                                        height: ((size.height * 0.8)/(13)) - (size.height*0.013),
+                                        child: FutureBuilder(
+                                          future: getWidgetAgendamento(_listHoras[j], _listSalas[i],((size.height * 0.8)/(13)) - (size.height*0.013),( (size.width * 0.84)/6) - (size.height*0.016), ),
+                                          builder: (BuildContext parentContext, AsyncSnapshot snapshot){
+                                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                                  return FittedBox(
+                                                        fit: BoxFit.contain,
+                                                        child: CircularProgressIndicator()
+                                                  );
+                                              }
+                                              if (snapshot.hasData) {
+                                                 return snapshot.data;
+                                              }
+                                              return Center(child: Text("LIVRE"),);
+                                          },
+                                        ),
+                                      )
+                                    ),
 
-                                              // Text(_listHoras[j], style: AppTextStyles.labelBlack14Lex,))),
-                                      ),
-                                  ))),
+                                    // (itemsDiasSalasProf.length>0)?
+                                    // FutureBuilder(
+                                    //     future: getWidgetAgendamento(_listHoras[j], _listSalas[i],),
+                                    //     builder: (BuildContext parentContext, AsyncSnapshot snapshot){
+                                    //       if (snapshot.connectionState == ConnectionState.waiting) {
+                                    //         return FittedBox(
+                                    //             fit: BoxFit.contain,
+                                    //             child: CircularProgressIndicator());
+                                    //       }
+                                    //       if (snapshot.hasData) {
+                                    //         return snapshot.data;
+                                    //       }
+                                    //       return Card(
+                                    //         child: SizedBox(
+                                    //             width:((size.width * 0.84)/6)-(((size.width * 0.84)/6)*10),
+                                    //             height: ((size.height * 0.75)/(13))-(((size.height * 0.75)/13)/10),
+                                    //             child:Text("LIVRE"))
+                                    //       );
+                                    //     }):
+                                    // Card(
+                                    //     child: SizedBox(
+                                    //         width:((size.width * 0.84)/6)-(((size.width * 0.84)/6)*10),
+                                    //         height: ((size.height * 0.75)/(13))-(((size.height * 0.75)/13)/10),
+                                    //         child:Text("LIVRE"))
+                                    // ),
+                                  //  -------------------------------------------------------------
+                                  //   Padding(
+                                  //     padding: EdgeInsets.all(size.height*0.008),
+                                  //     child: Container(
+                                  //       decoration: BoxDecoration(
+                                  //         borderRadius: BorderRadius.circular(4.0),
+                                  //         color: (j%2==0)?AppColors.secondaryColor : AppColors.secondaryColor2,
+                                  //       ),
+                                  //         width: (size.width * 0.84)/6 - (size.height*0.016),
+                                  //         height: (size.height * 0.8/(13))- (size.height*0.016),
+                                  //         child: Center(
+                                  //           child: FittedBox(
+                                  //              //getWidget?
+                                  //             child: itemsDiasSalasProf.length>0?
+                                  //               FutureBuilder(
+                                  //                   // future: getWidgetHora(_listHoras[j], _listSalas[i],),
+                                  //                   future: getWidgetAgendamento(_listHoras[j], _listSalas[i],),
+                                  //                   builder: (BuildContext parentContext, AsyncSnapshot snapshot){
+                                  //                     if (snapshot.connectionState == ConnectionState.waiting) {
+                                  //                       return FittedBox(
+                                  //                           fit: BoxFit.contain,
+                                  //                           child: CircularProgressIndicator());
+                                  //                     }
+                                  //                     if (snapshot.hasData) {
+                                  //                       return snapshot.data;
+                                  //                     }
+                                  //
+                                  //                     return Text("LIVRE");
+                                  //                   }):
+                                  //               Text('LIVRE'),
+                                  //     ),
+                                  // ))),
                                 ],
                               ))
                         ],

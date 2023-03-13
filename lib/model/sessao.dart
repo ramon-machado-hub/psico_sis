@@ -1,73 +1,79 @@
 class Sessao {
-  int? idSessao;
+  String? idTransacao;
   String? dataSessao;
-  String? horarioSessao;
-  int? valorSessao;
-  String? tipoSessao;
-  String? descSessao;
-  String? idProfissional;
-  int? idPaciente;
   String? salaSessao;
+  String? horarioSessao;
+  String? tipoSessao;
+  String? idPaciente;
+  String? idProfissional;
+  //Presencial, On line.
+  String? descSessao;
+  //Sessao 1/4
   String? statusSessao;
   String? situacaoSessao;
+  //Agendada, Finalizada, Remarcada, Cancelada
+  late final String _id;
+  String get id1 => _id;
+  set id1(String value) {
+    _id = value;
+  }
+
 
   Sessao(
-      {this.idSessao,
+      {
+        this.idTransacao,
         this.dataSessao,
         this.horarioSessao,
-        this.valorSessao,
         this.tipoSessao,
         this.descSessao,
-        this.idProfissional,
-        this.idPaciente,
         this.salaSessao,
         this.statusSessao,
-        this.situacaoSessao});
+        this.situacaoSessao,
+        this.idProfissional,
+        this.idPaciente,
+      });
 
 
   factory Sessao.fromJson1(dynamic json) {
     return Sessao(
-      idSessao: int.parse(json['id']),
-      idProfissional: json['id_profissional'],
-      idPaciente: json['id_servico'],
+      idTransacao: json['id_transacao'],
       salaSessao: json['sala_sessao'],
-      situacaoSessao: json['situacao_sessao'],
       statusSessao: json['status_sessao'],
       dataSessao: json['data_sessao'],
       descSessao: json['desc_sessao'],
       horarioSessao: json['horario_sessao'],
       tipoSessao: json['tipo_sessao'],
-      valorSessao: json['valor_sessao'],
+      situacaoSessao: json['situacao'],
+      idPaciente: json['id_paciente'],
+      idProfissional: json['id_profissional'],
     );
   }
 
   Sessao.fromJson(Map<String, dynamic> json) {
-    idSessao = json['id'];
+    idTransacao = json['id_transacao'];
     dataSessao = json['data_sessao'];
     horarioSessao = json['horario_sessao'];
-    valorSessao = json['valor_sessao'];
     tipoSessao = json['tipo_sessao'];
     descSessao = json['desc_sessao'];
-    idProfissional = json['id_profissional'];
-    idPaciente = json['id_paciente'];
     salaSessao = json['sala_sessao'];
     statusSessao = json['status_sessao'];
-    situacaoSessao = json['situacao_sessao'];
+    situacaoSessao = json['situacao'];
+    idPaciente = json['id_paciente'];
+    idProfissional = json['id_profissional'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id_sessao'] = this.idSessao;
+    data['id_transacao'] = this.idTransacao;
     data['data_sessao'] = this.dataSessao;
     data['horario_sessao'] = this.horarioSessao;
-    data['valor_sessao'] = this.valorSessao;
     data['tipo_sessao'] = this.tipoSessao;
     data['desc_sessao'] = this.descSessao;
-    data['id_profissional'] = this.idProfissional;
-    data['id_paciente'] = this.idPaciente;
     data['sala_sessao'] = this.salaSessao;
     data['status_sessao'] = this.statusSessao;
     data['situacao_sessao'] = this.situacaoSessao;
+    data['id_paciente'] = idPaciente;
+    data['id_profissional'] = idProfissional;
     return data;
   }
 }

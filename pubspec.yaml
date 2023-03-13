@@ -30,25 +30,26 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  google_fonts: ^2.3.1
+  google_fonts: ^3.0.1
   intl: ^0.17.0
-  basic_utils: ^4.2.2
+  basic_utils: ^5.4.2
   http: ^0.13.4
   flutter_svg: ^1.1.4
-  firebase_core: ^1.22.0
-  firebase_auth: ^3.8.0
-  cloud_firestore: ^3.4.7
+  firebase_core: ^2.4.0
+  firebase_auth: ^4.2.0
+  cloud_firestore: ^4.2.0
   provider: ^6.0.3
-  brasil_fields: 1.5.0
+  brasil_fields: ^1.8.1
   shared_preferences: ^2.0.15
   email_validator: ^2.1.17
+  font_awesome_flutter: ^10.4.0
 
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.11.0
 
 flutter_icons:
   web:

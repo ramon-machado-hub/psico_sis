@@ -46,6 +46,7 @@ class _CadastroPacientesState extends State<CadastroPacientes> {
   );
   String _uid="";
   String _nome ="",
+      _nome_responsavel = "",
       _data_nascimento = "",
       _endereco = "",
       _telefone = "",
@@ -176,45 +177,15 @@ class _CadastroPacientesState extends State<CadastroPacientes> {
                           ),
                           //nome
                           InputTextUperWidget(
-                              label: "NOME",
+                              label: "NOME PACIENTE",
                               icon: Icons.perm_contact_cal_sharp,
                               validator: (value) {
                                 if ((value!.isEmpty) || (value == null)) {
                                   return 'Insira um NOME';
                                 }
-                                // containPaciente(_nome);
-                                //     .then((value1) {
-                                //   if (value1){
-                                //     print("value1");
-                                //     _exist = true;
-                                //     setState((){});
-                                //     return 'PACIENTE já possui cadastro!';
-                                //   } else {
-                                //     print("value2");
-                                //
-                                //     _exist=false;
-                                //     setState((){});
-                                //     return null;
-                                //   }
-                                // });
-                                // Provider.of<PacienteProvider>(context, listen: false).existByName(_nome)
-                                //     .then((value1) {
-                                //       if(value1==false){
-                                //         print("entrou aquiii");
-                                //         _exist =false;
-                                //         setState((){});
-                                //         return null;
-                                //       } else{
-                                //         print("aqui entrou");
-                                //         _exist = true;
-                                //         setState((){});
-                                //       }
-                                // });
                                 if (_exist){
                                   return 'Paciente já cadastrado';
                                 }
-                                // print("saiu");
-                                // return null;
                               },
                               onChanged: (value) {
                                 _nome = value;
@@ -226,13 +197,33 @@ class _CadastroPacientesState extends State<CadastroPacientes> {
                               borderColor: AppColors.line,
                               textStyle:  AppTextStyles.subTitleBlack12,
                               iconColor: AppColors.labelBlack,),
+                          //nome RESPONSÁVEL
+                          InputTextUperWidget(
+                            label: "NOME RESPONSÁVEL",
+                            icon: Icons.person_pin_rounded,
+                            validator: (value) {
+                              if ((value!.isEmpty) || (value == null)) {
+                                return 'Insira um NOME';
+                              }
+
+                            },
+                            onChanged: (value) {
+                              _nome_responsavel = value;
+                              setState((){});
+                            },
+                            keyboardType: TextInputType.text,
+                            obscureText: false,
+                            backgroundColor: AppColors.secondaryColor,
+                            borderColor: AppColors.line,
+                            textStyle:  AppTextStyles.subTitleBlack12,
+                            iconColor: AppColors.labelBlack,),
                           //row cpf / telefone
                           Row(
                             children: [
                               SizedBox(
                                 width: size.width * 0.2224,
                                 child: InputTextWidgetMask(
-                                  label: "CPF",
+                                  label: "CPF RESPONSÁVEL",
                                   icon: Icons.badge_outlined,
                                   input: CpfInputFormatter(),
                                   validator: (value) {
@@ -376,7 +367,7 @@ class _CadastroPacientesState extends State<CadastroPacientes> {
                             bool result = value;
                             if (result==false){
                               Dialogs.AlertConfirmarPaciente(context,
-                                  _nome, _endereco, _data_nascimento, _telefone,
+                                  _nome,_nome_responsavel, _endereco, _data_nascimento, _telefone,
                                   _cpf, _numero,list, _uid);
                             } else {
                               print("usuario ja existe");

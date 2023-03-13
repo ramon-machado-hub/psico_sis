@@ -46,7 +46,11 @@ class _MenuButtonWidgetState extends State<MenuButtonWidget> {
                   )),
             ),
           ),
-          Text(widget.label, style: AppTextStyles.labelBold16,)
+          FittedBox(
+              fit: BoxFit.contain,
+              child: Text(widget.label, style: AppTextStyles.labelBold16,)
+
+          )
         ],
     );
   }

@@ -1,5 +1,5 @@
 class Especialidade {
-  String? idEspecialidade;
+  // String? idEspecialidade;
   String? descricao;
   late final String _id;
   String get id1 => _id;
@@ -8,10 +8,8 @@ class Especialidade {
   }
 
   Especialidade({
-    this.idEspecialidade,
+    // this.idEspecialidade,
     this.descricao});
-
-  // Usuario.fromJson(Map<String, dynamic> json) {
 
   Especialidade.fromJson(Map<String, dynamic> json) {
     // idEspecialidade = json['id_especialidade'];
@@ -20,25 +18,25 @@ class Especialidade {
 
   factory Especialidade.fromJson1(dynamic json) {
     return Especialidade(
-      idEspecialidade: (json['id']),
+      // idEspecialidade: (json['id']),
       descricao: json['descricao'],
     );
   }
 
   Especialidade.fromMap(Map<String, dynamic> map, String id){
-    this.idEspecialidade = id;
+    // this.idEspecialidade = id;
     this.descricao = map['descricao'];
   }
 
   Especialidade.fromSnapshot(String id, Map<String, dynamic> snapshot){
     print("fromSnapshot Especialidade");
-    this.idEspecialidade = id;
+    // this.idEspecialidade = id;
     this.descricao = snapshot['descricao'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id_especialidade'] = this.idEspecialidade;
+    // data['id_especialidade'] = this.idEspecialidade;
     data['descricao'] = this.descricao;
     return data;
   }

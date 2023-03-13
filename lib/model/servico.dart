@@ -3,6 +3,11 @@ class Servico {
   String? descricao;
   int? qtd_pacientes;
   int? qtd_sessoes;
+  late final String _id;
+  String get id1 => _id;
+  set id1(String value) {
+    _id = value;
+  }
 
   Servico({this.id, this.descricao, required this.qtd_pacientes, required this.qtd_sessoes});
 

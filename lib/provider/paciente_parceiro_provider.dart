@@ -84,7 +84,7 @@ class PacientesParceirosProvider  with ChangeNotifier{
     return result;
   }
 
-  Future<String> getParceiroByPaciente(int id,)async {
+  Future<String> getParceiroByPaciente(String id,)async {
     String result = "0";
     List<PacientesParceiros> list = [];
     await getListAll().then((value) {

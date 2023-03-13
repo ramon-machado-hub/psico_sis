@@ -26,14 +26,14 @@ class PublicoAlvoProvider  with ChangeNotifier{
   }
 
   Future<void> put(Especialidade especialidade) async {
-    if (especialidade.idEspecialidade == null) {
+    if (especialidade.id1 == null) {
       int id = await getCount();
       db.collection('publico_alvo').doc((id + 1).toString()).set({
         'id': (id + 1).toString(),
         'descricao': especialidade.descricao,
       });
     }else {
-      db.collection('publico_alvo').doc(especialidade.idEspecialidade.toString()).set({
+      db.collection('publico_alvo').doc(especialidade.id1).set({
         'descricao': especialidade.descricao,
       });
     }

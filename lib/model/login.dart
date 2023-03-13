@@ -1,6 +1,6 @@
 class Login {
   int? id;
-  int? id_usuario;
+  String? id_usuario;
   String? tipo_usuario;
   String? uid;
   late final String _id;
@@ -11,7 +11,7 @@ class Login {
 
   Login(
       { int? id,
-        int? id_usuario,
+        String? id_usuario,
         String? tipo_usuario,
       }) {
     if (id != null) {
@@ -28,14 +28,14 @@ class Login {
 
   Login.fromJson(Map<String, dynamic> json) {
     id = int.parse(json['id']);
-    id_usuario = int.parse(json['id_usuario']);
+    id_usuario = json['id_usuario'];
     tipo_usuario = json['tipo_usuario'];
   }
 
   factory Login.fromJson1(dynamic json) {
     return Login(
         id: int.parse(json['id']),
-        id_usuario: int.parse(json['id_usuario']),
+        id_usuario: json['id_usuario'],
         tipo_usuario: json['tipo_usuario'] as String,
     );
   }
@@ -43,7 +43,7 @@ class Login {
   Login.fromSnapshot(String uid, Map<String, dynamic> snapshot){
     print("Usuario.fromSnapshot");
     this.id = int.parse(snapshot['id']);
-    this.id_usuario = int.parse(snapshot['id_usuario']);
+    this.id_usuario = snapshot['id_usuario'];
     this.tipo_usuario = snapshot['tipo_usuario'];
   }
 

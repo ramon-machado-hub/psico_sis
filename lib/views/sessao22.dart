@@ -50,7 +50,7 @@ class _Sessao22State extends State<Sessao22> {
           list.map((e) => DiasProfissional.fromJson(e)).toList();
       _lDiasProfissional.forEach((element) {
         if (element.idProfissional == widget.arguments.profissional.id) {
-          _lDias.add(element.descricao.toString());
+          _lDias.add(element.dia.toString());
         }
       });
     });
@@ -305,7 +305,7 @@ class _Sessao22State extends State<Sessao22> {
       //pesquisa se contem sessão com aquele profissional
       // naquela hora e naquela data
       _lConsulta.forEach((element) {
-        if ((element.idProfissional!.compareTo(id_profissional)==0) &&
+        if ((element.descSessao!.compareTo(id_profissional)==0) &&
             (element.horarioSessao == hora) &&
             (element.dataSessao == diaSemana1)) {
           consulta = element;

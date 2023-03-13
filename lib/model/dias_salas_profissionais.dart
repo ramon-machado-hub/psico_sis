@@ -1,5 +1,5 @@
 class DiasSalasProfissionais {
-  int? id;
+  String? id;
   String? dia;
   String? sala;
   String? idProfissional;
@@ -14,7 +14,7 @@ class DiasSalasProfissionais {
       {this.id, this.dia, this.sala, this.idProfissional, this.hora});
 
   DiasSalasProfissionais.fromJson(Map<String, dynamic> json) {
-    id = int.parse(json['id']);
+    // id = int.parse(json['id']);
     dia = json['dia'];
     sala = json['sala'];
     idProfissional = json['id_profissional'];

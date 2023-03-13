@@ -6,7 +6,7 @@ class AppColors {
   static final secondaryColor2 = Color(0xFFF89297);
   static final green = Color(0xFF229C32);
   static final yelow = Color(0xFFF1E95D);
-  static final red = Color(0xFFF14F4F);
+  static final red = Color(0xFFFF0E0E);
   static final blue = Color(0xFFBED1FF);
   static final line = Color(0xFF818085);
   static final labelBlack = Color(0xFF000000);

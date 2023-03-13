@@ -39,7 +39,8 @@ class InputTextUperWidget extends StatefulWidget {
 class _InputTextUperWidgetState extends State<InputTextUperWidget> {
   @override
   Widget build(BuildContext context) {
-
+    print(widget.initalValue);
+    print("widget.initalValue");
     return Padding(
       padding: const EdgeInsets.only(bottom: 8, left: 30,right: 30),
       child: TextFormField(
@@ -55,6 +56,7 @@ class _InputTextUperWidgetState extends State<InputTextUperWidget> {
         initialValue: widget.initalValue,
         validator: widget.validator,
         onChanged: widget.onChanged,
+
         // style: AppTextStyles.labelBlack12,
 
         decoration: InputDecoration(

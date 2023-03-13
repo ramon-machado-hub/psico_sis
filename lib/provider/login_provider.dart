@@ -46,7 +46,7 @@ class LoginProvider  with ChangeNotifier{
         } else {
           return Login(
               id: 0,
-              id_usuario: 0,
+              id_usuario: "0",
               tipo_usuario: "não encontrou",
           );
         }
@@ -102,24 +102,26 @@ class LoginProvider  with ChangeNotifier{
         });
   }
 
-  Future<int?> put(Login login) async {
+  Future<String> put(Login login) async {
     // Usuario usuarioSave;
     if (login.id == null) {
 
       String uid = getDataUid();
-      print("put provider uid = $uid");
+      print("put  Login provider uid = $uid");
       print("login ${login.id_usuario}");
+      // print("id1 ${login.id1}");
       int id = 0;
-      getCount().then((value) {
+      // getCount().then((value) {
         print("entrou put");
-        id=value+1;
-        db.collection('users').doc((uid).toString()).set({
-          'id': id.toString(),
-          'id_usuario': login.id_usuario.toString(),
+        // id=value+1;
+        db.collection('users').doc(uid).set({
+          'id': uid,
+          'id_usuario': uid,
           'tipo_usuario': login.tipo_usuario,
-        });
-        return id;
-      });
+        }).then((value) => print("inseriu users $uid"));
+
+        return uid;
+      // });
 
     }else {
       //alterar
@@ -135,7 +137,7 @@ class LoginProvider  with ChangeNotifier{
       //   'telefone': usuario.telefone,
       //   'tipoUsuario': usuario.tipoUsuario
       // });
-      return 0;
+      return "";
     }
   }
 }

@@ -82,7 +82,7 @@ class _AniversariantesState extends State<Aniversariantes> {
                 items = snapshot.docs.map(
                         (documentSnapshot) => Paciente.fromMap(
                       documentSnapshot.data(),
-                      int.parse(documentSnapshot.id),
+                      documentSnapshot.id,
                     )
                 ).toList();
                 if(this.mounted){
