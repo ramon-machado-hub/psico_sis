@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +66,7 @@ class SessaoProvider  with ChangeNotifier{
     final allData = querySnapshot.docs.map((e) {
       final sessao = Sessao.fromJson(e.data());
       sessao.id1 = e.id;
+      print("achou ${sessao.id1}");
       return sessao;
     }).toList();
       
@@ -100,7 +103,9 @@ class SessaoProvider  with ChangeNotifier{
   Future<List<Sessao>> getSessoesByDiaSalaHora(String dia,String sala, String horario, String idProfissional)async{
     List<Sessao> result = [];
     String getDiaCorrente(DateTime data) {
+      print(data);
       String dia = DateFormat('EEEE').format(data);
+      print("DIAAAA = $dia");
       switch (dia) {
         case 'Monday':
           {
@@ -141,16 +146,10 @@ class SessaoProvider  with ChangeNotifier{
         .where('id_profissional', isEqualTo: idProfissional)
         .get();
 
-    final allData = querySnapshot.docs.map((e) {
+    final allData = await querySnapshot.docs.map((e) {
       final sessao = Sessao.fromJson(e.data());
       sessao.id1 = e.id;
 
-      // if(getDia(sessao.dataSessao!).compareTo(dia)==0){
-      //   return sessao;
-      // }
-      // if (dia.compareTo(getDia(sessao.dataSessao!))==0){
-      //
-      // }
       return sessao;
 
     }).toList();
@@ -159,13 +158,16 @@ class SessaoProvider  with ChangeNotifier{
       print(element.dataSessao);
       print(element.horarioSessao);
       print(element.descSessao);
+      print(int.parse(element.dataSessao!.substring(6,10)));
+      print(int.parse(element.dataSessao!.substring(3,5)));
+      print(int.parse(element.dataSessao!.substring(0,2)));
       String diaa = getDiaCorrente(DateTime(
-        int.parse(element.dataSessao!.substring(7,10)),
-        int.parse(element.dataSessao!.substring(4,5)),
-        int.parse(element.dataSessao!.substring(1,2)),
+        int.parse(element.dataSessao!.substring(6,10)),
+        int.parse(element.dataSessao!.substring(3,5)),
+        int.parse(element.dataSessao!.substring(0,2)),
       ));
-      print (diaa+" sessao");
-      print (dia+" remover");
+      print (diaa+" sessaoooo");
+      print (dia+" removerrrr");
 
     });
     List<int> ints = [];
@@ -176,11 +178,14 @@ class SessaoProvider  with ChangeNotifier{
       print(allData[i].descSessao!);
       print(allData[i].horarioSessao!);
       // print(getDia(allData[i].dataSessao!));
+
       String diaa = getDiaCorrente(DateTime(
           int.parse(allData[i].dataSessao!.substring(7,10)),
           int.parse(allData[i].dataSessao!.substring(4,5)),
-          int.parse(allData[i].dataSessao!.substring(1,2)),
+          int.parse(allData[i].dataSessao!.substring(0,2)),
       ));
+      print (diaa+" sessao");
+      print (dia+" remover");
       print(diaa);
       print(dia);
       print(dia.compareTo(diaa)==0);
@@ -192,6 +197,9 @@ class SessaoProvider  with ChangeNotifier{
         allData.remove(allData[i]);
         i=i-1;
         // result.removeAt(allData[i]);
+      }  else {
+        print("não removeu");
+        print(allData[i].dataSessao);
       }
     }
 
@@ -200,6 +208,9 @@ class SessaoProvider  with ChangeNotifier{
     return allData;
   }
 
+  // Future<List<Sessao>> getSessoesByDiaSalaHora(String dia,String sala, String horario, String idProfissional)async{
+  //
+  // }
 
   Future<List<Sessao>> getListSessoesDoDiaByProfissional(String data, String idProfissional)async{
     print("id = $idProfissional");
@@ -214,20 +225,44 @@ class SessaoProvider  with ChangeNotifier{
       sessao.id1 = e.id;
       return sessao;
     }).toList();
+    print(allData.length.toString()+" ===+++");
     return allData;
   }
 
 
-  Future<List<Sessao>> getSessoesByTransacaoPacienteProfissional(String idPaciente, String idProfissional)async {
+  Future<List<Sessao>> getSessoesByTransacaoPacienteProfissional(String idPaciente, String idProfissional, String idTransacao)async {
     final querySnapshot = await db.collection('sessoes')
         .where('id_paciente', isEqualTo: idPaciente)
         .where('id_profissional', isEqualTo: idProfissional)
-        // .where('id_transacao', isEqualTo: idTransacao)
+        .where('id_transacao', isEqualTo: idTransacao)
         .where('status_sessao', isEqualTo: "AGENDADA")
         .get();
     final allData = querySnapshot.docs.map((e) {
       final sessao = Sessao.fromJson(e.data());
       sessao.id1 = e.id;
+      print(sessao.id1);
+      print(sessao.horarioSessao);
+      print(sessao.descSessao);
+
+      return sessao;
+    }).toList();
+    return allData;
+  }
+
+  Future<List<Sessao>> getSessoesByTransacaoPacProf(String idPaciente, String idProfissional, String idTransacao)async {
+    final querySnapshot = await db.collection('sessoes')
+        .where('id_paciente', isEqualTo: idPaciente)
+        .where('id_profissional', isEqualTo: idProfissional)
+        .where('id_transacao', isEqualTo: idTransacao)
+        // .where('situacao', isEqualTo: "PAGO")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final sessao = Sessao.fromJson(e.data());
+      sessao.id1 = e.id;
+      print(sessao.id1);
+      print(sessao.horarioSessao);
+      print(sessao.descSessao);
+
       return sessao;
     }).toList();
     return allData;
@@ -247,6 +282,18 @@ class SessaoProvider  with ChangeNotifier{
     return allData;
   }
 
+  Future<List<Sessao>> getListSessoesSemSala() async {
+    final querySnapshot = await db.collection('sessoes')
+        .where('sala_sessao', isEqualTo: "")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final sessao = Sessao.fromJson(e.data());
+      sessao.id1 = e.id;
+      return sessao;
+    }).toList();
+    return allData;
+  }
+
   Future<List<Sessao>> getListSessoes() async {
       final querySnapshot = await db.collection('sessoes').get();
       final allData = querySnapshot.docs.map((e) {
@@ -254,6 +301,33 @@ class SessaoProvider  with ChangeNotifier{
         sessao.id1 = e.id;
         return sessao;
       }).toList();
+    return allData;
+  }
+
+  Future<List<Sessao>> getListPendentes() async {
+    final querySnapshot = await db.collection('sessoes')
+        .where('situacao', isEqualTo: "AGUARDANDO PAGAMENTO")
+        // .where('status_sessao', isEqualTo: "FINALIZADA")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final sessao = Sessao.fromJson(e.data());
+      sessao.id1 = e.id;
+      return sessao;
+    }).toList();
+    return allData;
+  }
+
+  Future<List<Sessao>> getListPendentesByProfissional(String idProf) async {
+    final querySnapshot = await db.collection('sessoes')
+        .where('id_profissional', isEqualTo : idProf)
+        .where('situacao', isEqualTo: "AGUARDANDO PAGAMENTO")
+        // .where('status_sessao', isEqualTo: "FINALIZADA")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final sessao = Sessao.fromJson(e.data());
+      sessao.id1 = e.id;
+      return sessao;
+    }).toList();
     return allData;
   }
 
@@ -301,25 +375,48 @@ class SessaoProvider  with ChangeNotifier{
       }).then((value) => print("inseriu sessao $doc"));
   }
 
+  Future<void> updateEfetuarPagamento(String id, String transacao) async {
+    var collection = db.collection('sessoes');
+    collection.doc(id).update({
+      'situacao':'PAGO',
+      'id_transacao':transacao,
+    }).then((value) {
+      print('Update PAGO sessoes $id');
+      notifyListeners();
+    }).catchError((error)=>print("update failed: $error"));
+  }
 
+  Future<void> updateEfetuarPendencia(String id) async {
+    var collection = db.collection('sessoes');
+    collection.doc(id).update({
+      'situacao':'PENDENTE',
+    }).then((value) {
+      print('Update PENDENTE sessoes $id');
+      notifyListeners();
+    }).catchError((error)=>print("update failed: $error"));
+  }
 
   Future<void> update(String id) async {
     var collection = db.collection('sessoes');
     collection.doc(id).update({
       'status_sessao':'FINALIZADA',
     }).then((value) {
-      print('Update sessoes $id');
+      print('Update FINALIZADA sessoes $id');
       notifyListeners();
     }).catchError((error)=>print("update failed: $error"));
   }
 
-  Future<void> updateDataEHora(String id, String data, String hora) async {
+  Future<void> updateDataEHora(String id, String data, String hora, String sala) async {
     var collection = db.collection('sessoes');
+    print(data);
+    print(hora);
+    print(sala);
     collection.doc(id).update({
       'data_sessao': data,
       'horario_sessao': hora,
+      'sala_sessao': sala,
     }).then((value) => print('Update sessoes $id'))
-        .catchError((error)=>print("update failed: $error"));
+        .catchError((error)=>print("update DATA HORA SALA failed: $error"));
   }
 
 

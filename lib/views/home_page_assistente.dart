@@ -2,19 +2,13 @@ import 'dart:html';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:psico_sis/model/transacao_caixa.dart';
-import 'package:psico_sis/provider/paciente_provider.dart';
-import 'package:psico_sis/provider/servico_profissional_provider.dart';
-import 'package:psico_sis/provider/transacao_provider.dart';
+import 'package:psico_sis/provider/sessao_provider.dart';
 import 'package:psico_sis/service/prefs_service.dart';
 import 'package:psico_sis/themes/app_images.dart';
 import 'package:psico_sis/widgets/menu_button_widget.dart';
-import '../model/Paciente.dart';
-import '../model/Profissional.dart';
 import '../model/Usuario.dart';
-import '../model/login.dart';
+import '../model/sessao.dart';
 import '../provider/usuario_provider.dart';
 import '../themes/app_colors.dart';
 import '../widgets/app_bar_widget2.dart';
@@ -146,7 +140,7 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         iconData: Icons.calendar_month_rounded,
                         onTap: () {
                           Navigator.pushReplacementNamed(
-                              context, "/agenda_assistente");
+                              context, "/agenda_assistente", );
                         }),
 
 
@@ -167,7 +161,7 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         width: size.width * 0.1,
                         iconData: Icons.monetization_on,
                         onTap: () {
-                          Navigator.pushReplacementNamed(context, "/caixa");
+                          Navigator.pushReplacementNamed(context, "/caixa2");
                         }),
 
                     MenuIconButtonWidget(
@@ -219,9 +213,109 @@ class _HomePageStateAssitente extends State<HomePageAssistente> {
                         height: size.width * 0.1,
                         width: size.width * 0.1,
                         iconData: Icons.handshake_rounded,
-                        onTap: () {
-                          Navigator.pushReplacementNamed(
-                              context, "/parceiro");
+                        onTap: () async{
+                          
+                          // ---recuperar serviços profissional
+                          // await Provider.of<ServicoProfissionalProvider>(context, listen: false)
+                          //     .getListServicosProfissional()
+                          //     .then((value) {
+                          //     List<ServicosProfissional> list = value;
+                          //     list.sort((a,b)=>a.idServico!.compareTo(b.idServico!));
+                          //     for (var value1 in list) {
+                          //       print("-----------");
+                          //       print(value1.id1);
+                          //       print(value1.idProfissional);
+                          //       print(value1.valor);
+                          //       print(value1.idServico);
+                          //     }
+                          // });
+
+                          //---recuperar serviços
+                          // await Provider.of<ServicoProvider>(context,listen: false).getListServicos().then((value) {
+                          //
+                          //   List<Servico> list = value;
+                          //   list.sort((a,b)=>a.descricao!.compareTo(b.descricao!));
+                          //   for (var value1 in list) {
+                          //     print("-----------");
+                          //     print(value1.id1);
+                          //     print(value1.descricao);
+                          //     // print(value1.valor);
+                          //     // print(value1.idServico);
+                          //   }
+                          // });
+                          
+                              // await Provider.of<TransacaoProvider>(context, listen: false)
+                              //     .getTransacoes().then((value) async {
+                              //      List<TransacaoCaixa> list = value;
+                              //      for (var value1 in list)  {
+                              //        await Provider.of<PagamentoTransacaoProvider>(context,listen: false).putTransacao(PagamentoTransacao(
+                              //                 idTransacao: value1.id1,
+                              //                 dataPagamento: value1.dataTransacao,
+                              //                  descServico: value1.descricaoTransacao,
+                              //                  horaPagamento: value1.horaTransacao!,
+                              //                  tipoPagamento: value1.tpPagamento,
+                              //                  valorPagamento: value1.valorTransacao,
+                              //                  valorTotalPagamento: value1.valorTransacao,
+                              //        ));
+                              //      }
+                              // });
+
+                          // ------
+                          //   await Provider.of<ComissaoProvider>(context, listen: false)
+                          //               .getListComissao2("Fqtj4ICaT7dt7p8E3x5HRsK07B93").then((value) {
+                          //               List<Comissao> list = [];
+                          //               list = value;
+                          //               list.forEach((element) async{
+                          //
+                          //                 print("---------");
+                          //                 print(element.id1);
+                          //                 print(element.idProfissional);
+                          //                 print(element.dataGerada);
+                          //                 print(element.dataPagamento);
+                          //                 print(element.situacao);
+                          //                 print(element.valor);
+                          //               });
+                          //           });
+
+                          // SESSÃO SEM SALA
+                          await Provider.of<SessaoProvider>(context, listen: false)
+                              .getSessoesByTransacaoPacProf(
+                              "igLK08hkDL1iszc2ffVC",
+                              "ebqwUjfkdCOB5uiEN1mRFYPXlen2",
+                              "").then((value) {
+                              // .getListSessoesSemSala().then((value) {
+                                List<Sessao> list = value;
+                                List<String> contSessao = [];
+                                List<String> idSessoesAPagar = [];
+                                String contSessaoAtual="";
+                                list.forEach((element) {
+                                  for (int i=8;i<element.descSessao!.length; i++) {
+                                    if  (element.descSessao![i].compareTo(" ")!=0) {
+                                      contSessaoAtual += element.descSessao![i];
+                                    } else{
+                                      break;
+                                    }
+                                  }
+                                  if (contSessao.contains(contSessaoAtual)==false){
+                                    contSessao.add(contSessaoAtual);
+                                    contSessaoAtual = "";
+                                  }
+                                  print("-------");
+                                  print(element.id1);
+                                  print(element.idProfissional);
+                                  print(element.idPaciente);
+                                  print(element.dataSessao);
+                                  print(element.horarioSessao);
+                                  print(element.descSessao);
+                                  print(element.salaSessao);
+                                });
+                              });
+
+
+
+                            // ------
+                            // Navigator.pushReplacementNamed(
+                            //     context, "/agendamento_geral");
                         }),
 
 

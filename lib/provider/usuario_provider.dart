@@ -27,6 +27,8 @@ class UsuarioProvider  with ChangeNotifier{
     return db.collection('usuarios').doc(uid).snapshots();
   }
 
+
+
   Future<QuerySnapshot> getUsuarios2() async{
     return await db.collection('usuarios').get();
   }
@@ -34,7 +36,32 @@ class UsuarioProvider  with ChangeNotifier{
   void setListUsuarios(List<Usuario> list){
       this.listUsuario = list;
   }
-  
+
+  // Future<Profissional> getProfissionalByUid(String uid) async {
+  //   DocumentSnapshot documentSnapshot = await
+  //   db.collection('users').doc(uid).get();
+  //   if (documentSnapshot.exists){
+  //     final Map<String, dynamic>
+  //     doc = documentSnapshot.data() as Map<String, dynamic>;
+  //     print("encontrou usuario Provider");
+  //     return Profissional.fromSnapshot(documentSnapshot.id,doc);
+  //   } else {
+  //     return Usuario(
+  //       idUsuario:1,
+  //       senhaUsuario: "",
+  //       loginUsuario: "",
+  //       dataNascimentoUsuario: "",
+  //       telefone: "",
+  //       nomeUsuario: "NÃO ENTROU",
+  //       emailUsuario: "",
+  //       statusUsuario:  "",
+  //       tokenUsuario: "",
+  //       tipoUsuario: "",
+  //     );
+  //   }
+  // }
+
+
   Future<Usuario> getUsuarioByUid2(String uid) async {
         DocumentSnapshot documentSnapshot = await
           db.collection('usuarios').doc(uid).get();

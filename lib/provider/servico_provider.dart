@@ -47,6 +47,7 @@ class ServicoProvider  with ChangeNotifier{
       final allData = querySnapshot.docs.map((e) {
         final json = e.data();
         final serv = Servico.fromJson(e.data());
+        print(e.id);
         serv.id1 = e.id;
         listServ.add(serv);
         return serv;

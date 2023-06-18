@@ -8,14 +8,21 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:psico_sis/model/despesa.dart';
 import 'package:psico_sis/model/pagamento_profissional.dart';
+import 'package:psico_sis/model/pagamento_transacao.dart';
+import 'package:psico_sis/model/servicos_profissional.dart';
+import 'package:psico_sis/model/sessao.dart';
 import 'package:psico_sis/model/transacao_caixa.dart';
 import 'package:psico_sis/provider/despesa_provider.dart';
 import 'package:psico_sis/provider/paciente_provider.dart';
+import 'package:psico_sis/provider/pagamento_transacao_provider.dart';
 import 'package:psico_sis/provider/profissional_provider.dart';
+import 'package:psico_sis/provider/servico_profissional_provider.dart';
+import 'package:psico_sis/provider/sessao_provider.dart';
 import 'package:psico_sis/provider/transacao_provider.dart';
 import 'package:psico_sis/service/validator_service.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/themes/app_images.dart';
+import 'package:psico_sis/views/pacientes.dart';
 import 'package:psico_sis/widgets/app_bar_widget2.dart';
 import 'package:psico_sis/widgets/menu_button_widget.dart';
 
@@ -35,14 +42,14 @@ import '../widgets/alert_dialog.dart';
 import '../widgets/app_bar_widget.dart';
 import '../widgets/menu_icon_label_button_widget.dart';
 
-class Caixa extends StatefulWidget {
-  const Caixa({Key? key}) : super(key: key);
+class CaixaUpdate extends StatefulWidget {
+  const CaixaUpdate({Key? key}) : super(key: key);
 
   @override
-  State<Caixa> createState() => _CaixaState();
+  State<CaixaUpdate> createState() => _CaixaUpdateState();
 }
 
-class _CaixaState extends State<Caixa> {
+class _CaixaUpdateState extends State<CaixaUpdate> {
   ScrollController scrollController1 = ScrollController();
   ScrollController scrollController2 = ScrollController();
   ScrollController scrollController3 = ScrollController();
@@ -60,8 +67,10 @@ class _CaixaState extends State<Caixa> {
   DateTime _dataCorrente = DateTime.now();
 
 
+  late List<Paciente> _lpacientes=[];
   late List<Profissional> _lprofissionais=[];
-  late List<TransacaoCaixa> _transacoesDoDia=[];
+  late List<PagamentoTransacao> _transacoesDoDia=[];
+  late List<TransacaoCaixa> _transacoesCaixaDoDia=[];
   late List<Despesa> _despesasDoDia=[];
   late List<PagamentoProfissional> _pagamentoProfissional=[];
   late Usuario _usuario = Usuario(
@@ -104,13 +113,13 @@ class _CaixaState extends State<Caixa> {
     double pagamentoComissao = 0;
     double saldo = 0;
       for (var item in _transacoesDoDia) {
-        novo = item.valorTransacao.replaceAll(',', '.');
+        novo = item.valorPagamento.replaceAll(',', '.');
 
-        if (item.tpPagamento.compareTo("PIX") == 0) {
+        if (item.tipoPagamento.compareTo("PIX") == 0) {
           pix +=  NumberFormat().parse(novo);
-        } else if (item.tpPagamento.compareTo("DINHEIRO") == 0) {
+        } else if (item.tipoPagamento.compareTo("DINHEIRO") == 0) {
           dinheiro += NumberFormat().parse(novo);
-        } else if (item.tpPagamento.compareTo("CARTÃO DE DÉBITO")==0){
+        } else if (item.tipoPagamento.compareTo("CARTÃO DE DÉBITO")==0){
           debito += NumberFormat().parse(novo);
         } else {
           credito += NumberFormat().parse(novo);
@@ -205,16 +214,51 @@ class _CaixaState extends State<Caixa> {
            }
       });
     }
+    if (_lpacientes.length==0){
+
+      Provider.of<PacienteProvider>(context, listen: false).getListPacientes().then((value) {
+        if (this.mounted){
+          _lpacientes = value;
+
+        }
+      });
+
+    }
+    if (_transacoesCaixaDoDia.length==0){
+        Provider.of<TransacaoProvider>(context, listen: false).getTransacoesDoDia(_dataCorrente)
+            .then((value) {
+          _transacoesCaixaDoDia = value;
+          _transacoesCaixaDoDia.sort((a,b) {
+            int aHora = int.parse(a.horaTransacao!.substring(0,2));
+            int aMin = int.parse(a.horaTransacao!.substring(3,5));
+            int bHora = int.parse(b.horaTransacao!.substring(0,2));
+            int bMin = int.parse(b.horaTransacao!.substring(3,5));
+            if (aHora==bHora){
+              return aMin.compareTo(bMin);
+            } else {
+              return aHora.compareTo(bHora);
+            }
+          });
+          print("------");
+          _transacoesDoDia.forEach((element) {
+            print(element.id1);
+
+          });
+          print("------");
+          print(_transacoesDoDia.length);
+        });
+
+    }
 
     if(_transacoesDoDia.length==0){
-      Provider.of<TransacaoProvider>(context, listen: false).getTransacoesDoDia(_dataCorrente)
+      Provider.of<PagamentoTransacaoProvider>(context, listen: false).getPagamentoTransacoesDoDia(_dataCorrente)
           .then((value) {
         _transacoesDoDia = value;
         _transacoesDoDia.sort((a,b) {
-          int aHora = int.parse(a.horaTransacao!.substring(0,2));
-          int aMin = int.parse(a.horaTransacao!.substring(3,5));
-          int bHora = int.parse(b.horaTransacao!.substring(0,2));
-          int bMin = int.parse(b.horaTransacao!.substring(3,5));
+          int aHora = int.parse(a.horaPagamento.substring(0,2));
+          int aMin = int.parse(a.horaPagamento.substring(3,5));
+          int bHora = int.parse(b.horaPagamento.substring(0,2));
+          int bMin = int.parse(b.horaPagamento.substring(3,5));
           if (aHora==bHora){
             return aMin.compareTo(bMin);
           } else {
@@ -263,15 +307,15 @@ class _CaixaState extends State<Caixa> {
   }
 
   void getvaloresDoDia() async{
-    await Provider.of<TransacaoProvider>(context, listen: false).getTransacoesDoDia(_dataCorrente)
+    await Provider.of<PagamentoTransacaoProvider>(context, listen: false).getPagamentoTransacoesDoDia(_dataCorrente)
         .then((value) {
       // if (this.mounted){
         _transacoesDoDia = value;
         _transacoesDoDia.sort((a,b) {
-          int aHora = int.parse(a.horaTransacao!.substring(0,2));
-          int aMin = int.parse(a.horaTransacao!.substring(3,5));
-          int bHora = int.parse(b.horaTransacao!.substring(0,2));
-          int bMin = int.parse(b.horaTransacao!.substring(3,5));
+          int aHora = int.parse(a.horaPagamento.substring(0,2));
+          int aMin = int.parse(a.horaPagamento.substring(3,5));
+          int bHora = int.parse(b.horaPagamento.substring(0,2));
+          int bMin = int.parse(b.horaPagamento.substring(3,5));
           if (aHora==bHora){
             return aMin.compareTo(bMin);
           } else {
@@ -314,12 +358,43 @@ class _CaixaState extends State<Caixa> {
 
   }
 
+  // Profissional getProfissionalByIdTransacao(String idTransacao){
+  //
+  // }
+  Future<Profissional> getProfissionalByTransacao(String id)async{
+    Profissional prof = Profissional();
+    await Provider.of<PagamentoTransacaoProvider>(context,listen: false).getPagamentoTransacaoById2(id).then((value) async{
+      String idTransacao = value!.idTransacao;
+      await Provider.of<TransacaoProvider>(context,listen: false).getTransacaoById2(idTransacao).then((value1) {
+        String idProf = value1!.idProfissional;
+        print("idProf = $idProf");
+        prof = _lprofissionais.firstWhere((element) => element.id1.compareTo(idProf)==0);
+        return prof;
+      });
+
+    });
+    return prof;
+  }
+
+  Future<Paciente> getPacienteByTransacao(String id)async{
+    Paciente prof = Paciente();
+    await Provider.of<PagamentoTransacaoProvider>(context,listen: false).getPagamentoTransacaoById2(id).then((value) async{
+      String idTransacao = value!.idTransacao;
+      await Provider.of<TransacaoProvider>(context,listen: false).getTransacaoById2(idTransacao).then((value1) {
+        String idPac = value1!.idPaciente;
+        print("idPac = $idPac");
+        prof = _lpacientes.firstWhere((element) => element.id1.compareTo(idPac)==0);
+        return prof;
+      });
+
+    });
+    return prof;
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery
-        .of(context)
-        .size;
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(80),
@@ -346,57 +421,11 @@ class _CaixaState extends State<Caixa> {
                     Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          //botões alterar data
-                          SizedBox(
-                            width: size.width*0.15,
-                            height: size.height*0.05,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  width: size.width*0.03,
-                                  height: size.width*0.03,
-                                  child: RawMaterialButton(
-                                    onPressed: () {
-                                      _dataCorrente = _dataCorrente.subtract(Duration(days: 1));
-                                      getvaloresDoDia();
-                                      // setState((){});
-                                    },
-                                    elevation: 2.0,
-                                    fillColor: Colors.white,
-                                    child: Icon(Icons.arrow_left,
-                                      size: 35.0,
-                                    ),
-                                    shape: CircleBorder(),
-                                    splashColor: AppColors.primaryColor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: size.width*0.03,
-                                  height: size.width*0.03,
-                                  child: RawMaterialButton(
-                                    onPressed: avanca()?(){
-                                      _dataCorrente = _dataCorrente.add(Duration(days: 1));
-                                      getvaloresDoDia();
-                                    }:null,
-                                    elevation: 2.0,
-                                    fillColor: avanca()?Colors.white:AppColors.line,
-                                    child: Icon(Icons.arrow_right,
-                                      size: 35.0,
-                                    ),
-                                    shape: CircleBorder(),
-                                    splashColor: AppColors.primaryColor,
-
-                                  ),
-                                ),
-
-
-                              ],
-                            ),
-                          ),
-                          //imagem caixa
+                          
+                          //imagem caixa + INFORMAÇÕES
                           Row(
                             children: [
+                              //imagem
                               Padding(
                                 padding: const EdgeInsets.only(left: 8.0,bottom: 4.0),
                                 child: SizedBox(
@@ -406,6 +435,7 @@ class _CaixaState extends State<Caixa> {
                                         fit: BoxFit.fill,
                                         child: Image.asset(AppImages.caixa, filterQuality: FilterQuality.high,))),
                               ),
+                              //data+dia
                               Padding(padding: EdgeInsets.only(left: 4.0),
                                 child:
                                 Container(
@@ -416,10 +446,69 @@ class _CaixaState extends State<Caixa> {
                                         SizedBox(
                                           width: size.width*0.09,
                                           height: size.height*0.06,
-                                          child:  FittedBox(
-                                            fit: BoxFit.contain,
-                                            child: Text(UtilData.obterDataDDMMAAAA(_dataCorrente).substring(0,5)),
-                                          ),
+                                          child:  Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                            children: [
+                                              SizedBox(
+                                                width: size.width*0.017,
+                                                height: size.height*0.06,
+                                                child:  InkWell(
+                                                    onTap: () {
+                                                      _dataCorrente = _dataCorrente.subtract(Duration(days: 1));
+                                                      getvaloresDoDia();
+                                                      // setState((){});
+                                                    },
+                                                  child: Container(
+                                                    alignment: Alignment.center,
+                                                    width: size.width*0.017,
+                                                    height: size.height*0.06,
+                                                    decoration: BoxDecoration(
+                                                        color: AppColors.primaryColor,
+                                                        shape: BoxShape.circle
+                                                    ),
+                                                    child: Icon(Icons.arrow_left_outlined,
+                                                      size: size.height*0.04,
+                                                      color: AppColors.labelBlack,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: size.width*0.048,
+                                                height: size.height*0.06,
+                                                child: FittedBox(
+                                                  fit: BoxFit.contain,
+                                                  child: Text(UtilData.obterDataDDMMAAAA(_dataCorrente).substring(0,5)),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                width: size.width*0.017,
+                                                height: size.height*0.06,
+                                                child: InkWell(
+                                                  onTap: avanca()?(){
+                                                    _dataCorrente = _dataCorrente.add(Duration(days: 1));
+                                                    getvaloresDoDia();
+                                                  }:null,
+
+                                                  child: Container(
+                                                    alignment: Alignment.center,
+                                                    width: size.width*0.018,
+                                                    height: size.height*0.06,
+                                                    decoration: BoxDecoration(
+                                                        color: avanca()?AppColors.primaryColor:AppColors.line,
+                                                        shape: BoxShape.circle
+                                                    ),
+                                                    child: Icon(Icons.arrow_right,
+                                                      size: size.height*0.04,
+                                                      color: AppColors.labelBlack,
+                                                    ),
+                                                  )
+                                                ),
+
+                                              ),
+
+                                            ],
+                                          )
                                         ),
                                         SizedBox(
                                             width: size.width*0.09,
@@ -625,8 +714,8 @@ class _CaixaState extends State<Caixa> {
                           Padding(
                             padding: EdgeInsets.only(top: size.height*0.01),
                             child: Container(
-                              height: size.height * 0.15,
-                              width: size.width*0.15,
+                              height: size.height * 0.25,
+                              width: size.width*0.18,
                               decoration: BoxDecoration(
                                   border: Border.fromBorderSide(
                                     BorderSide(
@@ -637,12 +726,16 @@ class _CaixaState extends State<Caixa> {
                                   borderRadius: BorderRadius.circular(8),
                                   color: AppColors.shape),
                               child: Center(
-                                child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                child: Wrap(
+                                  // crossAxisAlignment: WrapCrossAlignment.center,
+                                  // alignment: WrapAlignment.center,
+                                  spacing: size.width*0.02,
+                                // mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 // crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  SizedBox(height: size.height*0.12, width: size.width*0.06,
-                                  child: MenuIconLabelButtonWidget(
+                                  SizedBox(
+                                    height: size.height*0.12, width: size.width*0.05,
+                                    child: MenuIconLabelButtonWidget(
                                       label: "DESPESAS",
                                       height: size.height*0.08, width: size.width*0.05,
                                       iconData: MyFlutterApp.cash_register,
@@ -661,8 +754,81 @@ class _CaixaState extends State<Caixa> {
 
 
                                       }),),
+                                  SizedBox(
+                                    height: size.height*0.12, width: size.width*0.05,
+                                    child: MenuIconLabelButtonWidget(
+                                        label: "INADIMPLENTES",
+                                        height: size.height*0.08, width: size.width*0.05,
+                                        iconData: Icons.monetization_on,
+                                        onTap: ()async{
+                                          List<Sessao> listInadimplentes = [];
+                                          List<ServicosProfissional> listServicoProfissional = [];
+                                          // List<Sessao> listInadimplentes = [];
+                                          String getNomePaciente(String idPaciente){
+                                            String result = "";
+                                            _lpacientes.forEach((element) {
+                                              if(element.id1.compareTo(idPaciente)==0){
+                                                result=element.nome!;
+                                              }
+                                            });
+                                            return result;
+                                          }
+                                          String getNomeProfissional(String idProfissional){
+                                            print(idProfissional);
+                                            String result = "";
+                                            _lprofissionais.forEach((element) {
+                                               if(element.id1.compareTo(idProfissional)==0){
+                                                 result=element.nome!;
+                                               }
 
-                                  SizedBox(height: size.height*0.12, width: size.width*0.06,
+                                            });
+                                            return result;
+                                          }
+                                          await Provider.of<SessaoProvider>(context, listen: false).getListPendentes().then((value) async{
+                                            listInadimplentes = value;
+                                            print("inad = ${listInadimplentes.length}");
+                                            // var seen = Set<String>();
+                                            // listInadimplentes = list.where((element) => seen.add(element.idPaciente!)).toList();
+                                            // print("${list.length} = ${listInadimplentes.length}");
+                                            listInadimplentes.sort((a, b) {
+                                              int intNome = getNomePaciente(a.idPaciente!).compareTo(getNomePaciente(b.idPaciente!));
+                                              if (intNome==0){
+                                                 // a.idPaciente.toString().compareTo(b.idPaciente.toString());
+                                                return a.descSessao!.compareTo(b.descSessao!);
+                                              }
+                                              return intNome;
+                                            } );
+                                            print("ordenou");
+                                            // listInadimplentes.sort((a, b) => a.idPaciente.toString().compareTo(b.idPaciente.toString()));
+
+                                            await Provider.of<ServicoProfissionalProvider>(context, listen: false)
+                                                .getListServicosProfissional().then((value) async{
+                                                listServicoProfissional = value;
+
+                                            //    _listC.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+                                            });
+
+                                            Dialogs.AlertInadimplentes(context,_uid,listInadimplentes, _lprofissionais, listServicoProfissional);
+
+                                          });
+                                          getvaloresDoDia();
+                                          setState((){});
+                                          // List<CategoriaDespesa> _listC = [];
+                                          // Provider.of<CategoriaDespesaProvider>(context, listen:false)
+                                          //     .getListCategorias().then((value) async {
+                                          //   print("entrouu");
+                                          //   print(value.length);
+                                          //   _listC = value;
+                                          //   _listC.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+                                          //   await Dialogs.AlertCadastrarDespesa(context,_listC);
+                                          //   getvaloresDoDia();
+                                          //   setState((){});
+                                          // });
+
+
+                                        }),),
+                                  SizedBox(
+                                    height: size.height*0.12, width: size.width*0.05,
                                     child: MenuButtonWidget(
                                       label: "COMISSÃO",
                                       height: size.height*0.08, width: size.width*0.05,
@@ -691,6 +857,31 @@ class _CaixaState extends State<Caixa> {
                                          }
                                        });
                                   }),),
+                                  SizedBox(
+                                    height: size.height*0.12, width: size.width*0.05,
+                                    child: MenuButtonWidget(
+                                        label: "ATENDIMENTOS",
+                                        height: size.height*0.08, width: size.width*0.05,
+                                        image: AppImages.consulta,
+                                        onTap: () async{
+                                          List<Sessao> sessoesDoDia = [];
+                                          List<Comissao> listComissao = [];
+
+                                          await  Provider.of<SessaoProvider>(context, listen: false)
+                                                .getListSessoesDoDia(UtilData.obterDataDDMMAAAA(_dataCorrente)).then((value)async {
+                                              sessoesDoDia = value;
+                                              await Provider.of<ComissaoProvider>(context, listen:false)
+                                                  .getComissaoDoDia(UtilData.obterDataDDMMAAAA(_dataCorrente)).then((value) {
+                                                  listComissao = value;
+                                                  print(listComissao.length.toString()+"!!!");
+                                                  Dialogs.AlertDialogExtrato(context,listComissao,_lprofissionais, _lpacientes, _transacoesCaixaDoDia, sessoesDoDia,_dataCorrente);
+
+                                              });
+
+                                          });
+                                        }
+                                    ),
+                                  ),
                                 ],
                               ),),
                             ),
@@ -728,7 +919,7 @@ class _CaixaState extends State<Caixa> {
                               controller: scrollController1,
                               itemCount: _transacoesDoDia.length,
                               itemBuilder: (context, index){
-                                  return  Card(
+                                  return (_transacoesDoDia.length>0)? Card(
                                     elevation: 8,
                                     child: ListTile(
                                       title: Column(
@@ -745,7 +936,7 @@ class _CaixaState extends State<Caixa> {
                                                     fit: BoxFit.scaleDown,
                                                     alignment: Alignment.centerLeft,
                                                     child:  Text(
-                                                      _transacoesDoDia[index].descricaoTransacao,
+                                                      _transacoesDoDia[index].descServico,
                                                       style: AppTextStyles.subTitleBlack,),
                                                   )
                                               ),
@@ -771,21 +962,35 @@ class _CaixaState extends State<Caixa> {
 
                                                 Text("PROFISSIONAL: ", style: AppTextStyles.subTitleBlack, ),
                                                 FutureBuilder(
-                                                    future: Provider.of<ProfissionalProvider>
-                                                      (context, listen:false)
-                                                        .getProfissional(_transacoesDoDia[index].idProfissional),
-                                                    builder: (context, snapshot){
+                                                    future: getProfissionalByTransacao(_transacoesDoDia[index].id1),
+                                                    builder: (context,snapshot){
+                                                      print(_transacoesDoDia[index].id1);
                                                       if (snapshot.hasData){
+                                                        print("encontrou");
+
                                                         Profissional prof = snapshot.data as Profissional;
                                                         return Text(prof.nome!,  style: AppTextStyles.labelBold14,);
                                                       } else {
+                                                        print("não encontrou");
                                                         return Center(
                                                             child: Text("")
                                                         );
                                                       }
                                                     }),
-                                                // Text("ANNE VASCONCELOS", style: AppTextStyles.labelBold16,),
-                                                // Text("08:00", style: AppTextStyles.labelBold16,),
+                                                // FutureBuilder(
+                                                //     future: Provider.of<ProfissionalProvider>
+                                                //       (context, listen:false)
+                                                //         .getProfissional(_transacoesDoDia[index].idProfissional),
+                                                //     builder: (context, snapshot){
+                                                //       if (snapshot.hasData){
+                                                //         Profissional prof = snapshot.data as Profissional;
+                                                //         return Text(prof.nome!,  style: AppTextStyles.labelBold14,);
+                                                //       } else {
+                                                //         return Center(
+                                                //             child: Text("")
+                                                //         );
+                                                //       }
+                                                //     }),
                                               ],
                                             ),
                                           ),
@@ -796,16 +1001,31 @@ class _CaixaState extends State<Caixa> {
                                               children: [
                                                 Text("PACIENTE: ",style: AppTextStyles.subTitleBlack, ),
                                                 FutureBuilder(
-                                                    future: Provider.of<PacienteProvider>
-                                                      (context, listen: false).getPaciente(_transacoesDoDia[index].idPaciente),
-                                                    builder: (context, snapshot){
+                                                    future: getPacienteByTransacao(_transacoesDoDia[index].id1),
+                                                    builder: (context,snapshot){
+                                                      print(_transacoesDoDia[index].id1);
                                                       if (snapshot.hasData){
+                                                        // print("encontrou");
                                                         Paciente pac = snapshot.data as Paciente;
-                                                        return Text(pac.nome!, style: AppTextStyles.labelBold14 );
+                                                        return Text(pac.nome!,  style: AppTextStyles.labelBold14,);
                                                       } else {
-                                                        return Center(child: Text(""),);
+                                                        // print("não encontrou");
+                                                        return Center(
+                                                            child: Text("")
+                                                        );
                                                       }
                                                     }),
+                                                // FutureBuilder(
+                                                //     future: Provider.of<PacienteProvider>
+                                                //       (context, listen: false).getPaciente(_transacoesDoDia[index].idPaciente),
+                                                //     builder: (context, snapshot){
+                                                //       if (snapshot.hasData){
+                                                //         Paciente pac = snapshot.data as Paciente;
+                                                //         return Text(pac.nome!, style: AppTextStyles.labelBold14 );
+                                                //       } else {
+                                                //         return Center(child: Text(""),);
+                                                //       }
+                                                //     }),
                                               ],
                                             ),
                                           ),
@@ -813,16 +1033,12 @@ class _CaixaState extends State<Caixa> {
                                           FittedBox(
                                             fit: BoxFit.scaleDown,
                                             child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                                               children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  children: [
-                                                    Text("${_transacoesDoDia[index].valorTransacao}   ", style: AppTextStyles.labelBlack14FredokaOne),
-                                                    Text(_transacoesDoDia[index].tpPagamento, style: AppTextStyles.subTitleBlack),
-                                                  ],
-                                                ),
-                                                Text(_transacoesDoDia[index].horaTransacao!, style: AppTextStyles.subTitleBlack),
+                                                Text("${_transacoesDoDia[index].valorPagamento}   ", style: AppTextStyles.labelBlack14FredokaOne),
+                                                Text(_transacoesDoDia[index].tipoPagamento, style: AppTextStyles.subTitleBlack),
+                                                Text("  "+_transacoesDoDia[index].horaPagamento, style: AppTextStyles.subTitleBlack),
+
                                               ],
                                             ),
                                           )
@@ -830,20 +1046,8 @@ class _CaixaState extends State<Caixa> {
                                       ),
 
                                     ),
-                                  );
+                                  ):Center();
                           })
-                          // Scrollbar(
-                          //   controller: scrollController1,
-                          //   child: Padding(
-                          //     padding: const EdgeInsets.only(top: 8.0, right: 8.0, left: 8.0),
-                          //     child: Column(
-                          //       children: [
-                          //         for (var item in _transacoesDoDia)
-
-                          //       ],
-                          //     ),
-                          //   ),
-                          // ),
                         ),
 
                       ],
@@ -979,89 +1183,113 @@ class _CaixaState extends State<Caixa> {
                                   if(_pagamentoProfissional.length>0){
                                     return Card(
                                       elevation: 8,
-                                      child: Container(
-                                        width: size.width * 0.2,
-                                        height: size.height*0.1,
-                                        child: ListTile(
-                                          title: Column(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
+                                      child: InkWell(
+                                        onTap: ()async{           
+                                          // getProfissionalByTransacao(id)
+                                          Profissional prof = Profissional();
+                                          List<Comissao> listComissao = [];
+                                          List<Paciente> listPaciente = [];
+                                         await Provider.of<ProfissionalProvider>(context,listen: false)
+                                              .getProfissional(_pagamentoProfissional[index].idProfissional).then((value) async {
+                                                prof = value;
+                                                await Provider.of<ComissaoProvider>(context,listen: false)
+                                                    .getComissaoByPagamento(_pagamentoProfissional[index].idProfissional,_pagamentoProfissional[index].id1)
+                                                    .then((value) async {
+                                                    listComissao = value;
+                                                    print("listComissao");
+                                                    print(listComissao.length);
 
-                                              Row(
-                                                children: [
-                                                  SizedBox(
-                                                    width: size.width * 0.13,
-                                                    height: size.height * 0.03,
-                                                    child: FittedBox(
-                                                      fit: BoxFit.scaleDown,
-                                                      alignment: Alignment.centerLeft,
-                                                      child: Text("PROFISSIONAL: ", style: AppTextStyles.subTitleBlack, ),
+
+                                                    await Dialogs.AlertDetalhesPagamentoProfissional(context,prof,_pagamentoProfissional[index], listComissao);
+
+                                                });
+                                          });
+
+                                        },
+                                        child: Container(
+                                          width: size.width * 0.2,
+                                          height: size.height*0.1,
+                                          child: ListTile(
+                                            title: Column(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+
+                                                Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: size.width * 0.13,
+                                                      height: size.height * 0.03,
+                                                      child: FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.centerLeft,
+                                                        child: Text("PROFISSIONAL: ", style: AppTextStyles.subTitleBlack, ),
+                                                      ),
                                                     ),
-                                                  ),
 
-                                                  SizedBox(
-                                                    width: size.width * 0.03,
-                                                    height: size.height * 0.02,
-                                                    child: FittedBox(
-                                                      fit: BoxFit.scaleDown,
-                                                      alignment: Alignment.centerRight,
-                                                      child: Text(_pagamentoProfissional[index].id1.substring(0,4), style: AppTextStyles.subTitleBlack, ),
+                                                    SizedBox(
+                                                      width: size.width * 0.03,
+                                                      height: size.height * 0.02,
+                                                      child: FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.centerRight,
+                                                        child: Text(_pagamentoProfissional[index].id1.substring(0,4), style: AppTextStyles.subTitleBlack, ),
 
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              FutureBuilder(
-                                                  future: Provider.of<ProfissionalProvider>
-                                                    (context, listen:false)
-                                                      .getProfissional(_pagamentoProfissional[index].idProfissional),
-                                                  builder: (context, snapshot){
-                                                    if (snapshot.hasData){
-                                                      Profissional prof = snapshot.data as Profissional;
-                                                      return FittedBox(
-                                                        fit: BoxFit.contain,
-                                                        child: Text(prof.nome!, style: AppTextStyles.labelBold14,),
-                                                      );
-                                                      // Text(prof.nome!,  style: AppTextStyles.labelBold14,);
-                                                    } else {
-                                                      return Center(
-                                                          child: Text("")
-                                                      );
-                                                    }
-                                                  }),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  FittedBox(
-                                                    fit: BoxFit.contain,
-                                                    child: Text(_pagamentoProfissional[index].valor, style: AppTextStyles.labelBlack16Lex,),
-                                                  ),
-                                                  FittedBox(
-                                                    fit: BoxFit.contain,
-                                                    child: Text(_pagamentoProfissional[index].data, style: AppTextStyles.subTitleBlack,),
-                                                  ),
-                                                  // Row(
-                                                  //   mainAxisAlignment: MainAxisAlignment.start,
-                                                  //   children: [
-                                                  //
-                                                  //     SizedBox(width: size.width*0.005,),
-                                                  //     FittedBox(
-                                                  //       fit: BoxFit.contain,
-                                                  //       child: Text(item.hora, style: AppTextStyles.subTitleBlack,),
-                                                  //     ),
-                                                  //
-                                                  //   ],
-                                                  // ),
+                                                  ],
+                                                ),
+                                                FutureBuilder(
+                                                    future: Provider.of<ProfissionalProvider>
+                                                      (context, listen:false)
+                                                        .getProfissional(_pagamentoProfissional[index].idProfissional),
+                                                    builder: (context, snapshot){
+                                                      if (snapshot.hasData){
+                                                        Profissional prof = snapshot.data as Profissional;
+                                                        return FittedBox(
+                                                          fit: BoxFit.contain,
+                                                          child: Text(prof.nome!, style: AppTextStyles.labelBold14,),
+                                                        );
+                                                        // Text(prof.nome!,  style: AppTextStyles.labelBold14,);
+                                                      } else {
+                                                        return Center(
+                                                            child: Text("")
+                                                        );
+                                                      }
+                                                    }),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    FittedBox(
+                                                      fit: BoxFit.contain,
+                                                      child: Text(_pagamentoProfissional[index].valor, style: AppTextStyles.labelBlack16Lex,),
+                                                    ),
+                                                    FittedBox(
+                                                      fit: BoxFit.contain,
+                                                      child: Text(_pagamentoProfissional[index].data, style: AppTextStyles.subTitleBlack,),
+                                                    ),
+                                                    // Row(
+                                                    //   mainAxisAlignment: MainAxisAlignment.start,
+                                                    //   children: [
+                                                    //
+                                                    //     SizedBox(width: size.width*0.005,),
+                                                    //     FittedBox(
+                                                    //       fit: BoxFit.contain,
+                                                    //       child: Text(item.hora, style: AppTextStyles.subTitleBlack,),
+                                                    //     ),
+                                                    //
+                                                    //   ],
+                                                    // ),
 
-                                                ],
-                                              ),
+                                                  ],
+                                                ),
 
 
-                                            ],
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      )
                                     );
                                     // Scrollbar(
                                     //     child: Padding(

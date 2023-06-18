@@ -651,11 +651,14 @@ class DialogsProfissional {
                                              Provider.of<SessaoProvider>(context, listen: false)
                                                  .getSessoesByTransacaoPacienteProfissional(
                                                  sessoes[index].idPaciente!,
-                                                 sessoes[index].idProfissional!).then((value) {
-                                               listSessao = value;
+                                                 sessoes[index].idProfissional!, sessoes[index].idTransacao!).then((value) {
+
+                                                   listSessao.clear();
+                                                   listSessao = value;
                                                listSessao.sort((a,b)=>a.descSessao!.compareTo(b.descSessao!));
 
                                                listSessao.forEach((element) {
+                                                 print(element.dataSessao);
                                                  datasSessoes.add(element.dataSessao!);
                                                });
                                                diference = GetDiferenceDays(datasSessoes[0], datasSessoes[1]);
@@ -806,6 +809,7 @@ class DialogsProfissional {
       false,
       false,
       false,
+      false,
     ];
     List<String> _listDescSalas = [
       "SALA 01",
@@ -814,6 +818,7 @@ class DialogsProfissional {
       "SALA 04",
       "SALA 05",
       "SALA 06",
+      "SALA 07",
     ];
     List<String> _dias = [
       "SEGUNDA",
@@ -978,21 +983,6 @@ class DialogsProfissional {
       return nomeProfissional;
     }
 
-    // void  showSnackBar(String message) {
-    //   print("inside snack");
-    //   SnackBar snack = SnackBar(
-    //     backgroundColor: AppColors.primaryColor,
-    //     content: Text(
-    //       message,
-    //       style: AppTextStyles.labelBlack16Lex,
-    //       textAlign: TextAlign.center,
-    //     ),
-    //     duration: const Duration(seconds: 2),
-    //     margin: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-    //     behavior: SnackBarBehavior.floating,
-    //   );
-    //   ScaffoldMessenger.of(parentContext).showSnackBar(snack);
-    // }
 
     Size size = MediaQuery.of(parentContext).size;
     return showDialog(
@@ -1000,522 +990,469 @@ class DialogsProfissional {
         builder: (context){
            return StatefulBuilder(
                builder: (context, setState)=>AlertDialog(
-                 title: Column(
-                   children: [
-                     Text("CRONOGRAMA PROFISSIONAL"),
-                     SizedBox(
-                       width: MediaQuery.of(parentContext).size.width * 0.9,
-                       height: MediaQuery.of(parentContext).size.height * 0.7,
-                       child: Column(
-                         crossAxisAlignment: CrossAxisAlignment.start,
-                         children: [
-                           Center(
-                               child: Text(
-                                   "Selecione os dias e horários que o Profissional irá atuar. ")),
-                           Divider(
-                             thickness: 2,
-                           ),
-                           Row(
-                             children: [
-                               Column(
-                                 children: [
-                                   //list horas
-                                   Container(
-                                     height:
-                                     MediaQuery.of(parentContext).size.height * 0.06,
-                                     width:
-                                     MediaQuery.of(parentContext).size.width * 0.718,
-                                     // color: AppColors.blue,
-                                     child: Row(
-                                       children: [
-                                         Card(
-                                           elevation: 8,
-                                           color: AppColors.line,
-                                           child: Container(
-                                             width: MediaQuery.of(parentContext)
-                                                 .size
-                                                 .width *
-                                                 0.114,
-                                             height: MediaQuery.of(parentContext)
-                                                 .size
-                                                 .height *
-                                                 0.06,
-                                             child: Center(
-                                                 child: Text(
-                                                   _selectDay,
-                                                   style: AppTextStyles.labelBlack16Lex,
-                                                 )),
-                                           ),
-                                         ),
-                                         for (int i = 0; i < jota; i++)
-                                           Column(
-                                             children: [
-                                               Card(
-                                                 elevation: 8,
-                                                 color: ((i % 2) != 0)
-                                                     ? AppColors.shape
-                                                     : AppColors.labelWhite,
-                                                 child: Container(
-                                                   width: MediaQuery.of(parentContext)
-                                                       .size
-                                                       .width *
-                                                       0.04,
-                                                   height: MediaQuery.of(parentContext)
-                                                       .size
-                                                       .height *
-                                                       0.045,
-                                                   child: Center(
-                                                       child: Text(
-                                                         _listHoras[i],
-                                                         style:
-                                                         AppTextStyles.labelBlack16Lex,
-                                                       )),
-                                                 ),
-                                               ),
-                                             ],
-                                           ),
-                                       ],
-                                     ),
-                                   ),
-                                   //Salas e agenda
-                                   Container(
-                                     height: MediaQuery.of(parentContext).size.height *
-                                         0.465,
-                                     width:
-                                     MediaQuery.of(parentContext).size.width * 0.718,
-                                     // color: AppColors.green,
-                                     child: Row(
-                                       children: [
-                                         //salas
-                                         Container(
-                                           height:
-                                           MediaQuery.of(parentContext).size.height *
-                                               0.465,
-                                           width:
-                                           MediaQuery.of(parentContext).size.width *
-                                               0.12,
-                                           // color: AppColors.shape,
-                                           child: ListView.builder(
-                                               scrollDirection: Axis.vertical,
-                                               itemCount: 6,
-                                               itemBuilder: (context, index) {
-                                                 return Card(
-                                                     elevation: 8,
-                                                     color: _listSalas[index]
-                                                         ? AppColors.line
-                                                         : AppColors.green,
-                                                     child: SizedBox(
-                                                         height:
-                                                         MediaQuery.of(parentContext)
-                                                             .size
-                                                             .height *
-                                                             0.065,
-                                                         width:
-                                                         MediaQuery.of(parentContext)
-                                                             .size
-                                                             .width *
-                                                             0.07,
-                                                         child: Row(
-                                                           mainAxisAlignment:
-                                                           MainAxisAlignment.center,
-                                                           children: [
-                                                             Icon(
-                                                               Icons
-                                                                   .door_back_door_outlined,
-                                                               color:
-                                                               AppColors.labelBlack,
-                                                             ),
-                                                             Padding(
-                                                               padding:
-                                                               const EdgeInsets.only(
-                                                                   left: 6.0),
-                                                               child: FittedBox(
-                                                                 fit: BoxFit.contain,
-                                                                 child: Text(
-                                                                   "${_listDescSalas[index]}",
-                                                                   style: AppTextStyles
-                                                                       .subTitleBlack14,
-                                                                 ),
-                                                               ),
-                                                             ),
-                                                           ],
-                                                         )));
-                                               }),
-                                         ),
-
-                                         //horários
-                                         Container(
-                                           height:
-                                           MediaQuery.of(parentContext).size.height *
-                                               0.465,
-                                           width:
-                                           MediaQuery.of(parentContext).size.width *
-                                               0.598,
-                                           // color: AppColors.red,
-                                           child: Column(
-                                             children: [
-                                               //horários dos dias da semana
-                                               for (int i = 0; i < 6; i++)
-                                                 Row(
-                                                   children: [
-                                                     for (int j = 0; j < jota; j++)
-                                                      //ocupado horario profissional?
-                                                       busyProfissional(i, j) ?
-                                                       InkWell(
-                                                         onTap: (){
-                                                           // getSelectDay(i,j)
-                                                           // if (getDay(_selectDay, i, j, _listSelectDay)!=null){
-                                                           //   _listSelectDay.remove(getDay(_selectDay, i, j, _listSelectDay));
-                                                           //   setState((){});
-                                                           // }
-
-                                                           Provider.of<SessaoProvider>(context,listen: false)
-                                                               .getSessoesByDiaSalaHora(
-                                                                  _selectDay, _listDescSalas[i],
-                                                               _listHoras[j],profissional.id1).then((value) {
-                                                                 List<Sessao> list = [];
-                                                                 list = value;
-                                                                 print(list.length);
-                                                                 print("list.length");
-
-                                                                 list.forEach((element) {
-                                                                    print(element.dataSessao);
-                                                                    print(element.descSessao);
-                                                                    print(element.horarioSessao);
-                                                                    // print(element.);
-                                                                 });
-                                                                 if(list.length>0){
-                                                                   //exibir sessoes que causa choque em horario a ser removido
-                                                                   DialogsProfissional.AlertDialogSessoesDiaHoraRemover(parentContext,
-                                                                   uid,profissional,list,_selectDay,_listDescSalas[i],
-                                                                       _listHoras[j]
-                                                                   );
-                                                                   //  showSnackBar("EXISTE SESSÃO PARA ESTE DIA NESTE HORÁRIO.");
-                                                                 } else {
-                                                                   //confirmar exclusão
-                                                                   DiasSalasProfissionais dia = getDia(i, j);
-                                                                   print(dia.hora);
-                                                                   print(dia.sala);
-                                                                   print(dia.dia);
-                                                                   List<DiasProfissional> result = [];
-                                                                   diasProfissional.forEach((element) {
-                                                                     if (element.idProfissional!.compareTo(profissional.id1)==0){
-                                                                       result.add(element);
-                                                                     }
-                                                                   });
-
-                                                             //       parentContext, String uid,
-                                                             // Profissional profissional,
-                                                             // DiasSalasProfissionais diaRemover,
-                                                             // List<DiasSalasProfissionais> diasTrabalhoProfissional,
-                                                             // List<DiasSalasProfissionais> listOcupados,
-                                                             // List<DiasProfissional> diasProfissional,
-                                                             // List<DiasProfissional> dias,
-                                                             // List<Servico> servicos,
-                                                             // List<ServicosProfissional> servicosProfissional,
-                                                                   DialogsProfissional.AlertDialogConfirmarExclusaoHorario(
-                                                                       parentContext, uid, profissional, dia,
-                                                                       listHorariosProfissional,listOcupados, result,diasProfissional,servicos,servicosProfissional);
-                                                                   setState((){});
-                                                                   print("result = 0");
-                                                                 }
-                                                           });
-
-                                                         },
-                                                         child: Card(
-                                                           elevation: 8,
-                                                           color: AppColors.secondaryColor,
-                                                           child: SizedBox(
-                                                               width: MediaQuery.of(parentContext).size.width * 0.04,
-                                                               height: MediaQuery.of(parentContext).size.height * 0.065,
-                                                               child: FittedBox(
-
-                                                                   child: Column(
-                                                                     children: [
-                                                                       Text("RESERVADO"),
-                                                                       Icon(
-                                                                         Icons.delete_outline_rounded,
-                                                                         color: AppColors.labelWhite,
-                                                                       ),
-                                                                     ],
-                                                                   ))),
-                                                         ),
-                                                       ):
-                                                       busy(i, j) ?
-                                                       //card ocupado
-                                                       Card(
-                                                         color: AppColors.red,
-                                                         child: SizedBox(
-                                                           width: MediaQuery.of(
-                                                               parentContext)
-                                                               .size
-                                                               .width *
-                                                               0.04,
-                                                           height: MediaQuery.of(
-                                                               parentContext)
-                                                               .size
-                                                               .height *
-                                                               0.065,
-                                                           child: Center(
-                                                               child: FittedBox(
-                                                                   fit: BoxFit.contain,
-                                                                   child: Padding(
-                                                                     padding:
-                                                                     const EdgeInsets
-                                                                         .only(
-                                                                         left: 3.0,
-                                                                         right:
-                                                                         3.0),
-                                                                     child: Column(
-                                                                       children: [
-                                                                         Text("OCUPADO"),
-                                                                         FutureBuilder(
-                                                                             future: getNome(i, j),
-                                                                             builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
-                                                                               if (snapshot.hasData) {
-                                                                                 return Text(snapshot.data);
-                                                                               }else {
-                                                                                 return Center(
-                                                                                     child: Text("")
-                                                                                 );
-                                                                               }
-
-                                                                             }),
-                                                                         // Text(
-                                                                         //     "nome"),
-                                                                       ],
-                                                                     ),
-                                                                   ))),
-                                                         ),
-                                                       ) :
-                                                       // busy(i, j)
-                                                      busySelect(i, j)?
-                                                       //card selecionado
-                                                       InkWell(
-                                                         onTap: (){
-                                                           // getSelectDay(i,j)
-                                                           if (getDay(_selectDay, i, j, _listSelectDay)!=null){
-                                                             _listSelectDay.remove(getDay(_selectDay, i, j, _listSelectDay));
-                                                             setState((){});
-                                                           }
-
-                                                         },
-                                                         child: Card(
-                                                           elevation: 8,
-                                                           color: AppColors.primaryColor,
-                                                           child: SizedBox(
-                                                               width: MediaQuery.of(parentContext).size.width * 0.04,
-                                                               height: MediaQuery.of(parentContext).size.height * 0.065,
-                                                               child: Center(child: Icon(
-                                                                 Icons.check_circle,
-                                                                 color: AppColors.labelWhite,
-                                                               ))),
-                                                         ),
-                                                       ) :
-                                                       //card hora livre
-                                                       InkWell(
-                                                         onTap: (){
-                                                           if (containHoursBusy(j)){
-
-                                                           } else {
-                                                             _listSelectDay.add(
-                                                                 DiasSalasProfissionais(
-                                                                     dia: _selectDay,
-                                                                     hora: _listHoras[j],
-                                                                     sala: _listDescSalas[i]
-                                                                 )
-                                                             );
-                                                             _listSelectDay.sort(
-                                                                     (a,b) {
-                                                                   if (a.dia! == b.dia!) {
-                                                                     return a.hora!.compareTo(b.hora!);
-                                                                   } else {
-                                                                     if(getIndexDia(a.dia)<getIndexDia(b.dia)){
-                                                                       return -1;
-                                                                     } else {
-                                                                       return 1;
-                                                                     }
-                                                                   }
-                                                                 }
-                                                             );
-                                                             setState((){});
-                                                           }
-                                                         },
-                                                         child: Card(
-                                                           elevation: 8,
-                                                           color: ((i % 2) != 0) ? AppColors.shape : AppColors.labelWhite,
-                                                           child: SizedBox(
-                                                               width: MediaQuery.of(parentContext).size.width * 0.04,
-                                                               height: MediaQuery.of(parentContext).size.height * 0.065,
-                                                               child: Center(child:
-                                                               Text(_listHoras[j],
-                                                                 style: AppTextStyles.labelBold16,))),
-                                                         ),
-                                                       ),
-                                                   ],
-                                                 )
-                                             ],
-                                           ),
-                                         )
-                                       ],
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                               //lista cards horários selecionados
-                               Container(
-                                 height:
-                                 MediaQuery.of(parentContext).size.height * 0.525,
-                                 width: MediaQuery.of(parentContext).size.width * 0.18,
-                                 // color: AppColors.green,
-                                 child: Column(
-                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                 title: SizedBox(
+                   width: size.width*0.9,
+                   height: size.height*0.75,
+                   child: Column(
+                     children: [
+                       Center(
+                           child: Text(
+                               "Selecione os DIAS e HORÁRIOS que o Profissional irá atuar. ", style: AppTextStyles.labelBlack14Lex,)),
+                       Divider(
+                         thickness: 2,
+                       ),
+                       Container(
+                         // color: AppColors.secondaryColor2,
+                         width: size.width * 0.9,
+                         height: size.height * 0.6,
+                         child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Row(
+                               children: [
+                                 Column(
                                    children: [
-                                     FittedBox(
-                                         fit: BoxFit.contain,
-                                         child: Padding(
-                                           padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
-                                           child: Text("HORÁRIOS SELECIONADOS", style: AppTextStyles.labelBlack14Lex,),
-                                         )),
-                                     //lista cards dias selecionados
-                                     Card(
-                                       elevation: 8,
-                                       child: Container(
-                                         decoration: BoxDecoration(
-                                             color: AppColors.labelWhite,
-                                             borderRadius: BorderRadius.circular(3.0)
-                                         ),
-                                         height:
-                                         MediaQuery.of(parentContext).size.height * 0.475,
-                                         width: MediaQuery.of(parentContext).size.width * 0.18,
-                                         child: Scrollbar(
-                                           controller: _scrollController,
-                                           thumbVisibility: true,
-                                           child: Padding(
-                                             padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
-                                             child: ListView.builder(
-                                                 controller: _scrollController,
-                                                 itemCount: _listSelectDay.length,
-                                                 itemBuilder: (context, index) {
-                                                   return Padding(
-                                                     padding: const EdgeInsets.only(right: 10.0),
-                                                     child: Card(
-                                                         elevation: 8,
-                                                         color: AppColors.labelWhite,
-                                                         child: Column(
-                                                           children: [
-                                                             Row(
-                                                               children: [
-                                                                 // width: MediaQuery.of(parentContext).size.width * 0.18,
-                                                                 Padding(
-                                                                   padding: const EdgeInsets.all(4.0),
-                                                                   child: SizedBox(
-                                                                       width: MediaQuery.of(parentContext).size.width * 0.03,
-                                                                       child: FittedBox(
-                                                                           fit: BoxFit.contain,
-                                                                           child: Text(_listSelectDay[index].hora!))),
-                                                                 ),
-                                                                 Padding(
-                                                                   padding: const EdgeInsets.all(4.0),
-                                                                   child: SizedBox(
-                                                                       width: MediaQuery.of(parentContext).size.width * 0.05,
-                                                                       child: FittedBox(
-                                                                           fit: BoxFit.scaleDown,
-                                                                           child: Text(_listSelectDay[index].dia!))),
-                                                                 ),
-                                                                 SizedBox(
-                                                                     width: MediaQuery.of(parentContext).size.width * 0.04,
-                                                                     child: FittedBox(
-                                                                         fit: BoxFit.contain,
-                                                                         child: Text(_listSelectDay[index].sala!))),
-                                                                 SizedBox(
-                                                                     width: MediaQuery.of(parentContext).size.width * 0.02,
-                                                                     child: FittedBox(
-                                                                         fit: BoxFit.contain,
-                                                                         child: InkWell(
-                                                                             onTap: (){
-                                                                               _listSelectDay.removeAt(index);
-                                                                               setState((){});
-                                                                             },
-                                                                             child: Padding(
-                                                                               padding: const EdgeInsets.all(5.0),
-                                                                               child: Icon(Icons.delete),
-                                                                             ))))
-                                                               ],
-                                                             ),
-
-
-                                                           ],
-                                                         )
-                                                     ),
-                                                   );
-                                                 }
-
+                                     //list horas
+                                     Container(
+                                       height: size.height * 0.06,
+                                       width:size.width * 0.718,
+                                       child: Row(
+                                         children: [
+                                           Card(
+                                             elevation: 8,
+                                             color: AppColors.line,
+                                             child: Container(
+                                               width: size.width * 0.114,
+                                               height: size.height *0.06,
+                                               child: Center(
+                                                   child: Text(
+                                                     _selectDay,
+                                                     style: AppTextStyles.labelBlack16Lex,
+                                                   )),
                                              ),
                                            ),
-                                         ),
+                                           for (int i = 0; i < jota; i++)
+                                             Column(
+                                               children: [
+                                                 Card(
+                                                   elevation: 8,
+                                                   color: ((i % 2) != 0)
+                                                       ? AppColors.shape
+                                                       : AppColors.labelWhite,
+                                                   child: Container(
+                                                     width: size.width *0.04,
+                                                     height: size.height*0.045,
+                                                     child: Center(
+                                                         child: Text(
+                                                           _listHoras[i],
+                                                           style:
+                                                           AppTextStyles.labelBlack16Lex,
+                                                         )),
+                                                   ),
+                                                 ),
+                                               ],
+                                             ),
+                                         ],
+                                       ),
+                                     ),
+                                     //Salas e agenda
+                                     Container(
+                                       // height: size.height *0.465,
+                                       height: size.height *0.54,
+                                       width: size.width * 0.718,
+                                       // color: AppColors.line,
+                                       child: Row(
+                                         children: [
+                                           //salas
+                                           Container(
+                                             height:size.height * 0.54,
+                                             width: size.width * 0.12,
+                                             // color: AppColors.blue,
+                                             child: ListView.builder(
+                                                 scrollDirection: Axis.vertical,
+                                                 itemCount: 7,
+                                                 itemBuilder: (context, index) {
+                                                   return Card(
+                                                       elevation: 8,
+                                                       color: _listSalas[index]
+                                                           ? AppColors.line
+                                                           : AppColors.green,
+                                                       child: SizedBox(
+                                                           height: size.height *0.065,
+                                                           width: size.width *0.07,
+                                                           child: Row(
+                                                             mainAxisAlignment:
+                                                             MainAxisAlignment.center,
+                                                             children: [
+                                                               Icon(
+                                                                 Icons
+                                                                     .door_back_door_outlined,
+                                                                 color:
+                                                                 AppColors.labelBlack,
+                                                               ),
+                                                               Padding(
+                                                                 padding:
+                                                                 const EdgeInsets.only(
+                                                                     left: 6.0),
+                                                                 child: FittedBox(
+                                                                   fit: BoxFit.contain,
+                                                                   child: Text(
+                                                                     "${_listDescSalas[index]}",
+                                                                     style: AppTextStyles
+                                                                         .subTitleBlack14,
+                                                                   ),
+                                                                 ),
+                                                               ),
+                                                             ],
+                                                           )));
+                                                 }),
+                                           ),
+
+                                           //horários
+                                           Container(
+                                             height: size.height *0.54,
+                                             width:size.width *0.598,
+                                             // color: AppColors.primaryColor,
+                                             child: ListView.builder(
+                                                 itemCount: 7,
+                                                 itemBuilder: (context, index){
+                                                  return Row(
+                                                    children: [
+                                                      for (int j = 0; j < jota; j++)
+                                                      //ocupado horario profissional?
+                                                        busyProfissional(index, j) ?
+                                                        InkWell(
+                                                          onTap: (){
+                                                            print("ontap = $_selectDay");
+                                                            Provider.of<SessaoProvider>(context,listen: false)
+                                                                .getSessoesByDiaSalaHora(
+                                                                _selectDay, _listDescSalas[index],
+                                                                _listHoras[j],profissional.id1).then((value) {
+                                                              List<Sessao> list = [];
+                                                              list = value;
+                                                              print(list.length);
+                                                              print("list.length");
+
+                                                              list.forEach((element) {
+                                                                print(element.dataSessao);
+                                                                print(element.descSessao);
+                                                                print(element.horarioSessao);
+                                                                // print(element.);
+                                                              });
+                                                              if(list.length>0){
+                                                                //exibir sessoes que causa choque em horario a ser removido
+                                                                DialogsProfissional.AlertDialogSessoesDiaHoraRemover(parentContext,
+                                                                    uid,profissional,list,_selectDay,_listDescSalas[index],
+                                                                    _listHoras[j]
+                                                                );
+                                                                //  showSnackBar("EXISTE SESSÃO PARA ESTE DIA NESTE HORÁRIO.");
+                                                              } else {
+                                                                //confirmar exclusão
+                                                                DiasSalasProfissionais dia = getDia(index, j);
+                                                                print(dia.hora);
+                                                                print(dia.sala);
+                                                                print(dia.dia);
+                                                                List<DiasProfissional> result = [];
+                                                                diasProfissional.forEach((element) {
+                                                                  if (element.idProfissional!.compareTo(profissional.id1)==0){
+                                                                    result.add(element);
+                                                                  }
+                                                                });
+                                                                DialogsProfissional.AlertDialogConfirmarExclusaoHorario(
+                                                                    parentContext, uid, profissional, dia,
+                                                                    listHorariosProfissional,listOcupados, result,diasProfissional,servicos,servicosProfissional);
+                                                                setState((){});
+                                                                print("result = 0");
+                                                              }
+                                                            });
+
+                                                          },
+                                                          child: Card(
+                                                            elevation: 8,
+                                                            color: AppColors.secondaryColor,
+                                                            child: SizedBox(
+                                                                width: MediaQuery.of(parentContext).size.width * 0.04,
+                                                                height: MediaQuery.of(parentContext).size.height * 0.065,
+                                                                child: FittedBox(
+
+                                                                    child: Column(
+                                                                      children: [
+                                                                        Text("RESERVADO"),
+                                                                        Icon(
+                                                                          Icons.delete_outline_rounded,
+                                                                          color: AppColors.labelWhite,
+                                                                        ),
+                                                                      ],
+                                                                    ))),
+                                                          ),
+                                                        ):
+                                                        busy(index, j) ?
+                                                        //card ocupado
+                                                        Card(
+                                                          color: AppColors.red,
+                                                          child: SizedBox(
+                                                            width: size.width *0.04,
+                                                            height: size.height *0.065,
+                                                            child: Center(
+                                                                child: FittedBox(
+                                                                    fit: BoxFit.contain,
+                                                                    child: Padding(
+                                                                      padding:
+                                                                      const EdgeInsets
+                                                                          .only(
+                                                                          left: 3.0,
+                                                                          right:
+                                                                          3.0),
+                                                                      child: Column(
+                                                                        children: [
+                                                                          Text("OCUPADO"),
+                                                                          FutureBuilder(
+                                                                              future: getNome(index, j),
+                                                                              builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
+                                                                                if (snapshot.hasData) {
+                                                                                  return Text(snapshot.data);
+                                                                                }else {
+                                                                                  return Center(
+                                                                                      child: Text("")
+                                                                                  );
+                                                                                }
+
+                                                                              }),
+                                                                          // Text(
+                                                                          //     "nome"),
+                                                                        ],
+                                                                      ),
+                                                                    ))),
+                                                          ),
+                                                        ) :
+                                                        // busy(i, j)
+                                                        busySelect(index, j)?
+                                                        //card selecionado
+                                                        InkWell(
+                                                          onTap: (){
+                                                            // getSelectDay(i,j)
+                                                            if (getDay(_selectDay, index, j, _listSelectDay)!=null){
+                                                              _listSelectDay.remove(getDay(_selectDay, index, j, _listSelectDay));
+                                                              setState((){});
+                                                            }
+
+                                                          },
+                                                          child: Card(
+                                                            elevation: 8,
+                                                            color: AppColors.primaryColor,
+                                                            child: SizedBox(
+                                                                width: MediaQuery.of(parentContext).size.width * 0.04,
+                                                                height: MediaQuery.of(parentContext).size.height * 0.065,
+                                                                child: Center(child: Icon(
+                                                                  Icons.check_circle,
+                                                                  color: AppColors.labelWhite,
+                                                                ))),
+                                                          ),
+                                                        ) :
+                                                        //card hora livre
+                                                        InkWell(
+                                                          onTap: (){
+                                                            if (containHoursBusy(j)){
+
+                                                            } else {
+                                                              _listSelectDay.add(
+                                                                  DiasSalasProfissionais(
+                                                                      dia: _selectDay,
+                                                                      hora: _listHoras[j],
+                                                                      sala: _listDescSalas[index]
+                                                                  )
+                                                              );
+                                                              _listSelectDay.sort(
+                                                                      (a,b) {
+                                                                    if (a.dia! == b.dia!) {
+                                                                      return a.hora!.compareTo(b.hora!);
+                                                                    } else {
+                                                                      if(getIndexDia(a.dia)<getIndexDia(b.dia)){
+                                                                        return -1;
+                                                                      } else {
+                                                                        return 1;
+                                                                      }
+                                                                    }
+                                                                  }
+                                                              );
+                                                              setState((){});
+                                                            }
+                                                          },
+                                                          child: Card(
+                                                            elevation: 8,
+                                                            color: ((index % 2) != 0) ? AppColors.shape : AppColors.labelWhite,
+                                                            child: SizedBox(
+                                                                width: MediaQuery.of(parentContext).size.width * 0.04,
+                                                                height: MediaQuery.of(parentContext).size.height * 0.065,
+                                                                child: Center(child:
+                                                                Text(_listHoras[j],
+                                                                  style: AppTextStyles.labelBold16,))),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  );
+                                                 })
+                                           )
+                                         ],
                                        ),
                                      ),
                                    ],
                                  ),
-                               )
-                             ],
-                           ),
-                           Divider(
-                             thickness: 2,
-                           ),
-                           //lista com os botões dos dias da semana
-                           Center(
-                             child: Container(
-                               height: MediaQuery.of(parentContext).size.height * 0.08,
-                               width: MediaQuery.of(parentContext).size.width * 0.464,
-                               // color: AppColors.green,
-                               child: ListView.builder(
-                                 scrollDirection: Axis.horizontal,
-                                 itemCount: 6,
-                                 itemBuilder: (context, index) {
-                                   return InkWell(
-                                     onTap: () {
-                                       for (int i = 0; i < 6; i++) {
-                                         _listDias[i] = false;
-                                       }
-                                       _listDias[index] = true;
-                                       _selectDay = _dias[index];
-                                       if(_selectDay.compareTo("SÁBADO")==0){
-                                         jota = 7;
-                                       } else {
-                                         jota = 12;
-                                       }
-                                       setState(() {});
-                                     },
-                                     child: Card(
-                                       elevation: 8,
-                                       color: _listDias[index]
-                                           ? AppColors.line
-                                           : AppColors.green,
-                                       child: Container(
-                                         height:
-                                         MediaQuery.of(parentContext).size.height *
-                                             0.08,
-                                         width:
-                                         MediaQuery.of(parentContext).size.height *
-                                             0.15,
-                                         child: Center(
-                                             child: Text(
-                                               _dias[index],
-                                               style: AppTextStyles.labelBlack16Lex,
-                                             )),
+                                 //lista cards horários selecionados
+                                 Container(
+                                   height:size.height * 0.54,
+                                   width: size.width * 0.18,
+                                   // color: AppColors.green,
+                                   child: Column(
+                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                     children: [
+                                       FittedBox(
+                                           fit: BoxFit.contain,
+                                           child: Padding(
+                                             padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
+                                             child: Text("HORÁRIOS SELECIONADOS", style: AppTextStyles.labelBlack14Lex,),
+                                           )),
+                                       //lista cards dias selecionados
+                                       Card(
+                                         elevation: 8,
+                                         child: Container(
+                                           decoration: BoxDecoration(
+                                               color: AppColors.labelWhite,
+                                               borderRadius: BorderRadius.circular(3.0)
+                                           ),
+                                           height:
+                                           MediaQuery.of(parentContext).size.height * 0.475,
+                                           width: MediaQuery.of(parentContext).size.width * 0.18,
+                                           child: Scrollbar(
+                                             controller: _scrollController,
+                                             thumbVisibility: true,
+                                             child: Padding(
+                                               padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
+                                               child: ListView.builder(
+                                                   controller: _scrollController,
+                                                   itemCount: _listSelectDay.length,
+                                                   itemBuilder: (context, index) {
+                                                     return Padding(
+                                                       padding: const EdgeInsets.only(right: 10.0),
+                                                       child: Card(
+                                                           elevation: 8,
+                                                           color: AppColors.labelWhite,
+                                                           child: Column(
+                                                             children: [
+                                                               Row(
+                                                                 children: [
+                                                                   // width: MediaQuery.of(parentContext).size.width * 0.18,
+                                                                   Padding(
+                                                                     padding: const EdgeInsets.all(4.0),
+                                                                     child: SizedBox(
+                                                                         width: MediaQuery.of(parentContext).size.width * 0.03,
+                                                                         child: FittedBox(
+                                                                             fit: BoxFit.contain,
+                                                                             child: Text(_listSelectDay[index].hora!))),
+                                                                   ),
+                                                                   Padding(
+                                                                     padding: const EdgeInsets.all(4.0),
+                                                                     child: SizedBox(
+                                                                         width: MediaQuery.of(parentContext).size.width * 0.05,
+                                                                         child: FittedBox(
+                                                                             fit: BoxFit.scaleDown,
+                                                                             child: Text(_listSelectDay[index].dia!))),
+                                                                   ),
+                                                                   SizedBox(
+                                                                       width: MediaQuery.of(parentContext).size.width * 0.04,
+                                                                       child: FittedBox(
+                                                                           fit: BoxFit.contain,
+                                                                           child: Text(_listSelectDay[index].sala!))),
+                                                                   SizedBox(
+                                                                       width: MediaQuery.of(parentContext).size.width * 0.02,
+                                                                       child: FittedBox(
+                                                                           fit: BoxFit.contain,
+                                                                           child: InkWell(
+                                                                               onTap: (){
+                                                                                 _listSelectDay.removeAt(index);
+                                                                                 setState((){});
+                                                                               },
+                                                                               child: Padding(
+                                                                                 padding: const EdgeInsets.all(5.0),
+                                                                                 child: Icon(Icons.delete),
+                                                                               ))))
+                                                                 ],
+                                                               ),
+
+
+                                                             ],
+                                                           )
+                                                       ),
+                                                     );
+                                                   }
+
+                                               ),
+                                             ),
+                                           ),
+                                         ),
                                        ),
-                                     ),
-                                   );
-                                 },
-                               ),
+                                     ],
+                                   ),
+                                 )
+                               ],
                              ),
-                           )
-                         ],
+                             // Divider(
+                             //   thickness: 2,
+                             // ),
+                             //lista com os botões dos dias da semana
+
+                           ],
+                         ),
                        ),
-                     ),
-                   ],
+                       Divider(
+                         thickness: 2,
+                       ),
+                       Center(
+                         child: Container(
+                           height: size.height * 0.07,
+                           width: size.width * 0.464,
+                           // color: AppColors.green,
+                           child: ListView.builder(
+                             scrollDirection: Axis.horizontal,
+                             itemCount: 6,
+                             itemBuilder: (context, index) {
+                               return InkWell(
+                                 onTap: () {
+                                   for (int i = 0; i < 6; i++) {
+                                     _listDias[i] = false;
+                                   }
+                                   _listDias[index] = true;
+                                   _selectDay = _dias[index];
+                                   
+                                   if(_selectDay.compareTo("SÁBADO")==0){
+                                     jota = 7;
+                                   } else {
+                                     jota = 12;
+                                   }
+                                   setState(() {});
+                                 },
+                                 child: Card(
+                                   elevation: 8,
+                                   color: _listDias[index]
+                                       ? AppColors.line
+                                       : AppColors.green,
+                                   child: Container(
+                                     height: size.height *0.08,
+                                     width:size.height *0.15,
+                                     child: Center(
+                                         child: Text(
+                                           _dias[index],
+                                           style: AppTextStyles.labelBlack16Lex,
+                                         )),
+                                   ),
+                                 ),
+                               );
+                             },
+                           ),
+                         ),
+                       )
+                     ],
+                   ),
                  ),
                  actions: [
                    ButtonWidget(
@@ -3387,6 +3324,7 @@ class DialogsProfissional {
       return nome.descricao!;
     }
 
+    Size size =    MediaQuery.of(parentContext).size;
     return showDialog(
         barrierColor: AppColors.shape,
         context: parentContext,
@@ -3394,14 +3332,8 @@ class DialogsProfissional {
           return StatefulBuilder(builder: (context, setState) =>
               AlertDialog(
                 title: SizedBox(
-                  width: MediaQuery
-                      .of(parentContext)
-                      .size
-                      .width * 0.5,
-                  height: MediaQuery
-                      .of(parentContext)
-                      .size
-                      .height * 0.5,
+                  width: size.width * 0.5,
+                  height: size.height * 0.75,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -3411,143 +3343,157 @@ class DialogsProfissional {
                       Divider(
                         thickness: 2,
                       ),
-                      SizedBox(
-                        width: MediaQuery
-                            .of(parentContext)
-                            .size
-                            .width * 0.5,
-                        height: (MediaQuery
-                            .of(parentContext)
-                            .size
-                            .height * 0.06)*(servicosProfissional.length+1),
+                      Container(
+                        // color: AppColors.secondaryColor2,
+                        width: size.width * 0.5,
+                        height: (size.height * 0.55),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             //lista de servicos
                             Container(
                               // color:Colors.red,
-                                width: MediaQuery
-                                    .of(parentContext)
-                                    .size
-                                    .width * 0.4,
-                                height: (MediaQuery
-                                    .of(parentContext)
-                                    .size
-                                    .height * 0.06)*(servicosProfissional.length+1),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    for (var items in servicosProfissional)
-                                      Center(
-                                        child: Card(
-                                            child: Container(
-                                              color: AppColors.shape,
-                                              width: MediaQuery
-                                                  .of(parentContext)
-                                                  .size
-                                                  .width * 0.38,
-                                              height: MediaQuery
-                                                  .of(parentContext)
-                                                  .size
-                                                  .height * 0.06,
-                                              child: Row(
-                                                children: [
-                                                  //desc serviço
-                                                  SizedBox(
-                                                      width:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .width * 0.31,
-                                                      height:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .height * 0.06,
-                                                      child: FittedBox(
-                                                        fit: BoxFit.scaleDown,
-                                                        alignment: Alignment.centerLeft,
-                                                        child: Text(getNomeServicoById(items.idServico!)),
-                                                      )
+                                width: size.width * 0.4,
+                                height: (size.height * 0.065)*(servicosProfissional.length+1),
+                                child: ListView.builder(
+                                    itemCount: servicosProfissional.length,
+                                    itemBuilder: (context, index){
+                                  return  Card(
+                                      child: Container(
+                                        color: AppColors.shape,
+                                        width: size.width * 0.38,
+                                        height: size.height * 0.06,
+                                        child: Row(
+                                          children: [
+                                            //desc serviço
+                                            SizedBox(
+                                                width: size.width * 0.31,
+                                                height:  size.height * 0.06,
+                                                child: FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(getNomeServicoById(servicosProfissional[index].idServico!)),
+                                                )
 
-                                                  ),
-                                                  //valor
-                                                  SizedBox(
-                                                      width:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .width * 0.03,
-                                                      height:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .height * 0.06,
-                                                      child: FittedBox(
-                                                        fit: BoxFit.scaleDown,
-                                                        alignment: Alignment.centerLeft,
-                                                        child: Text(items.valor!, style: AppTextStyles.labelBlack16Lex,),
-                                                      )
-                                                  ),
-                                                  //icone edit
-                                                  SizedBox(
-                                                      width:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .width * 0.02,
-                                                      height:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .height * 0.06,
-                                                      child: InkWell(
-                                                        onTap: (){
-                                                          DialogsProfissional.
-                                                          AlertAlterarServicoProfissional(
-                                                              parentContext, uid, profissional,
-                                                              items, servicos
-                                                          ).then((value) => Navigator.pop(parentContext));
-                                                        },
-                                                        child: Icon(Icons.edit),
-                                                      )
-                                                  ),
-                                                  //icone2 remove
-                                                  SizedBox(
-                                                      width:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .width * 0.02,
-                                                      height:  MediaQuery
-                                                          .of(parentContext)
-                                                          .size
-                                                          .height * 0.06,
-                                                      child: InkWell(
-                                                        onTap: (){
-                                                          DialogsProfissional.AlertConfirmarApagarServicoProfissional(
-                                                              parentContext, uid, profissional, items,servicos
-                                                          ).then((value) => setState((){}));
-                                                          // DialogsProfissional.
-                                                          // AlertAlterarServicoProfissional(
-                                                          //     parentContext, uid, profissional,
-                                                          //     items, servicos
-                                                          // ).then((value) => Navigator.pop(parentContext));
-                                                        },
-                                                        child: Icon(Icons.delete_outline_rounded),
-                                                      )
-                                                  ),
-                                                ],
-                                              ),
-                                            )
+                                            ),
+                                            //valor
+                                            SizedBox(
+                                                width:  size.width * 0.03,
+                                                height:  size.height * 0.06,
+                                                child: FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  alignment: Alignment.centerLeft,
+                                                  child: Text(servicosProfissional[index].valor!, style: AppTextStyles.labelBlack16Lex,),
+                                                )
+                                            ),
+                                            //icone edit
+                                            SizedBox(
+                                                width:  size.width * 0.02,
+                                                height:  size.height * 0.06,
+                                                child: InkWell(
+                                                  onTap: (){
+                                                    DialogsProfissional.
+                                                    AlertAlterarServicoProfissional(
+                                                        parentContext, uid, profissional,
+                                                        servicosProfissional[index], servicos
+                                                    ).then((value) => Navigator.pop(parentContext));
+                                                  },
+                                                  child: Icon(Icons.edit),
+                                                )
+                                            ),
+                                            //icone2 remove
+                                            SizedBox(
+                                                width:  size.width * 0.02,
+                                                height:  size.height * 0.06,
+                                                child: InkWell(
+                                                  onTap: (){
+                                                    DialogsProfissional.AlertConfirmarApagarServicoProfissional(
+                                                        parentContext, uid, profissional, servicosProfissional[index],servicos
+                                                    ).then((value) => setState((){}));
+                                                  },
+                                                  child: Icon(Icons.delete_outline_rounded),
+                                                )
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                  ],
-                                )
+                                      )
+                                  );
+                                }),
+                                // Column(
+                                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                //   children: [
+                                //     for (var items in servicosProfissional)
+                                //       Center(
+                                //         child: Card(
+                                //             child: Container(
+                                //               color: AppColors.shape,
+                                //               width: size.width * 0.38,
+                                //               height: size.height * 0.06,
+                                //               child: Row(
+                                //                 children: [
+                                //                   //desc serviço
+                                //                   SizedBox(
+                                //                       width: size.width * 0.31,
+                                //                       height:  size.height * 0.06,
+                                //                       child: FittedBox(
+                                //                         fit: BoxFit.scaleDown,
+                                //                         alignment: Alignment.centerLeft,
+                                //                         child: Text(getNomeServicoById(items.idServico!)),
+                                //                       )
+                                //
+                                //                   ),
+                                //                   //valor
+                                //                   SizedBox(
+                                //                       width:  size.width * 0.03,
+                                //                       height:  size.height * 0.06,
+                                //                       child: FittedBox(
+                                //                         fit: BoxFit.scaleDown,
+                                //                         alignment: Alignment.centerLeft,
+                                //                         child: Text(items.valor!, style: AppTextStyles.labelBlack16Lex,),
+                                //                       )
+                                //                   ),
+                                //                   //icone edit
+                                //                   SizedBox(
+                                //                       width:  size.width * 0.02,
+                                //                       height:  size.height * 0.06,
+                                //                       child: InkWell(
+                                //                         onTap: (){
+                                //                           DialogsProfissional.
+                                //                           AlertAlterarServicoProfissional(
+                                //                               parentContext, uid, profissional,
+                                //                               items, servicos
+                                //                           ).then((value) => Navigator.pop(parentContext));
+                                //                         },
+                                //                         child: Icon(Icons.edit),
+                                //                       )
+                                //                   ),
+                                //                   //icone2 remove
+                                //                   SizedBox(
+                                //                       width:  size.width * 0.02,
+                                //                       height:  size.height * 0.06,
+                                //                       child: InkWell(
+                                //                         onTap: (){
+                                //                           DialogsProfissional.AlertConfirmarApagarServicoProfissional(
+                                //                               parentContext, uid, profissional, items,servicos
+                                //                           ).then((value) => setState((){}));
+                                //                         },
+                                //                         child: Icon(Icons.delete_outline_rounded),
+                                //                       )
+                                //                   ),
+                                //                 ],
+                                //               ),
+                                //             )
+                                //         ),
+                                //       ),
+                                //   ],
+                                // )
                             ),
+                            //botão
                             Container(
                               // color: Colors.blue,
-                                width: MediaQuery
-                                    .of(parentContext)
-                                    .size
-                                    .width * 0.03,
-                                height: (MediaQuery
-                                    .of(parentContext)
-                                    .size
-                                    .height * 0.06)*(servicosProfissional.length+1),
+                                width: size.width * 0.03,
+                                height: (size.height * 0.065)*(servicosProfissional.length+1),
                                 child: Align(
                                   alignment: Alignment.bottomRight,
                                   child: IconButton(
@@ -3557,8 +3503,6 @@ class DialogsProfissional {
                                       print(servicos.length);
                                       for(int i =0; i< servicos.length;i++){
                                         for (int j =0; j<servicosProfissional.length;j++){
-                                          // print(servicos[i].id1);
-                                          // print(servicosProfissional[i].id1);
                                           if (servicos[i].id1.compareTo(servicosProfissional[j].idServico!)==0){
                                             servicos.removeAt(i);
                                             print("REMOVEU $i");
@@ -3586,20 +3530,10 @@ class DialogsProfissional {
                       Divider(
                         thickness: 2,
                       ),
-                      
-                      // Align(
-                      //   alignment: Alignment.centerRight,
-                      //   child:
-                      // ),
+
                       SizedBox(
-                        width:  MediaQuery
-                            .of(parentContext)
-                            .size
-                            .width * 0.5,
-                        height:  MediaQuery
-                            .of(parentContext)
-                            .size
-                            .height * 0.1,
+                        width: size.width * 0.5,
+                        height:  size.height * 0.1,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -3616,16 +3550,6 @@ class DialogsProfissional {
                     ],
                   ),
                 ),
-                // actions: <Widget> [
-                //   ButtonWidget(
-                //     onTap: () {
-                //       Navigator.pop(parentContext);
-                //     },
-                //     label: "Cancelar >>",
-                //     width: MediaQuery.of(context).size.width * 0.07,
-                //     height: MediaQuery.of(context).size.height * 0.065,),
-                //
-                // ],
               ));
         }
     );
@@ -4111,25 +4035,6 @@ class DialogsProfissional {
                                     ],
                                   )
                               ),
-                              //Mensagem de erro
-
-                              SizedBox(
-                                  width:  MediaQuery
-                                      .of(parentContext)
-                                      .size
-                                      .width * 0.4,
-                                  height:  MediaQuery
-                                      .of(parentContext)
-                                      .size
-                                      .height * 0.06,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text("VALOR: R\$ ", style: AppTextStyles.labelBlack16Lex,),
-                                  ),
-                              ),
-
-
                             ],
                           ),
                         ),
@@ -4183,9 +4088,12 @@ class DialogsProfissional {
     );
   }
 
+
+
   //----------------------------------------------------------------
 
-  static Future<void> adicionarServicoProfissional(
+  static Future<void>
+  adicionarServicoProfissional(
       parentContext, String uid,
       Profissional profissional,
       List<Servico> servicos,

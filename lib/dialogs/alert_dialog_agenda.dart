@@ -19,9 +19,11 @@ import '../model/Paciente.dart';
 import '../model/Profissional.dart';
 import '../model/comissao.dart';
 import '../model/dias_profissional.dart';
+import '../model/pagamento_transacao.dart';
 import '../model/sessao.dart';
 import '../provider/comissao_provider.dart';
 import '../provider/dias_profissional_provider.dart';
+import '../provider/pagamento_transacao_provider.dart';
 import '../provider/servico_provider.dart';
 import '../provider/tipo_pagamento_provider.dart';
 import '../provider/transacao_provider.dart';
@@ -49,14 +51,18 @@ class DialogsAgendaAssistente {
   static Future<void> AlertDialogReagendamento2(
       parentContext, String uid, List<Sessao> sessao,Sessao sessaoReagendar,
       Sessao sessaoFinal,
-      // List<Sessao> sessoesFinal,
       Paciente paciente, Profissional profissional,
       List<DiasProfissional> diasProfissional, List<DiasSalasProfissionais> diasSalasProfissional,
       List<String> datas, List<String> horarios, int diferenca )
   {
 
+    sessao.forEach((element) {
+      print(element.dataSessao);
+      print(element.descSessao);
+
+    });
+
     int getDiferencaDias(String data1, String data2){
-      // sessaoFinal.dataSessao
       int dia1, dia2=0;
       int mes1, mes2=0;
       int ano1,ano2=0;
@@ -121,6 +127,7 @@ class DialogsAgendaAssistente {
     List<DiasSalasProfissionais> horariosDoDia = [];
     late DateTime _dataSelecionada = DateTime.now();
     late String novoHorario = "";
+    late String salaSelecionada = "";
     late String novaData = "";
     late bool _selectData = false;
     late bool _selectReagendamento = false;
@@ -656,9 +663,12 @@ class DialogsAgendaAssistente {
                                    onTap: () {
                                      _selectReagendamento = true;
                                      novoHorario = itemsProf.hora!;
+                                     salaSelecionada = itemsProf.sala!;
                                      print(_selectData);
                                      print(_selectReagendamento);
                                      print(novoHorario);
+
+                                     print("SALA SELECIONADA = ${salaSelecionada}");
                                      // sessao
                                      // sessaoReagendar.dataSessao= novaData;
                                      // sessaoReagendar.horarioSessao= novoHorario;
@@ -916,6 +926,25 @@ class DialogsAgendaAssistente {
                     thickness: 2,
                   ),
                 ),
+                //ID
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery
+                          .of(parentContext)
+                          .size
+                          .width * 0.09,
+                      child: Align(
+                          alignment: Alignment.centerRight,
+                          child:
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(sessao.id1.substring(0,4),style: AppTextStyles.subTitleBlack14,),
+                          )
+                      ),
+                    ),
+                  ],
+                ),
 
                 //PACIENTE
                 Row(
@@ -948,25 +977,7 @@ class DialogsAgendaAssistente {
                           )
                       ),
                     ),
-                    InkWell(
-                      onTap: (){
-                        DialogsPaciente.AlterarDadosPaciente(parentContext, uid, paciente)
-                            .then((value) => Navigator.pop(context));
-                      },
-                      child: SizedBox(
-                        width: MediaQuery
-                            .of(parentContext)
-                            .size
-                            .width * 0.06,
-                        child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child:  Icon(Icons.edit),
-                            )
-                        ),
-                      ),
-                    )
+
                   ],
                 ),
                 //RESPONSÁVEL
@@ -986,20 +997,47 @@ class DialogsAgendaAssistente {
                           )
                       ),
                     ),
+                    Text("${paciente.nome_responsavel}",style: AppTextStyles.labelBlack16Lex,),
+                    // SizedBox(
+                    //   width: MediaQuery
+                    //       .of(parentContext)
+                    //       .size
+                    //       .width * 0.2,
+                    //   child: Align(
+                    //       alignment: Alignment.centerLeft,
+                    //       child: FittedBox(
+                    //         fit: BoxFit.scaleDown,
+                    //         child:  Text("${paciente.nome_responsavel}",
+                    //           style: AppTextStyles.labelBlack16Lex,),
+                    //       )
+                    //   ),
+                    // ),
                     SizedBox(
-                      width: MediaQuery
+                      height: MediaQuery
                           .of(parentContext)
                           .size
-                          .width * 0.2,
-                      child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child:  Text("${paciente.nome_responsavel}",
-                              style: AppTextStyles.labelBlack16Lex,),
-                          )
-                      ),
-                    ),
+                          .height * 0.04,
+                        width: MediaQuery
+                            .of(parentContext)
+                            .size
+                            .width * 0.05,
+                        child: InkWell(
+                            onTap: (){
+                              DialogsPaciente.AlterarDadosPaciente(parentContext, uid, paciente)
+                                  .then((value) => Navigator.pop(context));
+                            },
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: CircleAvatar(
+                                backgroundColor: AppColors.primaryColor,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.edit),
+                                ),
+                              ),
+                            )
+                        )
+                    )
 
                   ],
                 ),
@@ -1223,6 +1261,7 @@ class DialogsAgendaAssistente {
                     ),
                   ],
                 ),
+
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
                   child: Divider(
@@ -1233,6 +1272,7 @@ class DialogsAgendaAssistente {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
+                    //REAGENDAR
                     ButtonWidget(
                       onTap: ()async{
                         print("ontap");
@@ -1259,13 +1299,17 @@ class DialogsAgendaAssistente {
                                 if (sessaoAtual!=sessaoTotal){
                                   print("!=");
                                   Provider.of<SessaoProvider>(context, listen: false)
-                                      .getSessoesByTransacaoPacienteProfissional(sessao.idPaciente!, sessao.idProfissional!).then((value) {
+                                      .getSessoesByTransacaoPacienteProfissional(sessao.idPaciente!, sessao.idProfissional!, sessao.idTransacao!).then((value) {
                                     listSessao = value;
                                     print(listSessao.length);
                                     print("listSessao.length");
                                     listSessao.sort((a,b)=>a.descSessao!.compareTo(b.descSessao!));
 
                                     listSessao.forEach((element) {
+                                      print(element.dataSessao!);
+                                      print(element.horarioSessao!);
+                                      print(element.descSessao!);
+
                                       datasSessoes.add(element.dataSessao!);
                                       horarioSessoes.add(element.horarioSessao!);
                                     });
@@ -1301,6 +1345,7 @@ class DialogsAgendaAssistente {
                       label: "REAGENDAR",
                       width: MediaQuery.of(context).size.width * 0.07,
                       height: MediaQuery.of(context).size.height * 0.065,),
+                    (sessao.situacaoSessao!.compareTo("PAGO")!=0)?
                     ButtonWidget(
                       onTap: ()async{
                         if (sessao.situacaoSessao!.compareTo("PAGO")==0){
@@ -1315,13 +1360,42 @@ class DialogsAgendaAssistente {
                             tiposPagamento = value;
                             tiposPagamento.sort((a,b)=>a.descricao.toLowerCase().replaceAll("à", "a").compareTo(b.descricao.toLowerCase().replaceAll("à", "a")));
                           });
-                          DialogsAgendaAssistente.AlertDialogRegistrarPagamento(parentContext,uid,sessao, paciente, profissional,tiposPagamento);
+                          String result = "";
+                          String valorSessao = "";
+                          await Provider.of<ServicoProvider>(context, listen: false)
+                              .getServicoByDesc(sessao.descSessao!.substring(11,sessao.descSessao!.length))
+                              .then((value) async{
+                            result = value.id1;
+                            await Provider.of<ServicoProfissionalProvider>(context, listen: false)
+                                .getServByServicoProfissional(profissional.id1,result).then((value) {
+                              valorSessao = value.valor!;
+                              print(result);
+                            });
+                          });
+                          DialogsAgendaAssistente.AlertDialogRegistrarPagamento(parentContext,uid,sessao, paciente, profissional,tiposPagamento, valorSessao);
                         }
                         // await Provider.of<SessaoProvider>(context,listen: false)
                         //     .update(sessao.id1).then((value) => Navigator.pop(parentContext));
                         // await Provider.of<TransacaoProvider>(context,listen: false).
                         // DialogsAgendaAssistente.AlertDialogRegistrarPagamento(parentContext, uid, sessao, paciente, profissional);
 
+                      },
+                      label: "PAGAR SESSÃO",
+                      width: MediaQuery.of(context).size.width * 0.07,
+                      height: MediaQuery.of(context).size.height * 0.065,)
+                    :
+                    Center(),
+                    //FINALIZAR SESSÃO NOVO
+                    ButtonWidget(
+                      onTap: () async{
+                        List<TipoPagamento> tiposPagamento = [];
+                        await Provider.of<TipoPagamentoProvider>(context, listen: false)
+                            .getTiposPagamentos().then((value) {
+                          tiposPagamento = value;
+                          tiposPagamento.sort((a,b)=>a.descricao.toLowerCase().replaceAll("à", "a").compareTo(b.descricao.toLowerCase().replaceAll("à", "a")));
+                        });
+                        // DialogsAgendaAssistente.AlertDialogRegistrarPagamento(parentContext,uid,sessao, paciente, profissional,tiposPagamento);
+                        DialogsAgendaAssistente.AlertDialogFinalizarSessao(parentContext, uid, sessao, paciente, profissional);
                       },
                       label: "FINALIZAR",
                       width: MediaQuery.of(context).size.width * 0.07,
@@ -1401,13 +1475,13 @@ class DialogsAgendaAssistente {
   //Confirmar Pagamento
   static Future<void> AlertDialogRegistrarPagamento (
       parentContext, String uid, Sessao sessao, Paciente paciente, Profissional profissional,
-      List<TipoPagamento> list
+      List<TipoPagamento> list, String valorSessao
       ) {
 
     List<DropdownMenuItem<String>> getDropdownTiposPagamento(
         List<TipoPagamento> list) {
       List<DropdownMenuItem<String>> dropDownItems = [];
-      for (int i = 0; i < list.length; i++) {
+        for (int i = 0; i < list.length; i++) {
         var newDropdown = DropdownMenuItem(
           value: list[i].descricao.toString(),
           child: Text(list[i].descricao.toString()),
@@ -1421,31 +1495,1258 @@ class DialogsAgendaAssistente {
 
     var txt1 = TextEditingController();
     var txt2 = TextEditingController();
+    txt1.text="0,00";
+    txt2.text="0,00";
+    List<TextEditingController> listTxtController = [];
     final _form = GlobalKey<FormState>();
+    int contPagamentos = 1;
     Size size = MediaQuery.of(parentContext).size;
+    bool _avancar = false;
     bool _checkSocial = false;
-    String _valorSessao = "0,00";
+    bool _checkClinica = false;
+    bool _checkProfissional = true;
+    bool _checkFormaPagamento = true;
+    List<bool> listEnable = [];
+    List<String> listValores = [];
+    List<String> listFormaPagamentos = [];
+    List<String> listDropdownFirst =  [];
+    List<List<TipoPagamento>> listTipos = [];
+    listDropdownFirst.add(list.first.descricao);
+    listTxtController.add(TextEditingController());
+    listTxtController.add(TextEditingController());
+    listEnable.add(true);
+    String _valorTotalVariado = "0,00";
+    String _valorPendente = valorSessao;
+    String _valorAtual = "0,00";
+    String _valorFinal = valorSessao;
+    String _valorSessao = valorSessao;
     String _comissaoClinica = "0,00";
     String _comissaoProfissional = "0,00";
     String _comissaoFinalClinica = "0,00";
     String _comissaoFinalProfissional = "0,00";
     String _descontoClinica = "0,00";
     String _descontoProfissional = "0,00";
-    Future<String> getValorServico(String desc)async{
-       String result = "";
-       await Provider.of<ServicoProvider>(parentContext, listen: false)
-           .getServicoByDesc(desc).then((value) async{
-         result = value.id1;
-         await Provider.of<ServicoProfissionalProvider>(parentContext, listen: false)
-             .getServByServicoProfissional(profissional.id1,result).then((value) {
-               result = value.valor!;
-               print(result);
-         });
-       });
-       print(result);
-       print("result");
 
-       return result;
+    bool EMaiorIgual(String a, String b)  {
+      if (double.parse(a.replaceAll(',','.'))>=double.parse(b.replaceAll(',','.'))){
+          return true;
+      }
+      return false;
+    }
+    bool EMaior(String a, String b){
+      if (double.parse(a.replaceAll(',','.'))>double.parse(b.replaceAll(',','.'))){
+        return true;
+      }
+      return false;
+    }
+
+    return showDialog(
+        context: parentContext,
+        builder: (context){
+          return StatefulBuilder(builder: (context, setState){
+
+            return AlertDialog(
+              title: SizedBox(
+                width: size
+                    .width * 0.8,
+                height: size
+                    .height * 0.85,
+                child: Form(
+                  key: _form,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("${sessao.id1.substring(0,4)} | EFETUAR PAGAMENTO "),
+
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Divider(
+                          thickness: 2,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          //desconto social
+                          Container(
+                              // color: AppColors.red,
+                              width: size.width*0.4,
+                              height: size.height*0.42,
+                              child: Column(
+                                children: [
+                                  //checkBox
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: size.width*0.2,
+                                        height: size.height*0.06,
+                                        child: Row(
+                                          children: [
+                                            Checkbox(
+                                                value: !_checkSocial,
+                                                onChanged:((_checkProfissional)&&(_checkClinica)) ?
+                                                null
+                                                    :
+                                                (bool? value){
+                                                  print(_checkSocial);
+                                                  print(value);
+
+                                                  _checkSocial = !value!;
+                                                  print(_checkSocial);
+                                                  if (_checkSocial){
+                                                    print(_valorSessao);
+                                                    _comissaoClinica = (double.parse(valorSessao.replaceAll(',', '.'))*0.3).toStringAsFixed(2).toString();
+                                                    _comissaoProfissional = (double.parse(valorSessao.replaceAll(',', '.'))*0.7).toStringAsFixed(2).toString();
+                                                    _comissaoFinalClinica = _comissaoClinica;
+                                                    _comissaoFinalProfissional = _comissaoProfissional;
+                                                    print(_comissaoClinica);
+                                                    // _comissaoClinica = double.parse(_valorSessao)
+                                                  }
+                                                  setState((){});
+                                                }),
+                                            Text("SEM DESCONTO SOCIAL"),
+                                          ],
+                                        )
+                                      ),
+                                      SizedBox(
+                                          width: size.width*0.2,
+                                          height: size.height*0.06,
+                                          child: Row(
+                                            children: [
+                                              Checkbox(
+
+                                                  value: _checkSocial,
+                                                  onChanged: ((_checkProfissional)&&(_checkClinica))?
+                                                  null
+                                                      :
+                                                      (bool? value){
+                                                    _checkSocial = value!;
+                                                    if (_checkSocial){
+                                                      print(_valorSessao);
+                                                      _comissaoClinica = (double.parse(valorSessao.replaceAll(',', '.'))*0.3).toStringAsFixed(2).toString();
+                                                      _comissaoProfissional = (double.parse(valorSessao.replaceAll(',', '.'))*0.7).toStringAsFixed(2).toString();
+                                                      _comissaoFinalClinica = _comissaoClinica;
+                                                      _comissaoFinalProfissional = _comissaoProfissional;
+                                                      print(_comissaoClinica);
+                                                      // _comissaoClinica = double.parse(_valorSessao)
+                                                    }
+                                                    setState((){});
+                                                  }),
+                                              Text("COM DESCONTO SOCIAL"),
+                                            ],
+                                          )
+                                      )
+
+                                    ],
+                                  ),
+
+                                  (_checkSocial)?
+                                  SizedBox(
+                                    // color: AppColors.green,
+                                    height: size.height*0.21,
+                                    width: size.width*0.4,
+                                    child: Column(
+                                      children: [
+                                        //clínica
+                                        SizedBox(
+                                          // color: AppColors.blue,
+                                            height: size.height*0.074,
+                                            width: size.width*0.4,
+                                            child:  Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                //comissão clínica
+                                                Container(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.074,
+                                                    decoration: BoxDecoration(
+                                                        color: AppColors.shape,
+                                                        borderRadius: BorderRadius.circular(6.0)
+                                                    ),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(left: 4.0, right: 4.0),
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                        children: [
+                                                          FittedBox(
+                                                            fit: BoxFit.scaleDown,
+                                                            child: Text(" CLÍNICA ", style: AppTextStyles.labelBlack14Lex,),
+                                                          ),
+                                                          Text("R\$ "+_comissaoClinica, style: AppTextStyles.labelBlack14Lex,),
+
+                                                        ],
+                                                      ),
+                                                    )
+                                                ),
+                                                //desconto clínica
+                                                Container(
+                                                  height: size.height*0.1,
+                                                  width: size.width*0.18,
+                                                  child: InputTextWidgetMask(
+                                                    enable: !_checkClinica,
+                                                    label: "DESCONTO CLINICA",
+                                                    icon: Icons.business_outlined,
+                                                    keyboardType: TextInputType.number,
+                                                    obscureText: false,
+                                                    backgroundColor: (_checkClinica)?AppColors.secondaryColor:AppColors.shape,
+                                                    borderColor: AppColors.line,
+                                                    textStyle: AppTextStyles.subTitleBlack12,
+                                                    iconColor: AppColors.labelBlack,
+                                                    input: CentavosInputFormatter(),
+                                                    controller: txt1,
+                                                    validator: (value) {
+                                                      if ((value!.isEmpty) || (value == null)) {
+                                                        return 'Insira um VALOR';
+                                                      }
+                                                      if (value.length<4){
+                                                        return 'VALOR inválido';
+                                                      }
+                                                      return null;
+                                                    },
+                                                    onChanged: (value) {
+                                                      if (value.length>_comissaoClinica.length){
+                                                        txt1.text = "0,00";
+                                                        _comissaoFinalClinica = _comissaoClinica;
+                                                        _descontoClinica = "0,00";
+                                                        setState;
+
+                                                      } else {
+                                                        if (value.length>0){
+                                                          String result = value;
+                                                          double valorInput = double.parse(result.replaceAll(',','.'));
+                                                          double comissaoClinica = double.parse(_comissaoClinica.replaceAll(',','.'));
+                                                          if (comissaoClinica < valorInput){
+                                                            print("ultrapassou $comissaoClinica $valorInput");
+                                                            txt1.text = "0,00";
+                                                            _comissaoFinalClinica = _comissaoClinica;
+                                                          } else{
+                                                            print("permitido $comissaoClinica $valorInput");
+                                                            // _valorFinal =  ( double.parse(_valorFinal.replaceAll(',', '.'))- double.parse(result.replaceAll(',', '.'))).toStringAsFixed(2).replaceAll('.',',');
+                                                            if (valorInput.compareTo(0)==0){
+                                                              txt1.text = "0,00";
+                                                              // valorInput = "0,00";
+                                                            }
+                                                            _descontoClinica = double.parse(result.replaceAll(',', '.')).toString();
+                                                            _comissaoFinalClinica = (double.parse(_comissaoClinica.replaceAll(',', '.'))-double.parse(_descontoClinica)).toStringAsFixed(2).replaceAll('.', ',');
+                                                          }
+
+                                                        }
+                                                      }
+                                                      setState((){});
+
+
+                                                    },
+                                                  ),
+                                                ),
+                                                //comissao final Clínica
+                                                (_checkClinica)?
+                                                Container(
+                                                    height: size.height*0.6,
+                                                    width: size.width*0.1,
+
+                                                    child: Column(
+                                                      mainAxisAlignment: MainAxisAlignment.center,
+
+                                                      children: [
+                                                        FittedBox(
+                                                          fit: BoxFit.scaleDown,
+                                                          child: Text(" COMISSÃO CLÍNICA", style: AppTextStyles.labelBlack14Lex,),
+                                                        ),
+                                                        Text("R\$ "+_comissaoFinalClinica, style: AppTextStyles.labelBlack14Lex,),
+
+                                                      ],
+                                                    )
+                                                )
+                                                    :
+                                                SizedBox(
+                                                    height: size.height*0.6,
+                                                    width: size.width*0.1,
+                                                  child: Center(
+                                                    child:IconButton(
+                                                        onPressed: (){
+                                                          _checkClinica = true;
+                                                          _checkProfissional = false;
+                                                          setState((){});
+                                                        },
+                                                        icon: Icon(Icons.add_circle, color: AppColors.primaryColor)
+                                                    )
+                                                  )
+                                                ),
+                                              ],
+                                            )
+                                        ),
+                                        //profissional
+                                        SizedBox(
+                                          // color: AppColors.red,
+                                            height: size.height*0.074,
+                                            width: size.width*0.4,
+                                            child:  Row(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                //comissão profissional
+                                                Container(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.074,
+                                                    decoration: BoxDecoration(
+                                                        color: AppColors.shape,
+                                                        borderRadius: BorderRadius.circular(6.0)
+                                                    ),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(left: 4.0, right: 4.0),
+                                                      child: Column(
+                                                          children: [
+                                                            FittedBox(
+                                                              fit: BoxFit.scaleDown,
+                                                              child: Text("PROFISSIONAL", style: AppTextStyles.labelBlack14Lex,),
+                                                            ),
+                                                            Text("R\$ "+_comissaoProfissional, style: AppTextStyles.labelBlack14Lex,),
+                                                          ]
+                                                      ),
+                                                    )
+                                                ),
+                                                //desconto profissional
+                                                SizedBox(
+                                                  height: size.height*0.1,
+                                                  width: size.width*0.18,
+                                                  child: InputTextWidgetMask(
+                                                    enable: !_checkProfissional,
+                                                    label: "DESCONTO PROF.",
+                                                    icon: Icons.person_pin,
+                                                    keyboardType: TextInputType.number,
+                                                    obscureText: false,
+                                                    backgroundColor: (_checkProfissional)?AppColors.secondaryColor:AppColors.shape,
+                                                    // backgroundColor: AppColors.secondaryColor,
+                                                    borderColor: AppColors.line,
+                                                    textStyle: AppTextStyles.subTitleBlack12,
+                                                    iconColor: AppColors.labelBlack,
+                                                    controller: txt2,
+                                                    input: CentavosInputFormatter(),
+                                                    validator: (value) {
+                                                      if ((value!.isEmpty) || (value == null)) {
+                                                        return 'Insira um VALOR';
+                                                      }
+                                                      if (value.length<4){
+                                                        return 'VALOR inválido';
+
+                                                      }
+                                                      return null;
+                                                    },
+                                                    onChanged: (value) {
+                                                      if (value.length>_comissaoProfissional.length){
+                                                        txt2.text = "0,00";
+                                                        _comissaoFinalProfissional = _comissaoProfissional;
+                                                        _descontoProfissional="0,00";
+                                                      } else {
+                                                        if (value.length>0){
+                                                          String result = value;
+                                                          double valorInput = double.parse(result.replaceAll(',','.'));
+                                                          double comissaoProfissional = double.parse(_comissaoProfissional.replaceAll(',','.'));
+                                                          if (comissaoProfissional < valorInput){
+                                                            print("ultrapassou $comissaoProfissional $valorInput");
+                                                            txt2.text = "0,00";
+                                                            _comissaoFinalProfissional = _comissaoProfissional;
+                                                          } else{
+                                                            if (valorInput.compareTo(0)==0){
+                                                              txt2.text = "0,00";
+                                                              // valorInput = "0,00";
+                                                            }
+                                                            print("permitido $comissaoProfissional $valorInput");
+                                                            _descontoProfissional = double.parse(result.replaceAll(',', '.')).toString();
+                                                            // _valorFinal =  ( double.parse(_valorFinal.replaceAll(',', '.'))- double.parse(result.replaceAll(',', '.'))).toStringAsFixed(2).replaceAll('.',',');
+                                                            _comissaoFinalProfissional = (double.parse(_comissaoProfissional.replaceAll(',', '.'))-double.parse(_descontoProfissional)).toStringAsFixed(2).replaceAll('.', ',');
+                                                          }
+
+                                                        }
+                                                      }
+                                                      setState((){});
+
+
+                                                    },
+                                                  ),
+                                                ),
+                                                //comissão final Profissional
+                                                (_checkProfissional)?
+
+                                                SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.1,
+                                                    child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children:[
+                                                          SizedBox(
+                                                            width: size.width*0.1,
+                                                            height: size.height*0.03,
+                                                            child: FittedBox(
+                                                              fit: BoxFit.scaleDown,
+                                                              child: Text("COMISSÃO PROFISSIONAL", style: AppTextStyles.labelBlack14Lex,),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: size.width*0.1,
+                                                            height: size.height*0.03,
+                                                            child: FittedBox(
+                                                              fit: BoxFit.scaleDown,
+                                                              child: Text("R\$ "+_comissaoFinalProfissional, style: AppTextStyles.labelBlack14Lex,),
+                                                            ),
+                                                          ),
+
+
+                                                        ]
+                                                    )
+                                                )
+                                                :
+                                                SizedBox(
+                                                  height: size.height*0.06,
+                                                  width: size.width*0.1,
+                                                  child: Center(
+                                                      child: IconButton(
+                                                        onPressed: (){
+                                                          _checkProfissional = true;
+                                                          setState((){});
+                                                        },
+                                                        icon: Icon(Icons.add_circle, color:AppColors.primaryColor)
+                                                      )
+                                                  )
+                                                )
+                                              ],
+                                            )
+                                        ),
+                                        // Divider(
+                                        //   thickness: 3,
+                                        //   color: AppColors.line,
+                                        // ),
+                                        // totais
+                                        SizedBox(
+                                          width: size.width * 0.4,
+                                          height: size.height * 0.06,
+                                          child: Stack(
+                                            // mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Positioned(
+                                                left: size.width*0.02,
+                                                child: SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.074,
+                                                    child: FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.center,
+                                                        child:
+                                                        Text("R\$ "+_valorFinal , style: AppTextStyles.labelBlack16Lex,)
+                                                      // Text("R\$ "+_valorFinal , style: AppTextStyles.labelBlack16Lex,)
+                                                    )
+                                                ),
+
+                                              ),
+                                              Positioned(
+                                                  left: size.width*0.1,
+                                                  child: SizedBox(
+                                                      height: size.height * 0.06,
+                                                      width: size.width*0.02,
+                                                      child: Center(
+                                                          child: Text("-")
+                                                      )
+                                                  ),
+                                              ),
+                                              Positioned(
+                                                  left: size.width*0.12,
+                                                  child: SizedBox(
+                                                      // color: AppColors.blue,
+                                                      height: size.height * 0.06,
+                                                      width: size.width*0.15,
+                                                      child: FittedBox(
+                                                          fit: BoxFit.scaleDown,
+                                                          alignment: Alignment.center,
+                                                          child: Text("R\$ "+(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))).toStringAsFixed(2).replaceAll('.', ','), style: AppTextStyles.labelBlack16Lex,)
+                                                      )
+                                                  ),
+                                              ),
+                                              Positioned(
+                                                  left: size.width*0.27,
+                                                  child: SizedBox(
+                                                      height: size.height * 0.06,
+                                                      width: size.width*0.02,
+                                                      child: Center(
+                                                          child: Text("=")
+                                                      )
+                                                  ),
+                                              ),
+                                              Positioned(
+                                                  left: size.width*0.29,
+                                                  child:  SizedBox(
+                                                      height: size.height*0.06,
+                                                      width: size.width*0.1,
+                                                      child: FittedBox(
+                                                          fit: BoxFit.scaleDown,
+                                                          alignment: Alignment.center,
+                                                          child: Text("R\$ "+(double.parse(_comissaoFinalProfissional.replaceAll(',', '.'))+double.parse(_comissaoFinalClinica.replaceAll(',', '.'))).toStringAsFixed(2).replaceAll('.', ',') , style: AppTextStyles.labelBlack16Lex,)
+                                                      )
+                                                  ),
+
+                                              ),
+                                            ],
+                                          ),
+
+                                        )
+                                            // :
+                                        // Center(),
+                                      ],
+                                    ),
+
+                                  )
+                                      :
+                                  SizedBox(
+                                    // color: AppColors.green,
+                                    height: size.height*0.21,
+                                    width: size.width*0.4,
+                                  ),
+
+                                  //BOTÃO AVANÇAR
+                                  SizedBox(
+                                    height: size.height*0.15,
+                                    width: size.width*0.4,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.bottomRight,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(bottom: 10.0, right: 13.0),
+                                        child: SizedBox(
+                                            width: size.height*0.08,
+                                            height: size.height*0.12,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                SizedBox(
+                                                  width: size.height*0.08,
+                                                  height: size.height*0.08,
+                                                  child: FittedBox(
+                                                    fit: BoxFit.contain,
+                                                    child: ((!_checkSocial)&&(_avancar==false))
+                                                        ||( (_checkProfissional) && (_checkClinica) && (_avancar==false))
+                                                        ?
+                                                    InkWell(
+                                                      onTap: (){
+                                                         //bloquear checkBox
+                                                         // _checkProfissional=true;
+                                                         // _checkClinica = true;
+                                                        if (!(_checkClinica && _checkProfissional)){
+                                                          _checkProfissional=true;
+                                                          _checkClinica = true;
+                                                        }
+                                                         _avancar = true;
+                                                         // _checkProfissional = false;
+                                                         // _checkClinica = false;
+                                                         print(_checkSocial);
+                                                         print(_avancar);
+                                                         setState((){});
+                                                      },
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(6.0),
+                                                        child: Container(
+                                                          color: AppColors.primaryColor,
+
+                                                          child:Icon(
+                                                            Icons.arrow_right_alt,
+                                                            color: AppColors.labelWhite,
+                                                          ),),
+                                                      ),
+                                                    )
+                                                        :
+                                                    Center(),
+                                                  ),
+                                                ),
+                                                ((!_checkSocial)&&(_avancar==false))
+                                                    ||( (_checkProfissional) && (_checkClinica) && (_avancar==false))?
+                                                SizedBox(
+                                                  width: size.height*0.08,
+                                                  height: size.height*0.04,
+                                                  child: FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text("Avançar")
+                                                  ),
+                                                ):Center(),
+
+                                              ],
+                                            )
+
+                                        ),
+                                      )
+
+                                    )
+                                  )
+
+                                ],
+                              )
+                          ),
+                          //forma de pagamento
+                          (_avancar)?
+                          Container(
+                            // color: AppColors.green,
+                            width: size.width * 0.4,
+                            height: size.height * 0.42,
+                            child: Column(
+                              children: [ 
+                                //SERVIÇO
+                                SizedBox(
+                                  width: size.width * 0.4,
+                                  height: size.height * 0.04,
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                          width: size.width * 0.05,
+                                          height: size.height * 0.04,
+                                          child:FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerRight,
+                                            child: Text("SERVIÇO: ", style: AppTextStyles.subTitleBlack14,),
+                                          )
+                                      ),
+                                      //descricao
+                                      SizedBox(
+                                          width: size.width * 0.27,
+                                          height: size.height * 0.04,
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+
+                                            child: Text(sessao.descSessao!.substring(11,sessao.descSessao!.length),style: AppTextStyles.subTitleBlack14,),
+                                          )
+                                      ),
+                                      //valor
+                                      SizedBox(
+                                          width: size.width * 0.07,
+                                          height: size.height * 0.04,
+                                          // decoration: BoxDecoration(
+                                          //   borderRadius: BorderRadius.circular(8.0),
+                                          //   color: AppColors.shape,
+                                          // ),
+                                          child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Padding(
+                                                  padding: EdgeInsets.only(left: size.width * 0.005,right: size.width * 0.005),
+                                                  child:
+                                                  // _valorFinal =  ( double.parse(_valorFinal.replaceAll(',', '.'))- double.parse(result.replaceAll(',', '.'))).toStringAsFixed(2).replaceAll('.',',');
+                                                  (_checkSocial)?
+                                                  Text("R\$ "+(double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',','), style: AppTextStyles.subTitleBlack14,)
+                                                      :
+                                                  Text("R\$ "+valorSessao, style: AppTextStyles.subTitleBlack14,),
+                                                      
+                                              )
+                                          )
+
+                                      )
+                                    ],
+                                  ),
+
+                                ),
+                                //Forma de Pagamento
+                                Container(
+                                  // color: AppColors.red,
+                                    height: size.height*0.33,
+                                    width: size.width*0.4,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                                      children: [
+                                        SizedBox(
+                                            height: size.height*0.06,
+                                            width: size.width*0.4,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.12,
+                                                    child:FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      alignment: Alignment.centerLeft,
+                                                      child: Text("Forma de Pagamento:"),
+                                                    ) ),
+                                                SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.12,
+                                                    child:FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.centerLeft,
+                                                        child: Row(children: [
+                                                          Checkbox(
+                                                              value: _checkFormaPagamento,
+                                                              onChanged: (value){
+                                                                _checkFormaPagamento=value!;
+                                                                if (!_checkFormaPagamento){
+                                                                  listValores.add("0,00");
+                                                                  listDropdownFirst.add(list.first.descricao);
+                                                                  listEnable.add(false);
+                                                                  if (_checkSocial){
+                                                                    _valorPendente = (double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                  } else {
+                                                                    _valorPendente = valorSessao;
+                                                                  }
+
+                                                                  contPagamentos++;
+                                                                } else {listValores.add("0,00");
+
+                                                                  listTxtController.clear();
+                                                                  for (int i =0; i<2; i++){
+                                                                    listTxtController.add(TextEditingController());
+                                                                  }
+                                                                  // _valorPendente =
+                                                                  if (_checkSocial){
+                                                                    _valorPendente = (double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                  } else {
+                                                                    _valorPendente = valorSessao;
+                                                                  }
+                                                                  listEnable.clear();
+                                                                  listEnable.add(true);
+                                                                  listEnable.add(false);
+                                                                  listValores.clear();
+                                                                  listValores.add("0,00");
+                                                                  listValores.add("0,00");
+                                                                  // contPagamentos = 1;
+                                                                  contPagamentos=1;
+                                                                }
+
+                                                                setState((){});
+                                                              }),
+                                                          Text("ÚNICO:"),
+                                                        ],)
+                                                    ) ),
+                                                //_checkFormaPagamento
+                                                SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.12,
+                                                    child:FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.centerLeft,
+                                                        child: Row(children: [
+                                                          Checkbox(
+                                                              value: !_checkFormaPagamento,
+                                                              onChanged: (value){
+                                                                _checkFormaPagamento=!_checkFormaPagamento;
+                                                                if(!_checkFormaPagamento){
+                                                                  if (contPagamentos==1){
+                                                                    print(contPagamentos);
+                                                                    print(listEnable.length);
+                                                                    print("contPagamentos");
+                                                                    listValores.add("0,00");
+                                                                    listValores.add("0,00");
+                                                                    listEnable.forEach((element) {
+                                                                      print(element);
+                                                                    });
+                                                                    listDropdownFirst.add(list.first.descricao);
+                                                                    if (listEnable.length==1){
+                                                                      listEnable.add(false);
+
+                                                                    }
+                                                                    if (_checkSocial){
+                                                                      _valorPendente = (double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                    } else {
+                                                                      _valorPendente = valorSessao;
+                                                                    }
+
+                                                                    contPagamentos++;
+                                                                  }
+                                                                  if (_checkFormaPagamento){
+                                                                    // for (int i=0; i<listDropdownFirst.)
+                                                                    contPagamentos=1;
+                                                                  }
+                                                                  // contPagamentos=1;
+                                                                } else {
+                                                                  print(contPagamentos);
+                                                                  print("contPagamentos");
+                                                                  listTxtController.clear();
+                                                                  for (int i =0; i<2; i++){
+                                                                    listTxtController.add(TextEditingController());
+                                                                  }
+                                                                  // _valorPendente =
+                                                                  if (_checkSocial){
+                                                                    _valorPendente = (double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                  } else {
+                                                                    _valorPendente = valorSessao;
+                                                                  }
+
+                                                                  listFormaPagamentos.clear();
+                                                                  listEnable.clear();
+                                                                  if(list[5].descricao.compareTo("DINHEIRO")!=0){
+                                                                    print("adiciona");
+                                                                    list.add(TipoPagamento(descricao: "DINHEIRO"));
+                                                                  } else {
+                                                                    print("ja tem");
+
+                                                                  }
+                                                                  listEnable.add(true);
+                                                                  listEnable.add(false);
+                                                                  listValores.clear();
+                                                                  listValores.add("0,00");
+                                                                  listValores.add("0,00");
+                                                                  contPagamentos = 1;
+                                                                }
+                                                                setState((){});
+                                                              }),
+                                                          Text("VARIADO:"),
+                                                        ],)
+                                                    ) ),
+                                              ],
+                                            )
+                                        ),
+                                        SizedBox(
+                                          height: size.height*0.27,
+                                          width: size.width*0.4,
+                                          child:
+                                            ListView.builder(
+                                              itemCount: contPagamentos,
+                                                itemBuilder: (parentContext, index){
+                                                print(index.toString()+"index");
+                                                print(listFormaPagamentos.length.toString()+"listFormaPagamentos");
+                                                print(listDropdownFirst.length.toString()+"listDropdownFirst ${listDropdownFirst[0]}");
+                                                print("$index = index");
+                                                // if ()
+                                                   return Row(
+                                                     children: [
+                                                       //DropDown forma
+                                                       // (index<=listValores.length)?
+                                                       (listEnable[index]==false)&&(listFormaPagamentos.length>index)?
+                                                       SizedBox(
+                                                         height: size.height*0.06,
+                                                         width: size.width*0.2,
+                                                         child: Text(listDropdownFirst[index]),
+                                                       )
+                                                           :
+                                                       SizedBox(
+                                                           height: size.height*0.06,
+                                                           width: size.width*0.2,
+                                                           child: FittedBox(
+                                                             fit: BoxFit.scaleDown,
+                                                             alignment: Alignment.centerLeft,
+                                                             child: DropdownButton<String>(
+                                                               // value: _dropdown,
+                                                               value: listDropdownFirst[index],
+                                                               icon: const Icon(Icons.arrow_drop_down_sharp),
+                                                               elevation: 8,
+                                                               style: TextStyle(color: AppColors.labelBlack),
+                                                               underline: Container(
+                                                                 height: 2,
+                                                                 color: AppColors.line,
+                                                               ),
+                                                               onChanged: (String? newValue) {
+                                                                 setState(() {
+                                                                   _dropdown = newValue!;
+                                                                   listDropdownFirst[index]= newValue;
+                                                                   // print(index);
+                                                                   print("$index = index");
+
+                                                                   print(listDropdownFirst[index]);
+                                                                   print(listDropdownFirst[0]);
+                                                                 });
+                                                               },
+                                                               items: getDropdownTiposPagamento(list),
+                                                             ),
+                                                           )
+                                                       ),
+
+
+                                                       //VALOR
+                                                       (_checkFormaPagamento)?
+                                                       Center():
+                                                       Row(
+                                                         children: [
+                                                           SizedBox(
+                                                             height: size.height*0.09,
+                                                             width: size.width*0.15,
+                                                             child: InputTextWidgetMask(
+                                                               // key: Key(_valorAtual.toString()),
+                                                               enable: listEnable[index],
+                                                               label: "VALOR",
+                                                               icon: Icons.monetization_on_outlined,
+                                                               validator: (value) {
+                                                                 if ((value!.isEmpty) || (value == null)) {
+                                                                   return 'Insira um valor';
+                                                                 }
+                                                                 return null;
+                                                               },
+                                                               onChanged: (value) {
+
+                                                                 if (value.compareTo("0,00")==0) {
+                                                                   setState((){
+                                                                     print("setStat");
+                                                                     _valorAtual = value;
+                                                                   });
+                                                                 } else {
+                                                                   if (value.length==0){
+                                                                     value = "0,00";
+                                                                   }
+                                                                   print(value);
+                                                                 }
+                                                                 listValores[index]=value;
+                                                                 _valorAtual = value;
+                                                                 if (_checkSocial) {
+                                                                 print("desconto social");
+                                                                   String valorComDesconto ="";
+                                                                   if (index==0){
+                                                                     valorComDesconto = (double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                     if ((value.length>valorComDesconto.length)||(EMaiorIgual(value,_valorPendente))){
+                                                                       listValores[index]="0,00";
+                                                                       listTxtController[index].text = "0,00";
+                                                                       setState((){});
+                                                                     }else{
+                                                                       if (value.length>0){
+                                                                         String result = value;
+                                                                         double valorInput = double.parse(result.replaceAll(',','.'));
+                                                                         double sessao1 = double.parse(valorComDesconto.replaceAll(',','.'));
+                                                                         if (sessao1<valorInput){
+                                                                           print("ultrapassou $sessao1 < $valorInput");
+                                                                           listTxtController[index].text = "0,00";
+                                                                           listValores[index]="0,00";
+                                                                           _comissaoFinalClinica = _comissaoClinica;
+                                                                         }   else {
+                                                                           print("não ultrapassou $sessao1 > $valorInput");
+                                                                         }
+                                                                       }
+                                                                     }
+                                                                   } else {
+                                                                     valorComDesconto = (double.parse(_valorPendente.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                     if ((value.length>valorComDesconto.length)||(EMaior(value,_valorPendente))){
+                                                                       listValores[index]="0,00";
+                                                                       listTxtController[index].text = "0,00";
+                                                                       setState((){});
+                                                                     }else{
+                                                                       if (value.length>0){
+                                                                         String result = value;
+                                                                         double valorInput = double.parse(result.replaceAll(',','.'));
+                                                                         double sessao1 = double.parse(valorComDesconto.replaceAll(',','.'));
+                                                                         if (sessao1<valorInput){
+                                                                           print("ultrapassou $sessao1 < $valorInput");
+                                                                           listTxtController[index].text = "0,00";
+                                                                           listValores[index]="0,00";
+                                                                           _comissaoFinalClinica = _comissaoClinica;
+                                                                         }   else {
+                                                                           print("não ultrapassou $sessao1 > $valorInput");
+                                                                         }
+                                                                       }
+                                                                     }
+                                                                   }
+
+
+                                                                 } else{
+                                                                   print("sem desconto social");
+                                                                   print(index);
+                                                                   if (index==0){
+                                                                     if ((value.length>valorSessao.length)||(EMaiorIgual(value,_valorPendente))){
+                                                                       print("EMaior");
+                                                                       listValores[index]="0,00";
+                                                                       listTxtController[index].text = "0,00";
+                                                                       setState((){});
+                                                                     } else {
+                                                                       if (value.length>0){
+                                                                         String result = value;
+                                                                         double valorInput = double.parse(result.replaceAll(',','.'));
+                                                                         double sessao = double.parse(valorSessao.replaceAll(',','.'));
+                                                                         if (sessao < valorInput){
+                                                                           print("ultrapassssssou $sessao $valorInput");
+                                                                           listTxtController[index].text = "0,00";
+                                                                           listValores[index]="0,00";
+                                                                           _comissaoFinalClinica = _comissaoClinica;
+                                                                         }
+                                                                       }
+                                                                     }
+                                                                   }
+                                                                   else {
+                                                                     if ((value.length>valorSessao.length)||(EMaior(value,_valorPendente))){
+                                                                       print("EMaior");
+                                                                       listValores[index]="0,00";
+                                                                       listTxtController[index].text = "0,00";
+                                                                       setState((){});
+                                                                     } else {
+                                                                       if (value.length>0){
+                                                                         String result = value;
+                                                                         double valorInput = double.parse(result.replaceAll(',','.'));
+                                                                         double sessao = double.parse(valorSessao.replaceAll(',','.'));
+                                                                         if (sessao < valorInput){
+                                                                           print("ultrapassssssou $sessao $valorInput");
+                                                                           listTxtController[index].text = "0,00";
+                                                                           listValores[index]="0,00";
+                                                                           _comissaoFinalClinica = _comissaoClinica;
+                                                                         }
+                                                                       }
+                                                                     }
+                                                                   }
+
+                                                                 }
+
+                                                               },
+                                                               controller:  listTxtController[index],
+                                                               keyboardType: TextInputType.text,
+                                                               obscureText: false,
+                                                               backgroundColor: listEnable[index]?AppColors.shape : AppColors.secondaryColor,
+                                                               borderColor: AppColors.line,
+                                                               textStyle: AppTextStyles.subTitleBlack10,
+                                                               iconColor: AppColors.labelBlack,
+                                                               input: CentavosInputFormatter(),
+                                                               // initalValue: listValores[index],
+                                                             ),
+                                                           ),
+                                                           SizedBox(
+                                                               height: size.height*0.06,
+                                                               width: size.width*0.05,
+                                                               child: Center(
+                                                                 child:
+                                                                (listEnable[index])?
+                                                                 IconButton(
+                                                                   icon: Icon(Icons.add_circle, color: AppColors.primaryColor),
+                                                                   onPressed: ()
+                                                                   {
+                                                                     print(_valorAtual+"aaa");
+
+                                                                     if (_valorAtual.compareTo("0,00")!=0){
+                                                                       print(_valorAtual+"bbb");
+
+                                                                       if (index>0){
+                                                                         print(listValores[index]);
+                                                                         print(_valorPendente);
+                                                                         print(valorSessao);
+                                                                         //valor que resta informar
+                                                                         _valorPendente  = ((double.parse(_valorPendente.replaceAll(',','.')) - double.parse(listValores[index].replaceAll(',','.')))).toStringAsFixed(2).replaceAll('.',',');
+
+                                                                         print(_valorPendente);
+                                                                         print("index>0");
+                                                                         print(_valorTotalVariado);
+                                                                         _valorTotalVariado = (double.parse(listValores[index].replaceAll(',','.'))+double.parse(_valorTotalVariado.replaceAll(',','.'))).toStringAsFixed(2).replaceAll('.',',');
+                                                                         print("_valorTotal = $_valorTotalVariado");
+                                                                         String result =valorSessao;
+                                                                         if (_checkSocial){
+                                                                           result = (double.parse(valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                                                         }
+                                                                         if (_valorTotalVariado.compareTo(result)!=0){
+                                                                           print("entrou");
+                                                                           listFormaPagamentos.add(listDropdownFirst[index]);
+                                                                           if (listDropdownFirst[index].compareTo("DINHEIRO")==0){
+                                                                             list.removeWhere((element) => element.descricao.compareTo("DINHEIRO")==0);
+                                                                           }
+                                                                           // print(list.length);
+                                                                           // list.removeWhere((element) => element.descricao.compareTo(listDropdownFirst[index])==0);
+                                                                           // print(list.length);
+                                                                           listEnable.add(true);
+                                                                           listValores.add("0,00");
+                                                                           listDropdownFirst.add(list.first.descricao);
+                                                                           listTxtController.add(TextEditingController());
+                                                                           contPagamentos++;
+                                                                         }
+                                                                         else {
+                                                                           print("asas");
+                                                                           listFormaPagamentos.add(listDropdownFirst[index]);
+                                                                           if (listDropdownFirst[index].compareTo("DINHEIRO")==0){
+                                                                             list.removeWhere((element) => element.descricao.compareTo("DINHEIRO")==0);
+                                                                           }
+                                                                           // print(list.length);
+                                                                           // list.removeWhere((element) => element.descricao.compareTo(listDropdownFirst[index])==0);
+                                                                           // print(list.length);
+                                                                         }
+                                                                         listEnable[index]=false;
+
+                                                                       } else{
+                                                                         print("index<1");
+                                                                         _valorPendente  = (double.parse(valorSessao.replaceAll(',','.')) - double.parse(listValores[index].replaceAll(',','.'))).toStringAsFixed(2).replaceAll('.',',');
+                                                                         print(_valorPendente);
+                                                                         _valorTotalVariado = listValores[index];
+                                                                         listFormaPagamentos.add(listDropdownFirst[index]);
+                                                                         // print(list.length);
+                                                                         if (listDropdownFirst[index].compareTo("DINHEIRO")==0){
+                                                                           list.removeWhere((element) => element.descricao.compareTo("DINHEIRO")==0);
+                                                                         }
+                                                                         // list.removeWhere((element) => element.descricao.compareTo(listDropdownFirst[index])==0);
+                                                                         // print(list.length);
+                                                                         listEnable[index]=false;
+                                                                         listEnable[1]=true;
+                                                                       }
+
+                                                                       print("$index ${listFormaPagamentos.length} ${listEnable.length}"
+                                                                           " ${listValores.length} ${listDropdownFirst.length} $contPagamentos");
+                                                                       setState((){
+                                                                         // txtValorPagamento.text = "0,00";
+                                                                         _valorAtual = "0,00";
+                                                                         print(_valorAtual+"aaa");
+                                                                       });
+                                                                     }
+                                                                   },
+                                                                 )
+                                                                 :
+                                                                 Center(),
+                                                                 // Icon(Icons.check_circle_rounded),
+
+                                                               )
+                                                           ),
+                                                         ],
+                                                       ),
+
+                                                     ],
+                                                   );
+
+                                                }),
+
+                                        ),
+
+
+                                      ],
+                                    )
+
+                                ),
+                              ],
+                            ),
+                          )
+                          :
+                          Center(),
+                        ],
+                      ),
+
+
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: Divider(
+                          thickness: 2,
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ButtonWidget(
+                            onTap: () async{
+                              double valorSessao = double.parse(_valorSessao.replaceAll(",", "."));
+                              double descontoProfissional = double.parse(_descontoProfissional.replaceAll(",", "."));
+                              double descontoClinica = double.parse(_descontoClinica.replaceAll(",", "."));
+                              print("valor transacao");
+                              print(_valorSessao);
+                              print(_descontoProfissional);
+                              print(_descontoClinica);
+                              String valorTransacaoFinal =  (valorSessao-(descontoProfissional+descontoClinica)).toStringAsFixed(2).replaceAll('.', ',');
+                              String valorComissaoFinal = ((valorSessao*0.7)-descontoProfissional).toStringAsFixed(2).replaceAll('.', ',');
+                              print(valorTransacaoFinal);
+
+                              await Provider.of<TransacaoProvider>(context, listen:false)
+                                  .put(
+                                  TransacaoCaixa(
+                                    dataTransacao: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                    descricaoTransacao: sessao.descSessao!.substring(11,sessao.descSessao!.length),
+                                    tpPagamento: _dropdown,
+                                    tpTransacao: "PAGAMENTO EFETUADO",
+                                    valorTransacao: valorTransacaoFinal,
+                                    idPaciente: paciente.id1,
+                                    idProfissional: profissional.id1,
+                                    descontoProfissional: _descontoProfissional,
+                                    descontoClinica: _descontoClinica,
+                                  )).then((value) async{
+                                String idTransacao = value;
+                                if (!_checkFormaPagamento){
+                                  //inserindo pagamentos transações
+                                  for (int i =0; i<listDropdownFirst.length;i++) {
+                                    await Provider.of<PagamentoTransacaoProvider>
+                                      (context,listen: false).putTransacao(PagamentoTransacao(
+                                        dataPagamento: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                        horaPagamento: UtilData.obterHoraHHMM(DateTime.now()),
+                                        valorPagamento: listValores[i],
+                                        valorTotalPagamento: valorTransacaoFinal,
+                                        tipoPagamento: listDropdownFirst[i],
+                                        descServico: sessao.descSessao!,
+                                        idTransacao: idTransacao)
+                                    );
+                                  }
+
+                                } else{
+                                  //inserindo pagamento transação
+                                  await Provider.of<PagamentoTransacaoProvider>
+                                    (context,listen: false).putTransacao(PagamentoTransacao(
+                                      dataPagamento: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                      horaPagamento: UtilData.obterHoraHHMM(DateTime.now()),
+                                      valorPagamento: valorTransacaoFinal,
+                                      valorTotalPagamento: valorTransacaoFinal,
+                                      tipoPagamento: listDropdownFirst[0],
+                                      descServico: sessao.descSessao!,
+                                      idTransacao: idTransacao)
+                                  );
+                                }
+                                print(value+"transacao");
+                                await Provider.of<ComissaoProvider>(context, listen: false)
+                                    .put(Comissao(
+                                    idProfissional: profissional.id1,
+                                    idTransacao: idTransacao,
+                                    idPagamento: "",
+                                    dataGerada: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                    dataPagamento: "",
+                                    valor: valorComissaoFinal,
+                                    situacao: "PENDENTE"));
+                                sessao.situacaoSessao="PAGO";
+                                await Provider.of<SessaoProvider>(context, listen: false)
+                                    .getSessoesByTransacaoPacProf(
+                                    sessao.idPaciente!, sessao.idProfissional!, ""
+                                ).then((value){
+                                  List<Sessao> sessoes = value;
+                                  // List<String> contSessao = [];
+                                  // String contSessaoAtual="";
+
+                                  sessoes.forEach((element) async{
+                                    // for (int i=8;i<element.descSessao!.length; i++) {
+                                    //   if  (element.descSessao![i].compareTo(" ")!=0) {
+                                    //     contSessaoAtual += element.descSessao![i];
+                                    //   } else{
+                                    //     break;
+                                    //   }
+                                    // }
+                                    // if (contSessao.contains(contSessaoAtual)==false){
+                                    //   contSessao.add(contSessaoAtual);
+                                    //   contSessaoAtual = "";
+                                      await Provider.of<SessaoProvider>(context,listen: false)
+                                          .updateEfetuarPagamento(element.id1, idTransacao);
+                                    // }
+
+                                  });
+                                });
+                                Navigator.pop(context);
+
+                              });
+                            },
+                            label: "PAGAR",
+                            width: MediaQuery.of(context).size.width * 0.07,
+                            height: MediaQuery.of(context).size.height * 0.065,
+                          ),
+                          ButtonWidget(
+                            onTap: ()async{
+                              Navigator.pop(parentContext);
+                            },
+                            label: "CANCELAR",
+                            width: MediaQuery.of(context).size.width * 0.07,
+                            height: MediaQuery.of(context).size.height * 0.065,),
+                        ],
+                      )
+                    ],
+                  ),
+                )
+              ),
+            );
+          });
+       }
+    );
+  }
+
+  static Future<void> AlertDialogFinalizarSessao (
+      parentContext, String uid, Sessao sessao, Paciente paciente, Profissional profissional,
+      ) {
+
+
+    Size size = MediaQuery.of(parentContext).size;
+
+    Future<String> getValorServico(String desc)async{
+      String result = "";
+      await Provider.of<ServicoProvider>(parentContext, listen: false)
+          .getServicoByDesc(desc).then((value) async{
+        result = value.id1;
+        await Provider.of<ServicoProfissionalProvider>(parentContext, listen: false)
+            .getServByServicoProfissional(profissional.id1,result).then((value) {
+          result = value.valor!;
+          print(result);
+        });
+      });
+      print(result);
+      print("result");
+
+      return result;
     }
 
     return showDialog(
@@ -1461,7 +2762,7 @@ class DialogsAgendaAssistente {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("EFETUAR PAGAMENTO"),
+                    Text("FINALIZAR SESSÃO"),
 
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
@@ -1471,7 +2772,18 @@ class DialogsAgendaAssistente {
                     ),
                     SizedBox(
                       width: size.width * 0.6,
-                      height: size.height * 0.24,
+                      height: size.height * 0.06,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(sessao.descSessao!),
+
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: size.width * 0.6,
+                      height: size.height * 0.3,
                       child: Column(
                         children: [
                           SizedBox(
@@ -1479,32 +2791,8 @@ class DialogsAgendaAssistente {
                             height: size.height * 0.06,
                             child: Row(
                               children: [
-                                Text("Serviço: "),
-                                Text(sessao.descSessao!.substring(11,sessao.descSessao!.length)),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.6,
-                            height: size.height * 0.06,
-                            child: Row(
-                              children: [
-                                Text("Valor Serviço: "),
-                                FutureBuilder(
-                                    future: getValorServico(sessao.descSessao!.substring(11,sessao.descSessao!.length)),
-                                    builder: (parentContext, snapshot){
-                                      if (snapshot.hasData){
-                                        print("entrou sim");
-                                        _valorSessao = snapshot.data as String;
-                                        return Text(_valorSessao,  style: AppTextStyles.labelBlack16Lex,);
-                                      } else {
-                                        print("nao entrou nao");
-                                        return Center(
-                                            child: Text("")
-                                        );
-                                      }
-                                    }),
-                                // Text(sessao.!.substring(12,sessao.descSessao!.length)),
+                                Text("PROFISSIONAL: ", style: AppTextStyles.subTitleBlack14,),
+                                Text(profissional.nome!),
                               ],
                             ),
 
@@ -1514,11 +2802,8 @@ class DialogsAgendaAssistente {
                             height: size.height * 0.06,
                             child: Row(
                               children: [
-                                Text("Desconto Social"),
-                                Text("R\$ "+
-                                    ((double.parse(_descontoClinica.replaceAll(',', '.')))+
-                                        (double.parse(_descontoProfissional.replaceAll(',', '.')))).toStringAsFixed(2).replaceAll('.', ',')
-                                ),
+                                Text("PACIENTE: ", style: AppTextStyles.subTitleBlack14,),
+                                Text(paciente.nome!),
                               ],
                             ),
 
@@ -1528,285 +2813,36 @@ class DialogsAgendaAssistente {
                             height: size.height * 0.06,
                             child: Row(
                               children: [
-                                Text("Valor Final "),
-                                Text("R\$ "+
-                                    (   (double.parse(_valorSessao.replaceAll(',', '.')))-
-                                        ((double.parse(_descontoClinica.replaceAll(',', '.')))+
-                                            (double.parse(_descontoProfissional.replaceAll(',', '.'))))
-                                    ).toStringAsFixed(2).replaceAll('.', ',')
-                                ),
+                                Text("STATUS: ", style: AppTextStyles.subTitleBlack14,),
+                                Text(sessao.statusSessao!),
                               ],
                             ),
+                          ),
 
+                          SizedBox(
+                            width: size.width * 0.6,
+                            height: size.height * 0.06,
+                            child: Row(
+                              children: [
+                                Text(sessao.dataSessao!),
+                                Text(" às ${sessao.horarioSessao} horas."),
+
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: size.width * 0.6,
+                            height: size.height * 0.06,
+                            child: Row(
+                              children: [
+                                Text("SITUAÇÂO: ", style: AppTextStyles.subTitleBlack14,),
+                                Text(sessao.situacaoSessao!),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-
-
-                    Row(
-                      children: [
-                        Checkbox(
-                            value: _checkSocial,
-                            onChanged: (bool? value){
-                              _checkSocial = value!;
-                              if (_checkSocial){
-                                print(_valorSessao);
-                                _comissaoClinica = (double.parse(_valorSessao.replaceAll(',', '.'))*0.3).toStringAsFixed(2).toString();
-                                _comissaoProfissional = (double.parse(_valorSessao.replaceAll(',', '.'))*0.7).toStringAsFixed(2).toString();
-                                _comissaoFinalClinica = _comissaoClinica;
-                                _comissaoFinalProfissional = _comissaoProfissional;
-                                print(_comissaoClinica);
-                                // _comissaoClinica = double.parse(_valorSessao)
-                              }
-                              setState((){});
-                            }),
-                        Text("Registrar desconto social.."),
-                      ],
-                    ),
-
-                    (_checkSocial)?
-                    SizedBox(
-                      // color: AppColors.green,
-                        height: size.height*0.3,
-                        width: size.width*0.4,
-                        child: Form(
-                          key: _form,
-                          child: Column(
-                            children: [
-                              //clínica
-                              SizedBox(
-                                // color: AppColors.blue,
-                                  height: size.height*0.074,
-                                  width: size.width*0.3,
-                                  child:  Row(
-                                    children: [
-                                      //comissão clínica
-                                      Container(
-                                          height: size.height*0.06,
-                                          width: size.width*0.074,
-                                          decoration: BoxDecoration(
-                                              color: AppColors.shape,
-                                              borderRadius: BorderRadius.circular(6.0)
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 4.0, right: 4.0),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                FittedBox(
-                                                  fit: BoxFit.scaleDown,
-                                                  child: Text(" CLÍNICA ", style: AppTextStyles.labelBlack14Lex,),
-                                                ),
-                                                Text("R\$ "+_comissaoClinica, style: AppTextStyles.labelBlack14Lex,),
-
-                                              ],
-                                            ),
-                                          )
-                                      ),
-                                      //desconto clínica
-                                      Container(
-                                        height: size.height*0.1,
-                                        width: size.width*0.15,
-                                        child: InputTextWidgetMask(
-                                          label: "DESCONTO CLINICA",
-                                          icon: Icons.business_outlined,
-                                          keyboardType: TextInputType.number,
-                                          obscureText: false,
-                                          backgroundColor: AppColors.secondaryColor,
-                                          borderColor: AppColors.line,
-                                          textStyle: AppTextStyles.subTitleBlack12,
-                                          iconColor: AppColors.labelBlack,
-                                          input: CentavosInputFormatter(),
-                                          controller: txt1,
-                                          validator: (value) {
-                                            if ((value!.isEmpty) || (value == null)) {
-                                              return 'Insira um VALOR';
-                                            }
-                                            if (value.length<4){
-                                              return 'VALOR inválido';
-                                            }
-                                            return null;
-                                          },
-                                          onChanged: (value) {
-                                            if (value.length>_comissaoClinica.length){
-                                              txt1.text = "0,00";
-                                              _comissaoFinalClinica = _comissaoClinica;
-                                              _descontoClinica = "0,00";
-                                              setState;
-
-                                            } else {
-                                              if (value.length>0){
-                                                String result = value;
-                                                double valorInput = double.parse(result.replaceAll(',','.'));
-                                                double comissaoClinica = double.parse(_comissaoClinica.replaceAll(',','.'));
-                                                if (comissaoClinica < valorInput){
-                                                  print("ultrapassou $comissaoClinica $valorInput");
-                                                  txt1.text = "0,00";
-                                                  _comissaoFinalClinica = _comissaoClinica;
-                                                } else{
-                                                  print("permitido $comissaoClinica $valorInput");
-                                                  _descontoClinica = double.parse(result.replaceAll(',', '.')).toString();
-                                                  _comissaoFinalClinica = (double.parse(_comissaoClinica.replaceAll(',', '.'))-double.parse(_descontoClinica)).toStringAsFixed(2).replaceAll('.', ',');
-                                                }
-
-                                              }
-                                            }
-                                            setState((){});
-
-
-                                          },
-                                        ),
-                                      ),
-                                      //comissao final Clínica
-                                      Container(
-                                          height: size.height*0.6,
-                                          width: size.width*0.075,
-
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-
-                                            children: [
-                                              FittedBox(
-                                                fit: BoxFit.scaleDown,
-                                                child: Text(" COMISSÃO FINAL ", style: AppTextStyles.labelBlack14Lex,),
-                                              ),
-                                              Text("R\$ "+_comissaoFinalClinica, style: AppTextStyles.labelBlack14Lex,),
-
-                                            ],
-                                          )
-                                      ),
-                                    ],
-                                  )
-                              ),
-                              //profissional
-                              SizedBox(
-                                // color: AppColors.red,
-                                  height: size.height*0.074,
-                                  width: size.width*0.3,
-                                  child:  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      //comissão profissional
-                                      Container(
-                                          height: size.height*0.06,
-                                          width: size.width*0.074,
-                                          decoration: BoxDecoration(
-                                              color: AppColors.shape,
-                                              borderRadius: BorderRadius.circular(6.0)
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 4.0, right: 4.0),
-                                            child: Column(
-                                                children: [
-                                                  FittedBox(
-                                                    fit: BoxFit.scaleDown,
-                                                    child: Text("PROFISSIONAL", style: AppTextStyles.labelBlack14Lex,),
-                                                  ),
-                                                  Text("R\$ "+_comissaoProfissional, style: AppTextStyles.labelBlack14Lex,),
-                                                ]
-                                            ),
-                                          )
-                                      ),
-                                      //desconto profissional
-                                      SizedBox(
-                                        height: size.height*0.1,
-                                        width: size.width*0.15,
-                                        child: InputTextWidgetMask(
-                                          label: "DESCONTO PROFISSIONAL",
-                                          icon: Icons.person_pin,
-                                          keyboardType: TextInputType.number,
-                                          obscureText: false,
-                                          backgroundColor: AppColors.secondaryColor,
-                                          borderColor: AppColors.line,
-                                          textStyle: AppTextStyles.subTitleBlack12,
-                                          iconColor: AppColors.labelBlack,
-                                          controller: txt2,
-                                          input: CentavosInputFormatter(),
-                                          validator: (value) {
-                                            if ((value!.isEmpty) || (value == null)) {
-                                              return 'Insira um VALOR';
-                                            }
-                                            if (value.length<4){
-                                              return 'VALOR inválido';
-
-                                            }
-                                            return null;
-                                          },
-                                          onChanged: (value) {
-                                            if (value.length>_comissaoProfissional.length){
-                                              txt2.text = "0,00";
-                                              _comissaoFinalProfissional = _comissaoProfissional;
-                                              _descontoProfissional="0,00";
-                                            } else {
-                                              if (value.length>0){
-                                                String result = value;
-                                                double valorInput = double.parse(result.replaceAll(',','.'));
-                                                double comissaoProfissional = double.parse(_comissaoProfissional.replaceAll(',','.'));
-                                                if (comissaoProfissional < valorInput){
-                                                  print("ultrapassou $comissaoProfissional $valorInput");
-                                                  txt2.text = "0,00";
-                                                  _comissaoFinalProfissional = _comissaoProfissional;
-                                                } else{
-                                                  print("permitido $comissaoProfissional $valorInput");
-                                                  _descontoProfissional = double.parse(result.replaceAll(',', '.')).toString();
-                                                  _comissaoFinalProfissional = (double.parse(_comissaoProfissional.replaceAll(',', '.'))-double.parse(_descontoProfissional)).toStringAsFixed(2).replaceAll('.', ',');
-                                                }
-
-                                              }
-                                            }
-                                            setState((){});
-
-
-                                          },
-                                        ),
-                                      ),
-                                      //comissão final Profissional
-                                      SizedBox(
-                                          height: size.height*0.6,
-                                          width: size.width*0.075,
-                                          child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children:[
-                                                FittedBox(
-                                                  fit: BoxFit.scaleDown,
-                                                  child: Text("COMISSÃO FINAL", style: AppTextStyles.labelBlack14Lex,),
-                                                ),
-                                                Text("R\$ "+_comissaoFinalProfissional, style: AppTextStyles.labelBlack14Lex,),
-
-                                              ]
-                                          )
-                                      ),
-                                    ],
-                                  )
-                              ),
-                              SizedBox(
-                                height: size.height*0.06,
-                                width: size.width*0.3,
-                                child: DropdownButton<String>(
-                                  value: _dropdown,
-                                  icon: const Icon(Icons.arrow_drop_down_sharp),
-                                  elevation: 8,
-                                  style: TextStyle(color: AppColors.labelBlack),
-                                  underline: Container(
-                                    height: 2,
-                                    color: AppColors.line,
-                                  ),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      _dropdown = newValue!;
-                                    });
-                                  },
-                                  items: getDropdownTiposPagamento(list),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                    )
-                        :
-                    Center(),
 
                     Padding(
                       padding: const EdgeInsets.only(top: 16.0),
@@ -1819,42 +2855,13 @@ class DialogsAgendaAssistente {
                       children: [
                         ButtonWidget(
                           onTap: () async{
-                            // Navigator.pop(parentContext);
-                            String valorTransacaoFinal=
-                            (double.parse(_valorSessao.replaceAll(",", "."))-((double.parse(_descontoProfissional.replaceAll(",", ".")))+
-                                (double.parse(_descontoClinica.replaceAll(",", "."))))).toStringAsFixed(2).replaceAll('.', ',');
 
-                            await Provider.of<TransacaoProvider>(context, listen:false)
-                                .put(
-                                TransacaoCaixa(
-                                  dataTransacao: UtilData.obterDataDDMMAAAA(DateTime.now()),
-                                  descricaoTransacao: sessao.descSessao!.substring(11,sessao.descSessao!.length),
-                                  tpPagamento: _dropdown,
-                                  tpTransacao: "PAGAMENTO EFETUADO",
-                                  valorTransacao: valorTransacaoFinal,
-                                  idPaciente: paciente.id1,
-                                  idProfissional: profissional.id1,
-                                  descontoProfissional: (double.parse(_descontoProfissional)).toStringAsFixed(2).replaceAll('.', ','),
-                                  descontoClinica: (double.parse(_descontoClinica,)).toStringAsFixed(2).replaceAll('.', ','),
-                                )).then((value) async{
-                              String idTransacao = value;
-                              print(value);
-                              await Provider.of<ComissaoProvider>(context, listen: false)
-                                  .put(Comissao(
-                                  idProfissional: profissional.id1,
-                                  idTransacao: idTransacao,
-                                  idPagamento: "",
-                                  dataGerada: UtilData.obterDataDDMMAAAA(DateTime.now()),
-                                  dataPagamento: "",
-                                  valor: _comissaoFinalProfissional,
-                                  situacao: "PENDENTE"));
                               await Provider.of<SessaoProvider>(context,listen: false).update(sessao.id1).then((value) {
-                                Navigator.pushReplacementNamed(
-                                    context, "/agenda_assistente");
+                                sessao.statusSessao = "FINALIZADA";
+                                Navigator.pop(context);
                               });
 
 
-                            });
                           },
                           label: "FINALIZAR",
                           width: MediaQuery.of(context).size.width * 0.07,
@@ -1873,29 +2880,21 @@ class DialogsAgendaAssistente {
               ),
             );
           });
-       }
+        }
     );
   }
 }
 
 class DetalhesReagendamento extends StatefulWidget {
-  // late BuildContext contextDialog;
   late String uid;
-  // final String dataSessao;
-  // final String horaSessao;
-  // final String listDataSessoes;
-  // final String listHoraSessoes;
   final int diferenca;
   final Sessao sessao;
   final List<Sessao> sessoes;
-  // final Sessao sessaoFinal;
-  // final List<Sessao> sessoesFinal;
   final List<String> horarios;
   final List<String> datas;
   final Paciente paciente;
   final Profissional profissional;
   DetalhesReagendamento({Key? key,
-    // required this.sessaoFinal, required this.sessoesFinal,
     required this.sessoes,  required this.paciente, required this.profissional,
     required this.sessao, required this.diferenca, required this.horarios,
     required this.datas
@@ -1925,8 +2924,10 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
   bool check2 = false;
   bool check3 = false;
   bool messageErroData = false;
-  String novoHorario ="";
-  String novaData = "";
+  String novoHorario =" ";
+  String salaSelecionada = "";
+  // salaSelecionada = widget.sessao.salaSessao!;
+  String novaData = " ";
   List<String> novasDatas = [];
   List<String> novosHorarios = [];
   // List<Sessao> listSessoes = [];
@@ -2272,7 +3273,7 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
     // final Sessao sessaoAlterada = widget.sessao;
     // final List<Sessao> sessoesAlteradas = widget.sessoes;
     return  Container(
-        height: size.height * 0.7,
+        height: size.height * 0.8,
         width: size.width * 0.3,
         color: AppColors.shape,
         child: Column(
@@ -2411,8 +3412,8 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
             //horários do dia selecionado
             (_selectData) ?
             SizedBox(
-                height: size.height * 0.2,
-                width: size.width * 0.3,
+                height: size.height * 0.25,
+                width: size.width * 0.5,
                 child: Column(
                   children: [
                     Padding(padding: EdgeInsets.only(bottom: 10),
@@ -2465,6 +3466,8 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                               print(novaData);
                               _selectReagendamento = true;
                               novoHorario = itemsProf.hora!;
+                              salaSelecionada = itemsProf.sala!;
+                              print("SALAaaa SELECIONADA = ${salaSelecionada}");
                               novasDatas.add(novaData);
                               novosHorarios.add(novoHorario);
                               bool conflito = false;
@@ -2599,6 +3602,7 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
     );
     ScaffoldMessenger.of(context).showSnackBar(snack);
   }
+
   final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
 
   int getDiferencaDias(String data1, String data2){
@@ -2620,6 +3624,8 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
 
   @override
   Widget build(BuildContext context) {
+
+
     Size size = MediaQuery.of(context).size;
     return SizedBox(
         width: size.width * 0.8,
@@ -2693,7 +3699,7 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                               ),
 
                               ((_selectData==false||_selectReagendamento==false)
-                                  &&(widget.sessoes.length>1))?
+                                  &&(widget.sessoes.length>1)&&(widget.diferenca==7))?
                               Row(
                                 children: [
                                   Checkbox(
@@ -2708,10 +3714,12 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                           int mes = int.parse(widget.sessoes.last.dataSessao!.substring(3,5));
                                           int ano = int.parse(widget.sessoes.last.dataSessao!.substring(6,10));
                                           String data = UtilData.obterDataDDMMAAAA(DateTime(ano,mes,dia).add(Duration(days: widget.diferenca)));
+                                          print(widget.diferenca);
                                           print(data);
                                           widget.sessoes.forEach((element) {
                                             print(element.dataSessao!);
-                                          }); 
+                                            print(element.id1);
+                                          });
                                           // novasDatas.add(data);
                                           await Provider.of<SessaoProvider>(context, listen: false)
                                               .getSessaoByDataSalaHora(
@@ -2834,7 +3842,8 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                   ),
                                   Text("Reagendar sessão a partir do próximo agendamento")
                                 ],
-                              ): Center(),
+                              ):
+                              Center(),
                               (widget.sessoes.length>=1)?
                               Divider(
                                 thickness: 2,
@@ -2879,8 +3888,7 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                         fit: BoxFit.scaleDown,
                                         alignment: Alignment.centerLeft,
                                         child:
-                                        // (check2)
-                                        Text("${widget.sessao.descSessao!.substring(0,11)}", style: AppTextStyles.subTitleBlack14,),
+                                        Text("${widget.sessoes[0].descSessao!.substring(0,11)}", style: AppTextStyles.subTitleBlack14,),
                                       ),
                                     ),
                                     SizedBox(
@@ -2894,12 +3902,17 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                         fit: BoxFit.scaleDown,
                                         alignment: Alignment.centerLeft,
                                         child:
-                                        (_selectData)?
+                                        ((_selectData)
+                                            // ?
+                                          &&(widget.sessoes[0].descSessao!.compareTo(widget.sessao.descSessao!)==0))?
                                         Text("${novaData}", style: AppTextStyles.subTitleBlack14,)
                                             :
-                                        (check2)?
-                                        Text("${novasDatas[0]}", style: AppTextStyles.subTitleBlack14,):
-                                        Text("${widget.sessao.dataSessao}", style: AppTextStyles.subTitleBlack14,),
+                                        (check2)
+                                            // &&(widget.sessoes[0].descSessao!.compareTo(widget.sessao.descSessao!)==0))
+                                          ?
+                                        Text("${novasDatas[0]}", style: AppTextStyles.subTitleBlack14,)
+                                            :
+                                        Text("${widget.sessoes[0].dataSessao}", style: AppTextStyles.subTitleBlack14,),
 
                                       ),
                                     ),
@@ -2916,7 +3929,10 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                         fit: BoxFit.scaleDown,
                                         alignment: Alignment.centerLeft,
                                         child:
-                                        (_selectData)?
+                                        // (_selectData)?
+                                        ((_selectData)
+                                            &&(widget.sessoes[0].descSessao!.compareTo(widget.sessao.descSessao!)==0))
+                                            ?
                                         Text("$novoHorario ", style: AppTextStyles.subTitleBlack14,)
                                          :
                                         Text("${widget.sessao.horarioSessao!}", style: AppTextStyles.subTitleBlack14,),
@@ -2966,6 +3982,9 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                           ((check1)||(check2))?
                                           Text("${novasDatas[i]}", style: AppTextStyles.subTitleBlack14,)
                                               :
+                                          ((_selectData)&&(widget.sessoes[i].descSessao!.compareTo(widget.sessao.descSessao!)==0))?
+                                          Text("${novaData}", style: AppTextStyles.subTitleBlack14,)
+                                              :
                                           Text("${widget.sessoes[i].dataSessao}", style: AppTextStyles.subTitleBlack14,),
 
                                           // Text("${widget.datas[i]}", style: AppTextStyles.subTitleBlack14,),
@@ -2979,18 +3998,21 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                       ),
                                       // horario
                                       SizedBox(
-                                        width:(size.width * 0.08),
+                                        width: size.width * 0.08,
                                         height: size.height * 0.05,
                                         child: FittedBox(
                                           fit: BoxFit.scaleDown,
                                           alignment: Alignment.centerLeft,
                                           child:
-
                                           (check1)?
-                                          Text("${novosHorarios[i]}", style: AppTextStyles.subTitleBlack14,)
+                                          // Text("${novosHorarios[i]}", style: AppTextStyles.subTitleBlack14,)
+                                          Text("erro", style: AppTextStyles.subTitleBlack14,)
                                               :
+                                          ((_selectData)&&(widget.sessoes[i].descSessao!.compareTo(widget.sessao.descSessao!)==0))?
+                                          Text("${novoHorario}", style: AppTextStyles.subTitleBlack14,)
+                                            :
                                           Text("${widget.sessoes[i].horarioSessao}", style: AppTextStyles.subTitleBlack14,),
-
+                                              // Text("erro"),
                                           // Text("${widget.horarios[i]}", style: AppTextStyles.subTitleBlack14,),
                                         ),
                                       ),
@@ -3084,52 +4106,54 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                             Center(),
 
                             Text("Novo Horário: ${novoHorario}", style: AppTextStyles.subTitleBlack16,),
-                            ((widget.sessoes.length>1)&&
-                            (_selectData&&_selectReagendamento))?
-                            Row(
-                              children: [
-                                Checkbox(
-                                    activeColor: AppColors.primaryColor,
-                                    value: check1,
 
-                                    onChanged: (value)async{
-                                      check1 = value!;
-                                      print(novasDatas.length);
-                                      print("novasDatas.length");
-                                      for (int i =0; i<widget.sessoes.length-1;i++){
-                                        int dia =  int.parse(novaData.substring(0,2));
-                                        int mes = int.parse(novaData.substring(3,5));
-                                        int ano = int.parse(novaData.substring(6,10));
-                                        print("diferença = ${widget.diferenca}");
-
-                                        String data = UtilData.obterDataDDMMAAAA(DateTime(ano,mes,dia).add(Duration(days: widget.diferenca*(i+1))));
-                                        print("data = $data");
-                                        /// validar nova data
-                                       await Provider.of<SessaoProvider>(context, listen: false)
-                                            .getSessaoByDataSalaHora(data,novoHorario,widget.sessao.salaSessao!).then((value) async{
-                                              if (value){
-                                               print("VAAALUE");
-                                               await Provider.of<SessaoProvider>(context, listen: false)
-                                                    .getProximoHorarioDisponivel(data, novoHorario, widget.sessao.salaSessao!).then((value){
-                                                      print("vaaa = $value");
-                                                  novasDatas.add(data);
-                                                  novosHorarios.add(value);
-                                                });
-                                              } else {
-                                                print("VAAALUE FALSE");
-                                                novasDatas.add(data);
-                                                novosHorarios.add(novoHorario);
-                                              }
-                                        });
-                                      }
-                                      setState((){});
-                                    }
-                                ),
-                                Text("Alterar data das próximas sessões a partir desta data")
-                              ],
-                            )
-                                :
-                            Center(),
+                            ///não funciona devido aos agendamento nem sempre cumprirem diferença de dias simetricos
+                            // ((widget.sessoes.length>1)&&
+                            // (_selectData&&_selectReagendamento))?
+                            // Row(
+                            //   children: [
+                            //     Checkbox(
+                            //         activeColor: AppColors.primaryColor,
+                            //         value: check1,
+                            //
+                            //         onChanged: (value)async{
+                            //           check1 = value!;
+                            //           print(novasDatas.length);
+                            //           print("novasDatas.length");
+                            //           for (int i =0; i<widget.sessoes.length-1;i++){
+                            //             int dia =  int.parse(novaData.substring(0,2));
+                            //             int mes = int.parse(novaData.substring(3,5));
+                            //             int ano = int.parse(novaData.substring(6,10));
+                            //             print("diferença = ${widget.diferenca}");
+                            //
+                            //             String data = UtilData.obterDataDDMMAAAA(DateTime(ano,mes,dia).add(Duration(days: widget.diferenca*(i+1))));
+                            //             print("data = $data");
+                            //             /// validar nova data
+                            //            await Provider.of<SessaoProvider>(context, listen: false)
+                            //                 .getSessaoByDataSalaHora(data,novoHorario,widget.sessao.salaSessao!).then((value) async{
+                            //                   if (value){
+                            //                    print("VAAALUE");
+                            //                    await Provider.of<SessaoProvider>(context, listen: false)
+                            //                         .getProximoHorarioDisponivel(data, novoHorario, widget.sessao.salaSessao!).then((value){
+                            //                           print("vaaa = $value");
+                            //                       novasDatas.add(data);
+                            //                       novosHorarios.add(value);
+                            //                     });
+                            //                   } else {
+                            //                     print("VAAALUE FALSE");
+                            //                     novasDatas.add(data);
+                            //                     novosHorarios.add(novoHorario);
+                            //                   }
+                            //             });
+                            //           }
+                            //           setState((){});
+                            //         }
+                            //     ),
+                            //     Text("Alterar data das próximas sessões a partir desta data")
+                            //   ],
+                            // )
+                            //     :
+                            // Center(),
 
 
                           ],
@@ -3139,26 +4163,52 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                         ),
                         Center(
                           child: ButtonDisableWidget(
-                            isButtonDisabled: (_selectData&&_selectReagendamento)?false:true,
+                            isButtonDisabled: (_selectData&&_selectReagendamento)||(check2)?false:true,
                             onTap: () async {
-                              bool changed = false;
-                              int count =0;
+                              int count = -1;
                               print(novasDatas.length);
                               print("novasDatas.length");
-                              // int count =0;
-                              novasDatas.forEach((element) async{
-
-                                // for (int i =0; i<novasDatas.length; i++) {
-                                  if ((element.compareTo(widget.sessoes[count].dataSessao!)!=0)
-                                      || (novosHorarios[count].compareTo(widget.sessoes[count].horarioSessao!)!=0)){
-                                    print("alterou");
+                              print(salaSelecionada);
+                              if (novasDatas.length==1){
+                                if (check2==false){
+                                  widget.sessao.salaSessao = salaSelecionada;
+                                } else {
+                                  salaSelecionada = widget.sessao.salaSessao!;
+                                }
+                                widget.sessao.dataSessao = novaData;
+                                widget.sessao.horarioSessao = novoHorario;
+                                await Provider.of<SessaoProvider>(context, listen: false)
+                                    .updateDataEHora(widget.sessao.id1,widget.sessao.dataSessao!,widget.sessao.horarioSessao!, salaSelecionada);
+                              } else {
+                                print("MAIS DE UMA SESSÃO");
+                                novasDatas.forEach((element) async{
+                                  count++;
+                                  if (
+                                  (element.compareTo(widget.sessoes[count].dataSessao!)!=0)
+                                      ||
+                                      (novosHorarios[count].compareTo(widget.sessoes[count].horarioSessao!)!=0)
+                                  ){
+                                    //salvando alteracao em sessao passada por parametro
+                                    if (check2==false){
+                                      widget.sessao.salaSessao = salaSelecionada;
+                                    } else {
+                                      salaSelecionada = widget.sessao.salaSessao!;
+                                    }
+                                    // widget.sessao.salaSessao = salaSelecionada;
+                                    widget.sessao.dataSessao = element;
+                                    widget.sessao.horarioSessao = novosHorarios[count];
+                                    print("alterou $count");
+                                    print(widget.sessoes[count].id1);
                                     print(element);
                                     print(novosHorarios[count]);
                                     print(widget.sessoes[count].horarioSessao!);
                                     print(widget.sessoes[count].dataSessao!);
+                                    // sessaoReagendar
+
                                     await Provider.of<SessaoProvider>(context, listen: false)
-                                                  .updateDataEHora(widget.sessao.id1,element,novosHorarios[count]);
-                                                  // .then((value) => Navigator.pop(context));
+                                        .updateDataEHora(widget.sessoes[count].id1,element,novosHorarios[count], salaSelecionada);
+                                    // count++;
+                                    // .then((value) => Navigator.pop(context));
                                     // print(novosHorarios[count]);
                                   } else{
                                     print("passou batido");
@@ -3167,105 +4217,17 @@ class _DetalhesReagendamentoState extends State<DetalhesReagendamento> {
                                     print(widget.sessoes[count].horarioSessao!);
                                     print(widget.sessoes[count].dataSessao!);
                                     print("-----o9lkoomç");
+                                    // count++;
+
                                   }
-                                  count++;
-                                // }
-                              });
+                                  // count++;
+                                  // }
+                                });
+                              }
+
                               Navigator.pop(context);
-
-                              // widget.sessoes.forEach((element) async {
-                              //   print("----");
-                              //   print(element.dataSessao);
-                              //   print(element.horarioSessao);
-                              //   print(element.descSessao);
-                              //   print(novasDatas[count]);
-                              //   print(novosHorarios[count]);
-                              //   print(count);
-                              //   print("----");
-                              //
-                              //   count++;
-                              //   for (int i =0; i<widget.datas.length; i++){
-                              //     if ((element.dataSessao!.compareTo(novasDatas[i])!=0)
-                              //     || (element.horarioSessao!.compareTo(novosHorarios[i])!=0)){
-                              //       print("111111");
-                              //
-                              //
-                              //       // await Provider.of<SessaoProvider>(context, listen: false)
-                              //           //     .updateDataEHora(widget.sessao.id1,novaData,novoHorario)
-                              //           //     .then((value) => Navigator.pop(context));
-                              //     } else{
-                              //       print("000000");
-                              //       // print(element.dataSessao);
-                              //       // print(element.horarioSessao);
-                              //       // print(element.descSessao);
-                              //       // print(novasDatas[i]);
-                              //       // print(novosHorarios[i]);
-                              //       // print("000000");
-                              //       if ((widget.sessoes[0].dataSessao!.compareTo(novaData)!=0)
-                              //       ||(widget.sessoes[0].horarioSessao!.compareTo(novoHorario)!=0)) {
-                              //         // await Provider.of<SessaoProvider>(context, listen: false)
-                              //         //     .updateDataEHora(widget.sessao.id1,novaData,novoHorario)
-                              //         //     .then((value) => Navigator.pop(context));
-                              //         print('alterou');
-                              //       }
-                              //
-                              //     }
-                              //
-                              //   }
-                              //
-                              // });
-                              //999999999999999999999999999999999999999999999999
-                              // print(widget.sessoesFinal.length);
-                              // widget.sessoesFinal.forEach((element) {
-                              //
-                              // });
-                              //se só existir uma sessão checar se alterou ao menos
-                              //a data ou horario.
-                              // print(widget.sessoes.length);
-                              // print("widget.sessoes.length");
-                              // //caso tenha somente uma sessão para alterar
-                              // if (widget.sessoes.length<1){
-                              //   if ((widget.sessao.dataSessao!.compareTo(novaData)!=0)
-                              //       ||(widget.sessao.horarioSessao!.compareTo(novoHorario)!=0)){
-                              //     await Provider.of<SessaoProvider>(context, listen: false)
-                              //         .updateDataEHora(widget.sessao.id1,novaData,novoHorario)
-                              //         .then((value) => Navigator.pop(context));
-                              //   } else {
-                              //     print("mesma data");
-                              //   }
-                              //   //caso tenha mais de uma sessão
-                              // } else{
-                              //   //checar se existe uma sessão com a mesma data da nova sessçao
-                              //   // não permitir 2 sessões no mesmo dia
-                              //
-                              //   bool contem = false;
-                              //   widget.sessoes.forEach((element) {
-                              //     if (element.dataSessao!.compareTo(novaData)==0){
-                              //       contem=true;
-                              //       print(widget.sessoes.length);
-                              //       print("contem consulta nesta data");
-                              //     }
-                              //   });
-                              //   if (contem==false){
-                              //     print("não contem nesta data");
-                              //
-                              //     if ((widget.sessao.dataSessao!.compareTo(novaData)!=0)
-                              //         ||(widget.sessao.horarioSessao!.compareTo(novoHorario)!=0)){
-                              //       await Provider.of<SessaoProvider>(context, listen: false)
-                              //           .updateDataEHora(widget.sessao.id1,novaData,novoHorario)
-                              //           .then((value) => Navigator.pop(context));
-                              //     } else {
-                              //       print("mesma data");
-                              //     }
-                              //   } else {
-                              //     messageErroData = true;
-                              //     setState((){});
-                              //     print("showsnack");
-                              //     // _snackbar(context);
-                              //     // showSnackBar("Já possui uma sessão com este paciente nesta data!");
-                              //   }
-                              // }
-
+                              // Navigator.pushReplacementNamed(
+                              //     context, "/agenda_assistente");
                             },
                             label: "REAGENDAR",
                             width: MediaQuery.of(context).size.width * 0.07,

@@ -287,7 +287,7 @@ class _Sessao0State extends State<Sessao0> {
                                     child: ListTile(
                                       trailing: InkWell(
                                           onTap: () {
-                                            Dialogs.AlertDetalhesProfissional(context, _lProfissional[index]);
+                                            // Dialogs.AlertDetalhesProfissional(context, _lProfissional[index]);
                                           },
                                           child:
                                               const Icon(Icons.library_books)),

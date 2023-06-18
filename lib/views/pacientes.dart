@@ -332,24 +332,25 @@ class _PacientesState extends State<Pacientes> {
                                   controller: scrollController,
                                   itemCount: items.length,
                                   itemBuilder: (context, index){
-                                    return Card(child: ListTile(
-                                      title: Text("${items[index].nome!} ${getIdadePaciente(items[index].dataNascimento!)}"),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text("Fone: ${items[index].telefone}", style: AppTextStyles.subTitleBlack14,),
-                                          Text("Data Nascimento: ${items[index].dataNascimento}", style: AppTextStyles.subTitleBlack14,),
-                                        ],
-                                      ),
-                                      trailing: InkWell(
-                                        onTap: (){
-                                          DialogsPaciente.AlterarDadosPaciente(context, _uid, items[index]);
-                                          setState((){});
-                                        },
-                                        child: Icon(Icons.edit),
-                                      )
+                                    return Card(
+                                        child: ListTile(
+                                            title: Text("${items[index].nome!} ${getIdadePaciente(items[index].dataNascimento!)} | ${items[index].id1.substring(0,4)}"),
+                                            subtitle: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text("Fone: ${items[index].telefone}", style: AppTextStyles.subTitleBlack14,),
+                                                Text("Data Nascimento: ${items[index].dataNascimento}", style: AppTextStyles.subTitleBlack14,),
+                                              ],
+                                            ),
+                                            trailing: InkWell(
+                                              onTap: (){
+                                                DialogsPaciente.AlterarDadosPaciente(context, _uid, items[index]);
+                                                setState((){});
+                                              },
+                                              child: Icon(Icons.edit),
+                                            )
 
-                                    ));
+                                        ));
                               })
 
                               //_________________________________

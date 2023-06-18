@@ -54,8 +54,9 @@ class CategoriaDespesaProvider  with ChangeNotifier{
 
 
 
-  void remove(String id) async {
-    db.collection("servicos").doc(id).delete();
+  Future<void> remove(String id) async {
+    db.collection("categoria_despesas").doc(id).delete().then((value) => print("removeu categoria $id"));
+    _listCategoria.removeWhere((element) => element.id1.compareTo(id)==0);
     notifyListeners();
   }
 }

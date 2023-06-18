@@ -53,14 +53,19 @@ class _AppBarWidget2State extends State<AppBarWidget2> {
           children: [
             Expanded(
               flex: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.asset(
-                    height: 50,
-                    width:  50,
-                    fit: BoxFit.fill,
-                    AppImages.logo1),
-              ),
+              child: Column(
+                children: [
+                  ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.asset(
+                      height: 50,
+                      width:  50,
+                      fit: BoxFit.fill,
+                      AppImages.logo1),
+                ),
+                  Text("Versão 1.3", style: AppTextStyles.labelBlack8Lex,)
+                ],
+              )
             ),
             Expanded(
               flex: 16,

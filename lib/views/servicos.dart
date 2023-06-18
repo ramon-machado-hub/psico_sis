@@ -6,6 +6,7 @@ import 'package:psico_sis/model/servico.dart';
 import 'package:psico_sis/themes/app_text_styles.dart';
 import 'package:psico_sis/widgets/app_bar_widget2.dart';
 import '../model/Usuario.dart';
+import '../provider/servico_provider.dart';
 import '../provider/usuario_provider.dart';
 import '../service/prefs_service.dart';
 import '../themes/app_colors.dart';
@@ -100,21 +101,28 @@ class _ServicosState extends State<Servicos> {
   @override
   void initState(){
     super.initState();
-    servicoSubscription?.cancel();
-    servicoSubscription =
-        db.collection("servicos").snapshots().listen(
-                (snapshot) {
-                    items = snapshot.docs.map(
-                            (documentSnapshot) => Servico.fromMap(
-                          documentSnapshot.data(),
-                          documentSnapshot.id,
-                        )
-                    ).toList();
-                    setState((){
-                      items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
-                      _lServFinal = items;
-                    });
-            });
+    if (items.length==0){
+      Provider.of<ServicoProvider>(context, listen: false).getListServicos().then((value) {
+          items = value;
+          items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+          _lServFinal = items;
+      } );
+    }
+    // servicoSubscription?.cancel();
+    // servicoSubscription =
+    //     db.collection("servicos").snapshots().listen(
+    //             (snapshot) {
+    //                 items = snapshot.docs.map(
+    //                         (documentSnapshot) => Servico.fromMap(
+    //                       documentSnapshot.data(),
+    //                       documentSnapshot.id,
+    //                     )
+    //                 ).toList();
+    //                 setState((){
+    //                   items.sort((a, b) => a.descricao.toString().compareTo(b.descricao.toString()));
+    //                   _lServFinal = items;
+    //                 });
+    //         });
     Future.wait([
       PrefsService.isAuth().then((value) {
         if (value) {
@@ -247,7 +255,7 @@ class _ServicosState extends State<Servicos> {
                                               mainAxisAlignment: MainAxisAlignment.start,
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Text(item.descricao.toString()),
+                                                Text("${item.descricao.toString()} "),
                                                 // Row(
                                                 //   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                                 //   children: [

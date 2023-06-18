@@ -22,13 +22,34 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
   );
+
+  static final labelLine14 = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.line,
+  );
   static final labelBlack16Lex = GoogleFonts.lexendDeca(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
   );
+  static final labelBlack20Lex = GoogleFonts.lexendDeca(
+    fontSize: 20,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
   static final labelWhite16Lex = GoogleFonts.lexendDeca(
     fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelWhite,
+  );
+  static final labelWhite14Lex = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelWhite,
+  );
+  static final labelWhite12Lex = GoogleFonts.lexendDeca(
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.labelWhite,
   );
@@ -74,10 +95,26 @@ class AppTextStyles {
     color: AppColors.red,
   );
 
+  static final labelLine12Lex = GoogleFonts.lexendDeca(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.line,
+  );
+
+  static final labelBlack8Lex = GoogleFonts.lexendDeca(
+    fontSize: 9,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
   static final labelBlack12Lex = GoogleFonts.lexendDeca(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
+  );
+  static final labelRed12Lex = GoogleFonts.lexendDeca(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.red,
   );
 
   static final labelBold14 = GoogleFonts.lexendDeca(
@@ -161,9 +198,19 @@ class AppTextStyles {
     fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
   );
+  static final subTitleRed14 = GoogleFonts.lexendDeca(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.red,
+  );
 
   static final subTitleBlack12 = GoogleFonts.lexendDeca(
     fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.labelBlack,
+  );
+  static final subTitleBlack10 = GoogleFonts.lexendDeca(
+    fontSize: 10,
     fontWeight: FontWeight.w400,
     color: AppColors.labelBlack,
   );

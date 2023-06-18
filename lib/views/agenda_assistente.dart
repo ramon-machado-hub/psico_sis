@@ -19,11 +19,16 @@ import '../model/Usuario.dart';
 import '../model/Profissional.dart';
 import '../model/dias_salas_profissionais.dart';
 import '../model/sessao.dart';
+import '../model/tipo_pagamento.dart';
+import '../provider/servico_profissional_provider.dart';
+import '../provider/servico_provider.dart';
+import '../provider/tipo_pagamento_provider.dart';
 import '../provider/usuario_provider.dart';
 import '../service/prefs_service.dart';
 
 class AgendaAssistente extends StatefulWidget {
-  const AgendaAssistente({Key? key}) : super(key: key);
+  // final DateTime? data;
+  const AgendaAssistente({Key? key, }) : super(key: key);
 
   @override
   State<AgendaAssistente> createState() => _AgendaAssistenteState();
@@ -40,6 +45,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
   late Sessao _sessaoAtual = Sessao(
   );
   late DateTime diaCorrente = DateTime.now();
+  // late DateTime diaCorrente = (widget.data==null)? DateTime.now(): widget.data!;
 
   late Usuario _usuario = Usuario(
     idUsuario:1,
@@ -62,6 +68,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
     "SALA 04",
     "SALA 05",
     "SALA 06",
+    "SALA 07",
   ];
 
   final List<String> _listHoras = [
@@ -162,6 +169,20 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
     return nomeAbreviado;
   }
 
+  //
+  // bool contemSessaoAnt(String hora, String sala){
+  //   bool result = false;
+  //   for(var item in _sessoesDoDia) {
+  //     if ((item.salaSessao!.compareTo(sala) == 0)
+  //         && (item.dataSessao!.compareTo(
+  //             UtilData.obterDataDDMMAAAA(diaCorrente)) == 0)
+  //         && (item.horarioSessao!.compareTo(hora) == 0)) {
+  //       _sessaoAtual = item;
+  //       result = true;
+  //     }
+  //   }
+  //   return result;
+  // }
 
   bool contemSessao(String hora, String sala){
     bool result = false;
@@ -177,12 +198,69 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
     return result;
   }
 
+  // bool contemSessaoAnterior(String hora, String sala){
+  //   bool result = false;
+  //   for(var item in _sessoesDoDia) {
+  //     if ((item.salaSessao!.compareTo(sala) == 0)
+  //         && (item.dataSessao!.compareTo(
+  //             UtilData.obterDataDDMMAAAA(diaCorrente)) == 0)
+  //         && (item.horarioSessao!.compareTo(hora) == 0)) {
+  //       _sessaoAtual = item;
+  //       result = true;
+  //     }
+  //   }
+  //   return result;
+  // }
+  Future<Widget> getWidgetAgendamentoAnterior(String hora, String sala) async {
+    bool flag = false;
+    String idProfissional = "";
+    for (var item in _sessoesDoDia){
+      if (
+          (item.dataSessao!.compareTo(UtilData.obterDataDDMMAAAA(diaCorrente))==0)
+          && (item.horarioSessao!.compareTo(hora) == 0)
+          && (item.salaSessao!.compareTo(sala) == 0)
+      ){
+        flag = true;
+        idProfissional = item.idProfissional!;
+      }
+    }
+
+    return flag?
+    Center(
+      child: FutureBuilder(
+        future: getProfissionalById(idProfissional),
+        builder: (BuildContext parentContext, AsyncSnapshot snapshot){
+          if (snapshot.hasData){
+            Profissional profissional = snapshot.data as Profissional;
+            return FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(getNomeProfissionalIniciais(profissional.nome!),
+                  style: AppTextStyles.labelBold14,));
+          } else {
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              return Center(
+                  child: Text(""));
+            }
+          }
+        },
+      ),
+    )
+        :
+    Center(
+      child: Text("LIVRE"),
+    );
+  }
+
   Future<Widget> getWidgetAgendamentoProfissional(String hora, String sala)async{
     bool flag = false;
     String idProfissional = "";
     for(var item in itemsDiasSalasProf) {
-      if ((item.sala!.compareTo(sala) == 0)
-          && (item.dia!.compareTo(getDiaCorrente(DateFormat('EEEE').format(diaCorrente))) == 0)
+      if (
+      (item.sala!.compareTo(sala) == 0)
+          &&
+      (item.dia!.compareTo(getDiaCorrente(DateFormat('EEEE').format(diaCorrente))) == 0)
           && (item.hora!.compareTo(hora) == 0)) {
         flag = true;
         idProfissional = item.idProfissional!;
@@ -270,8 +348,34 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
       }
     }
 
-    // print("hora: $hora sala $sala");
-    // print(contemSessao(hora, sala));
+    bool dataPassada(){
+      int dia = diaCorrente.day;
+      int mes = diaCorrente.month;
+      int ano = diaCorrente.year;
+
+      int diaAtual = DateTime.now().day;
+      int mesAtual = DateTime.now().month;
+      int anoAtual = DateTime.now().year;
+
+      if (ano<anoAtual){
+        return true;
+      } else if(ano>anoAtual){
+        return false;
+      } else if (ano == anoAtual){
+        if (mes<mesAtual){
+          return true;
+        } else if (mes>mesAtual){
+          return false;
+        } else if (mes == mesAtual){
+          if (dia<diaAtual){
+            return true;
+          } else {
+            return false;
+          }
+        }
+      }
+      return false;
+    }
 
     return (contemSessao(hora, sala))?
         Row(
@@ -353,20 +457,48 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
             width: width*0.15,
               child:
 
-              (sessao.statusSessao!.compareTo("AGENDADA")==0)?
+              // (sessao.statusSessao!.compareTo("AGENDADA")==0)?
+              (sessao.situacaoSessao!.compareTo("PAGO")==0)?
 
-              Center(child:  Icon(
+              Center(
+                child:  Icon(
                 // size: (25.0),
-                Icons.calendar_month_outlined,
+                Icons.check_circle,
                 color: AppColors.labelBlack,
               ),)
                   :
-              Icon(
-                size: (25.0),
-                ((sessao.statusSessao!.compareTo("FINALIZADA")==0)||(sessao.statusSessao!.compareTo("CONFIRMADA")==0))?
-                Icons.check_circle:Icons.date_range,
-                color: AppColors.labelBlack,
-              ),
+              InkWell(
+                onTap: ()async{
+                  List<TipoPagamento> tiposPagamento = [];
+                  await Provider.of<TipoPagamentoProvider>(context, listen: false)
+                      .getTiposPagamentos().then((value) {
+                    tiposPagamento = value;
+                    tiposPagamento.sort((a,b)=>a.descricao.toLowerCase().replaceAll("à", "a").compareTo(b.descricao.toLowerCase().replaceAll("à", "a")));
+                  });
+                  String result = "";
+                  String valorSessao = "";
+                  await Provider.of<ServicoProvider>(context, listen: false)
+                      .getServicoByDesc(sessao.descSessao!
+                        .substring(11,sessao.descSessao!.length))
+                      .then((value) async{
+                      result = value.id1;
+                      await Provider.of<ServicoProfissionalProvider>(context, listen: false)
+                          .getServByServicoProfissional(_profissional.id1,result).then((value) {
+                          valorSessao = value.valor!;
+                          print(result);
+                      });
+                  });
+                  await DialogsAgendaAssistente.AlertDialogRegistrarPagamento(context, _uid, sessao, _paciente, _profissional, tiposPagamento, valorSessao);
+                  setState((){});
+                },
+                 child: Icon(
+                      size: (25.0),
+                      // ((sessao.statusSessao!.compareTo("FINALIZADA")==0)||(sessao.statusSessao!.compareTo("CONFIRMADA")==0))?
+                      // ((sessao.situacaoSessao!.compareTo("PAGO")==0))?
+                      Icons.monetization_on,
+                      color: AppColors.red,
+                    ),
+              )
           ),
           SizedBox(
             height: height,
@@ -424,9 +556,12 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
               )
             ))
           )
-        ],)
+        ],
+        )
         :
-        FutureBuilder(
+    // (UtilData.obterDataDDMMAAAA(diaCorrente).compareTo(UtilData.obterDataDDMMAAAA(DateTime.now()))==0)
+    (!dataPassada())
+        ?FutureBuilder(
             future: getWidgetAgendamentoProfissional(hora, sala),
             builder:  (BuildContext parentContext, AsyncSnapshot snapshot){
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -439,7 +574,9 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
               }
               return Text("LIVRE");
             }
-        );
+        )
+    :
+    Center();
   }
 
   Future<Widget> getWidgetHora(String hora, String sala,) async {
@@ -574,16 +711,6 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
     String dia_inicio  = getDiaCorrente(DateFormat('EEEE').format(diaCorrente));
     print(dia_inicio);
     print('dia === $dia_inicio');
-    //  Provider.of<DiasSalasProfissionaisProvider>(context,listen: false)
-    //   .getListOcupadas("SEGUNDA").then((value) {
-    //     print(value.length);
-    //     print('length ===');
-    //   itemsDiasSalasProf = value;
-    // });
-    // Provider.of<ProfissionalProvider>(context, listen: false)
-    //   .getListProfissionaisAtivos().then((value) {
-    //     itemsProfissional = value;
-    // });
     Future.wait([
       PrefsService.isAuth().then((value) {
         if (value){
@@ -677,6 +804,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                           //botão
                           InkWell(
                             child: Container(
                               width: size.width*0.03,
@@ -722,7 +850,16 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
 
                                 // _sessoesDoDia.clear();
                                 _sessoesDoDia = value;
-
+                                _sessoesDoDia.forEach((element) {
+                                  print("===== +"+_sessoesDoDia.length.toString());
+                                  print(element.id1);
+                                  print(element.dataSessao);
+                                  print(element.dataSessao);
+                                  print(element.idProfissional);
+                                  print(element.dataSessao);
+                                  print(element.horarioSessao);
+                                  print(element.salaSessao);
+                                });
                               });
                               setState((){});
                             },
@@ -772,7 +909,16 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
 
                                     // _sessoesDoDia.clear();
                                     _sessoesDoDia = value;
-
+                                    _sessoesDoDia.forEach((element) {
+                                      print("===== +"+_sessoesDoDia.length.toString());
+                                      print(element.id1);
+                                      print(element.dataSessao);
+                                       print(element.dataSessao);
+                                       print(element.idProfissional);
+                                       print(element.dataSessao);
+                                       print(element.horarioSessao);
+                                       print(element.salaSessao);
+                                    });
                               });
                               setState((){});
                             },
@@ -833,7 +979,15 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
 
                                 // _sessoesDoDia.clear();
                                 _sessoesDoDia = value;
-
+                                _sessoesDoDia.forEach((element) {
+                                  print("===== +"+_sessoesDoDia.length.toString());
+                                  print(element.id1);
+                                  print(element.dataSessao);
+                                  print(element.idProfissional);
+                                  print(element.dataSessao);
+                                  print(element.horarioSessao);
+                                  print(element.salaSessao);
+                                });
                               });
                               setState((){});
                             },
@@ -951,9 +1105,9 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                               )),
 
                           //salas
-                          for (int i=0; i<6; i++)
+                          for (int i=0; i<7; i++)
                           Container(
-                              width: (size.width * 0.84)/6,
+                              width: (size.width * 0.84)/7,
                               height: size.height * 0.8,
                               decoration: BoxDecoration(
                                 color: AppColors.labelWhite,
@@ -966,9 +1120,7 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                       right: size.height*0.008, left: size.height*0.008,
                                     ),
                                     child: Container(
-                                      width: (size.width * 0.84)/6-(size.height*0.016),
-                                      // height: size.height * (0.8 / (13))-(size.height*0.016),
-
+                                      width: (size.width * 0.84)/7-(size.height*0.016),
                                       height: ((size.height * 0.8)/(13)) - (size.height*0.012),
                                       decoration: BoxDecoration(
                                         boxShadow: [
@@ -1001,10 +1153,10 @@ class _AgendaAssistenteState extends State<AgendaAssistente> {
                                           color: (j%2==0)?AppColors.secondaryColor : AppColors.secondaryColor2,
                                           borderRadius: BorderRadius.circular(4.0),
                                         ),
-                                        width: ( (size.width * 0.84)/6) - (size.height*0.016),
+                                        width: ( (size.width * 0.84)/7) - (size.height*0.016),
                                         height: ((size.height * 0.8)/(13)) - (size.height*0.013),
                                         child: FutureBuilder(
-                                          future: getWidgetAgendamento(_listHoras[j], _listSalas[i],((size.height * 0.8)/(13)) - (size.height*0.013),( (size.width * 0.84)/6) - (size.height*0.016), ),
+                                          future: getWidgetAgendamento(_listHoras[j], _listSalas[i],((size.height * 0.8)/(13)) - (size.height*0.013),( (size.width * 0.84)/7) - (size.height*0.016), ),
                                           builder: (BuildContext parentContext, AsyncSnapshot snapshot){
                                               if (snapshot.connectionState == ConnectionState.waiting) {
                                                   return FittedBox(

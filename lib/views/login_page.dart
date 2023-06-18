@@ -50,8 +50,25 @@ class _LoginPageState extends State<LoginPage> {
       PrefsService.isAuth().then((value) {
         if (value){
           print("inistate login");
-          Navigator.pushReplacementNamed(
-                    context, "/home_assistente");
+          String uid ="";
+          PrefsService.getUid().then((value) async{
+            uid =value;
+            await Provider.of<LoginProvider>(context,listen: false,).getLoginByUid2(uid).then((value1) {
+               if (value1.tipo_usuario!.compareTo("ASSISTENTE")==0){
+                 Navigator.pushReplacementNamed(
+                     context, "/home_assistente");
+               } else if  (value1.tipo_usuario!.compareTo("PROFISSIONAL")==0){
+                 Navigator.pushReplacementNamed(
+                     context, "/home_profissional_mobile");
+               } else {
+                 Navigator.pushReplacementNamed(
+                     context, "/home_assistente");
+               }
+            });
+          });
+
+
+
         }
       }),
     ]);
@@ -199,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
                                     uid_usuario: uid,
                                     descricao: "Login",
                                     id_transacao: "0",
-                                    )).then((value) => Navigator.pushReplacementNamed(context, "/home",));
+                                    )).then((value) => Navigator.pushReplacementNamed(context, "/home_profissional_mobile",));
                                     // Navigator.pushReplacementNamed(context, "/home_page",);
 
                                   });

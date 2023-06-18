@@ -11,6 +11,7 @@ import 'package:psico_sis/provider/comissao_provider.dart';
 import 'package:psico_sis/provider/dias_profissional_provider.dart';
 import 'package:psico_sis/provider/dias_salas_profissionais_provider.dart';
 import 'package:psico_sis/provider/especialidade_profissional_provider.dart';
+import 'package:psico_sis/provider/pagamento_transacao_provider.dart';
 import 'package:psico_sis/provider/profissional_provider.dart';
 import 'package:psico_sis/provider/servico_profissional_provider.dart';
 import 'package:psico_sis/provider/servico_provider.dart';
@@ -25,6 +26,7 @@ import '../model/Profissional.dart';
 import '../model/Usuario.dart';
 import '../model/dias_profissional.dart';
 import '../model/dias_salas_profissionais.dart';
+import '../model/pagamento_transacao.dart';
 import '../model/servico.dart';
 import '../model/tipo_pagamento.dart';
 import '../model/transacao_caixa.dart';
@@ -50,6 +52,14 @@ class _SessaoPageState extends State<SessaoPage> {
   final _form = GlobalKey<FormState>();
   var txt1 = TextEditingController();
   var txt2 = TextEditingController();
+  bool enableClinica = true;
+  bool enableProfissional = false;
+  bool avancarPagamento = false;
+  bool salvarSessao = false;
+  bool socialFinalizado = true;
+  // String valorSessao = "0,00";
+  String valorPendente = "0,00";
+  List<bool> listEnable = [];
 
   List<Paciente> pacientes =[];
   List<Paciente> pacientesFinal = [];
@@ -61,6 +71,7 @@ class _SessaoPageState extends State<SessaoPage> {
   List<ServicosProfissional> servicosProfissionalFinal = [];
   List<TipoPagamento> tiposPagamento = [];
   List<Sessao> sessoesProfissional = [];
+  List<String> listDropdownFirst = [];
   String _parteName = "";
   String _uid = "";
   String _dropdown = "";
@@ -80,10 +91,14 @@ class _SessaoPageState extends State<SessaoPage> {
   bool _isButtonDisabled = true;
   bool _selectPagamento = false;
   bool _botaoAvancar = false;
+  bool _botaoSalvar = true;
   bool _check1 = false;
   bool _check2 = false;
   bool _checkSocial = false;
-
+  bool _checkPagamentoVariado = false;
+  List<TextEditingController> listTxtController = [];
+  // List<String> listDropdownFirst =  [];
+  List<String> listValores = ["0,00"];
   DateTime _dataSelecionada = DateTime.now();
   List<String> _datasSelecionadas = [];
   List<String> _horariosSelecionadas = [];
@@ -147,38 +162,42 @@ class _SessaoPageState extends State<SessaoPage> {
   @override
   void initState(){
     super.initState();
-    controllerPaciente.addListener(() {
-
-      if (controllerPaciente.position.atEdge) {
-        bool isTop = controllerPaciente.position.pixels == 0;
-        if (isTop) {
-          print('At the top');
-        } else {
-          print('At the bottom');
-          if (_parteName.length==0){
-            print("_parteName = 0");
-            Provider.of<PacienteProvider>(context, listen: false).getListPacientes2().then((value) {
-              print("add");
-              pacientes = value;
-              pacientesFinal = value;
-              setState((){});
-            } );
-          }
-
-        }
-      }
-    });
+    listEnable.add(true);
+    // controllerPaciente.addListener(() {
+    //
+    //   if (controllerPaciente.position.atEdge) {
+    //     bool isTop = controllerPaciente.position.pixels == 0;
+    //     if (isTop) {
+    //       print('At the top');
+    //     } else {
+    //       print('At the bottom');
+    //       if (_parteName.length==0){
+    //         print("_parteName = 0");
+    //         Provider.of<PacienteProvider>(context, listen: false).getListPacientes().then((value) {
+    //           print("add");
+    //           pacientes = value;
+    //           pacientesFinal = value;
+    //           setState((){});
+    //         } );
+    //       }
+    //
+    //     }
+    //   }
+    // });
 
     if (pacientes.length==0){
-      Provider.of<PacienteProvider>(context, listen: false).getListPacientes2().then((value) {
+      Provider.of<PacienteProvider>(context, listen: false).getListPacientes().then((value) {
         // print("initStatePacientes");
-        pacientes = value;
-        pacientesFinal = value;
-        // if (this.mounted){
-        //   pacientes.sort((a, b) => a.nome.toString().compareTo(b.nome.toString()));
-        //   pacientesFinal = pacientes;
-        //   setState((){});
+        // if (this.mounted) {
+        //   pacientes = value;
+        //   pacientesFinal = value;
         // }
+        if (this.mounted){
+          pacientes = value;
+          pacientes.sort((a, b) => a.nome.toString().compareTo(b.nome.toString()));
+          pacientesFinal = pacientes;
+          setState((){});
+        }
       } );
     }
 
@@ -200,6 +219,7 @@ class _SessaoPageState extends State<SessaoPage> {
           if (this.mounted){
             tiposPagamento.sort((a,b)=>a.descricao.toLowerCase().replaceAll("à", "a").compareTo(b.descricao.toLowerCase().replaceAll("à", "a")));
             _dropdown = tiposPagamento.first.descricao;
+            listDropdownFirst.add(tiposPagamento.first.descricao);
             setState((){});
           }
       });
@@ -328,7 +348,20 @@ class _SessaoPageState extends State<SessaoPage> {
     return idade.toString()+" anos";
   }
 
+  String getValorComDesconto (){
+    print(_comissaoFinalProfissional);
+    print(_comissaoFinalClinica);
+    String comissaoP = _comissaoFinalProfissional.replaceAll(',', '.');
+    String comissaoC = _comissaoFinalClinica.replaceAll(',', '.');
+    print(comissaoP);
+    print(comissaoC);
+    double comissaoProf = double.parse(comissaoP);
+    double comissaoClin = double.parse(comissaoC);
+    double result = comissaoProf+comissaoClin;
+    String retorno = (result).toStringAsFixed(2).replaceAll('.', ',');
 
+    return retorno;
+  }
 
   Widget selectProfissional(Size size, ){
     print("selectProfissional");
@@ -1213,6 +1246,7 @@ class _SessaoPageState extends State<SessaoPage> {
      sessoesProfissional.forEach((element) {
        if (element.horarioSessao!.compareTo(hora)==0){
            result = true;
+           print(element.id1);
        }
      });
     }
@@ -1257,6 +1291,7 @@ class _SessaoPageState extends State<SessaoPage> {
                                 // pacienteSelecionado = items;
                                 servicoProfissional = items;
                                 _valorSessao = items.valor!;
+                                valorPendente = _valorSessao;
                                 String valorSessao = _valorSessao.substring(0,_valorSessao.length-3);
                                 _comissaoProfissional = (double.parse(valorSessao)*0.7).toStringAsFixed(2).replaceAll('.', ',');
                                 _comissaoClinica = (double.parse(valorSessao)*0.3).toStringAsFixed(2).replaceAll('.', ',');
@@ -1344,13 +1379,39 @@ class _SessaoPageState extends State<SessaoPage> {
       for (int i = 0; i < list.length; i++) {
         var newDropdown = DropdownMenuItem(
           value: list[i].descricao.toString(),
-          child: Text(list[i].descricao.toString()),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(list[i].descricao.toString()),
+          )
         );
         dropDownItems.add(newDropdown);
       }
       return dropDownItems;
     }
+    bool _avancar = false;
+    // String
+    String _valorAtual = "0,00";
 
+
+    // List<String> listFormaPagamentos = [];
+    List<TipoPagamento> list = tiposPagamento;
+    // List<List<TipoPagamento>> listTipos = [];
+    // listTipos.add(tiposPagamento);
+    // listValores.add("0,00");
+    listTxtController.add(TextEditingController());
+
+    bool EMaiorIgual(String a, String b){
+      if (double.parse(a.replaceAll(',','.'))>=double.parse(b.replaceAll(',','.'))){
+        return true;
+      }
+      return false;
+    }
+    bool EMaior(String a, String b){
+      if (double.parse(a.replaceAll(',','.'))>double.parse(b.replaceAll(',','.'))){
+        return true;
+      }
+      return false;
+    }
     return Container(
       height: size.height*0.7,
       width: size.width*0.3,
@@ -1362,8 +1423,6 @@ class _SessaoPageState extends State<SessaoPage> {
                 builder: (context,set){
               return Column(
                 children: [
-
-
                   Padding(
                     padding: EdgeInsets.only(left: size.width*0.05),
                     child: Row(
@@ -1412,44 +1471,97 @@ class _SessaoPageState extends State<SessaoPage> {
                   ),
                 ],
               );
-           }),
+            }),
             (_check1)?
               Column(
                 children: [
-                  DropdownButton<String>(
-                    value: _dropdown,
-                    icon: const Icon(Icons.arrow_drop_down_sharp),
-                    elevation: 8,
-                    style: TextStyle(color: AppColors.labelBlack),
-                    underline: Container(
-                      height: 2,
-                      color: AppColors.line,
-                    ),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _dropdown = newValue!;
-                      });
-                    },
-                    items: getDropdownTiposPagamento(tiposPagamento),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: size.width*0.05),
-                    child: Row(
-                      children: [
-                        Checkbox(
-                            value: _checkSocial,
-                            onChanged: (bool? value){
-                              _checkSocial = value!;
-                              setState((){});
-                            }),
-                        Text("Registrar desconto social.."),
-                      ],
-                    ),
+                  //checkbox tipo de pagamento
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: size.width*0.13,
+                        height: size.height*0.065,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: size.width*0.02,
+                              height: size.height*0.065,
+                              child: Checkbox(
+                                  value: !_checkSocial,
+                                  onChanged:(!avancarPagamento)? (bool? value){
+                                    if(_checkSocial) {
+                                      print("entrou");
+                                      socialFinalizado=true;
+                                      _isButtonDisabled = false;
+
+                                    } else {
+                                      socialFinalizado=false;
+                                      _isButtonDisabled = true;
+
+                                    }
+
+                                    _checkSocial = !value!;
+                                    setState((){});
+                                  }:null),
+                            ),
+                            SizedBox(
+                                width: size.width*0.11,
+                                height: size.height*0.065,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text("SEM desconto social."),
+                                )
+                            ),
+
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: size.width*0.13,
+                        height: size.height*0.065,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: size.width*0.02,
+                              height: size.height*0.065,
+                              child: Checkbox(
+
+                                  value: _checkSocial,
+                                  onChanged: (!avancarPagamento)?
+                                      (bool? value){
+                                    _checkSocial = !_checkSocial;
+                                    socialFinalizado = false;
+                                    if (_checkSocial){
+                                      print("entrou111");
+                                      _isButtonDisabled = true;
+                                    } else {
+                                      _isButtonDisabled = false;
+                                      socialFinalizado = true;
+                                    }
+
+                                    setState((){});
+                                  }:null),
+
+                            ),
+                            SizedBox(
+                              width: size.width*0.11,
+                              height: size.height*0.065,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                  child: Text("COM desconto social."),
+                              )
+                            ),
+                          ],
+                        ),
+                      ),
+
+
+                    ],
                   ),
 
-                  (_checkSocial)?
-                      SizedBox(
-                    // color: AppColors.green,
+                  (_checkSocial )?
+                      Container(
+                      // color: AppColors.red,
                       height: size.height*0.2,
                       width: size.width*0.3,
                       child: Form(
@@ -1492,11 +1604,12 @@ class _SessaoPageState extends State<SessaoPage> {
                                       height: size.height*0.1,
                                       width: size.width*0.15,
                                       child: InputTextWidgetMask(
+                                        enable: enableClinica,
                                         label: "DESCONTO CLINICA",
                                         icon: Icons.business_outlined,
                                         keyboardType: TextInputType.number,
                                         obscureText: false,
-                                        backgroundColor: AppColors.secondaryColor,
+                                        backgroundColor: (enableClinica)?AppColors.labelWhite:AppColors.secondaryColor,
                                         borderColor: AppColors.line,
                                         textStyle: AppTextStyles.subTitleBlack12,
                                         iconColor: AppColors.labelBlack,
@@ -1529,6 +1642,8 @@ class _SessaoPageState extends State<SessaoPage> {
                                               } else {
                                                 _descontoClinica = double.parse(result.replaceAll(',', '.')).toString();
                                                 _comissaoFinalClinica = (double.parse(_comissaoClinica.replaceAll(',', '.'))-double.parse(_descontoClinica)).toStringAsFixed(2).replaceAll('.', ',');
+                                                _descontoClinica = double.parse(result.replaceAll(',', '.')).toStringAsFixed(2).replaceAll('.', ',');
+                                                // ;;;
                                               }
 
                                               setState((){});
@@ -1540,6 +1655,26 @@ class _SessaoPageState extends State<SessaoPage> {
                                       ),
                                     ),
                                     //comissao final Clínica
+                                    (enableClinica)?
+                                    Container(
+                                      height: size.height*0.6,
+                                      width: size.width*0.075,
+                                      child: Center(
+                                        child: IconButton(
+                                          onPressed:(){
+                                            if (_descontoClinica.compareTo("0,00")==0){
+                                               txt1.text="0,00";
+                                               _comissaoFinalClinica = _comissaoClinica;
+                                            }
+                                            enableClinica=false;
+                                            enableProfissional=true;
+                                            setState((){});
+                                          },
+                                          icon: Icon(Icons.add_circle),
+                                        ),
+                                      ),
+                                    )
+                                        :
                                     Container(
                                         height: size.height*0.6,
                                         width: size.width*0.075,
@@ -1594,11 +1729,12 @@ class _SessaoPageState extends State<SessaoPage> {
                                       height: size.height*0.1,
                                       width: size.width*0.15,
                                       child: InputTextWidgetMask(
+                                        enable: enableProfissional,
                                         label: "DESCONTO PROFISSIONAL",
                                         icon: Icons.person_pin,
                                         keyboardType: TextInputType.number,
                                         obscureText: false,
-                                        backgroundColor: AppColors.secondaryColor,
+                                        backgroundColor: enableProfissional?AppColors.labelWhite:AppColors.secondaryColor,
                                         borderColor: AppColors.line,
                                         textStyle: AppTextStyles.subTitleBlack12,
                                         iconColor: AppColors.labelBlack,
@@ -1634,6 +1770,8 @@ class _SessaoPageState extends State<SessaoPage> {
                                                 _descontoProfissional = double.parse(result.replaceAll(',', '.')).toString();
                                                 _comissaoFinalProfissional = (double.parse(_comissaoProfissional.replaceAll(',', '.'))
                                                     -double.parse(_descontoProfissional)).toStringAsFixed(2).replaceAll('.', ',');
+                                                _descontoProfissional = double.parse(result.replaceAll(',', '.')).toStringAsFixed(2).replaceAll('.', ',');
+
                                               }
 
                                               setState((){});
@@ -1645,6 +1783,26 @@ class _SessaoPageState extends State<SessaoPage> {
                                       ),
                                     ),
                                     //comissão final Profissional
+                                    (enableProfissional)?
+                                    SizedBox(
+                                      height: size.height*0.6,
+                                      width: size.width*0.075,
+                                      child: IconButton(
+                                        onPressed: (){
+                                          // if (_descontoClinica.length)
+                                          if (_descontoProfissional.compareTo("0,00")==0){
+                                            txt2.text="0,00";
+                                            _comissaoFinalProfissional = _comissaoProfissional;
+                                          }
+                                          enableProfissional=false;
+                                          socialFinalizado=true;
+                                          avancarPagamento=true;
+                                          _isButtonDisabled = false;
+                                          setState((){});
+                                        },
+                                        icon: Icon(Icons.add_circle),
+                                      ),
+                                    ):
                                     SizedBox(
                                         height: size.height*0.6,
                                         width: size.width*0.075,
@@ -1660,6 +1818,7 @@ class _SessaoPageState extends State<SessaoPage> {
                                             ]
                                         )
                                     ),
+
                                   ],
                                 )
                             )
@@ -1668,7 +1827,505 @@ class _SessaoPageState extends State<SessaoPage> {
                       )
                   )
                       :
-                      Center(),
+                      Container(
+                        // color: AppColors.green,
+                        height: size.height*0.2,
+                        width: size.width*0.3,),
+                  //check desconto
+                  (socialFinalizado)?
+                  Row(
+                    children: [
+                      //UNICO
+                      SizedBox(
+                        height: size.height*0.06,
+                        width: size.width*0.15,
+                        child: Row(
+                          children: [
+                            Checkbox(
+                                value: !_checkPagamentoVariado,
+                                onChanged: (bool? value){
+                                  print("check = ${_checkPagamentoVariado}");
+                                  if (_checkPagamentoVariado){
+                                    _isButtonDisabled = true;
+                                    print("removeu");
+                                    listTxtController.clear();
+                                    listDropdownFirst.clear();
+                                    listDropdownFirst.add(list.first.descricao);
+                                    listEnable.clear();
+                                    listValores.clear();
+                                    listValores.add("0,00");
+                                    listTxtController.add(TextEditingController());
+                                    listEnable.add(true);
+                                    print(listTxtController.length);
+                                    _checkPagamentoVariado  = !value!;
+                                    // avancarPagamento=false;
+                                    print(_checkPagamentoVariado);
+                                  } else {
+                                    print(listEnable.length);
+                                    if (listEnable.length==1){
+                                      print("adicionou");
+                                      avancarPagamento=true;
+
+                                      listEnable.add(false);
+
+                                      listDropdownFirst.add(list.first.descricao);
+
+                                      print("adicionou ${listEnable.length}");
+                                      listTxtController.add(TextEditingController());
+                                      print(listTxtController.length);
+                                      _checkPagamentoVariado  = !value!;
+                                      print(_checkPagamentoVariado);
+
+                                      setState((){});
+                                    }
+                                  }
+                                  // _checkPagamentoVariado = !value!;
+                                  setState((){});
+                                }),
+                            Text("PAGAMENTO ÚNICO"),
+                          ],
+                        )
+                      ),
+                      //VARIADO
+                      SizedBox(
+                          height: size.height*0.06,
+                          width: size.width*0.15,
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                  value: _checkPagamentoVariado,
+                                  onChanged: (bool? value){
+                                    //se estiver selecionado remove
+                                    print("check = ${_checkPagamentoVariado}");
+                                    if (_checkSocial){
+                                      valorPendente = getValorComDesconto();
+                                    } else {
+                                      valorPendente = _valorSessao;
+                                    }
+                                    print(valorPendente);
+                                    if (_checkPagamentoVariado){
+                                      _isButtonDisabled = false;
+                                      print("removeu");
+                                      listTxtController.clear();
+                                      listEnable.clear();
+                                      listValores.clear();
+                                      listValores.add("0,00");
+                                      listDropdownFirst.clear();
+                                      listDropdownFirst.add(list.first.descricao);
+                                      listTxtController.add(TextEditingController());
+                                      listEnable.add(true);
+                                      print(listTxtController.length);
+                                      _checkPagamentoVariado  = value!;
+                                      // avancarPagamento=false;
+                                      print(_checkPagamentoVariado);
+
+                                      setState((){});
+
+                                    }else {
+                                      _isButtonDisabled = true;
+
+                                      print(listEnable.length);
+                                      print(listDropdownFirst.length);
+                                      if (listEnable.length==1){
+
+                                        print("adicionou");
+                                        avancarPagamento=true;
+                                        listEnable.add(false);
+                                        listDropdownFirst.add(list.first.descricao);
+
+                                        print("adicionou ${listEnable.length}");
+                                        listTxtController.add(TextEditingController());
+                                        print(listTxtController.length);
+                                        _checkPagamentoVariado  = value!;
+                                        print(_checkPagamentoVariado);
+
+                                        setState((){});
+                                      }
+
+
+                                    }
+
+
+
+                                  }),
+                              Text("PAGAMENTO VARIADO"),
+                            ],
+                          )
+                      ),
+
+                    ],
+                  ):
+                  SizedBox(
+                    height: size.height*0.06,
+                    width: size.width*0.3,
+                  ),
+                  
+                  ((_checkPagamentoVariado)&& (socialFinalizado))?
+                  Container(
+                    // color: AppColors.green,
+                    height: size.height*0.24,
+                    width: size.width*0.3,
+                    child: ListView.builder(
+                        itemCount: listEnable.length,
+                        itemBuilder: (BuildContext, index){
+                          print("listVier ${listEnable.length} $index");
+                          print("listDropdownFirst ${listDropdownFirst.length} $index");
+                          print(listDropdownFirst[index]);
+                          return SizedBox(
+                            height: size.height*0.06,
+                            width: size.width*0.3,
+                            child: (listEnable[index])?
+                            Row(
+                              children: [
+                                //dropDownBox
+                                (listEnable[index])?
+                                Container(
+                                    // color: AppColors.primaryColor,
+                                    height: size.height*0.06,
+                                    width: size.width*0.13,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(left: size.width*0.001),
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: DropdownButton<String>(
+                                          value: listDropdownFirst[index],
+                                          icon: const Icon(Icons.arrow_drop_down_sharp),
+                                          elevation: 8,
+                                          style: TextStyle(color: AppColors.labelBlack),
+                                          underline: Container(
+                                            height: 2,
+                                            color: AppColors.line,
+                                          ),
+                                          onChanged:(listEnable[index])? (String? newValue) {
+                                            setState(() {
+                                              listDropdownFirst[index] = newValue!;
+                                              print(listDropdownFirst[index]);
+                                              print(index);
+
+
+                                              // _dropdown = newValue!;
+                                            });
+                                          }: null,
+                                          items: getDropdownTiposPagamento(list),
+                                        ),
+                                      ),
+                                    )
+                                )
+                                    :
+                                SizedBox(
+                                  height: size.height*0.06,
+                                  width: size.width*0.13,
+                                  child: Text(listDropdownFirst[index]),
+                                ),
+                                //valor
+                                Container(
+                                  // color: AppColors.secondaryColor,
+                                  height: size.height*0.06,
+                                  width: size.width*0.14,
+                                  child: InputTextWidgetMask(
+                                    // key: Key(_valorAtual.toString()),
+                                    enable: listEnable[index],
+                                    // enable: true,
+                                    label: "VALOR",
+                                    icon: Icons.monetization_on_outlined,
+                                    validator: (value) {
+                                      if ((value!.isEmpty) || (value == null)) {
+                                        return 'Insira um valor';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+
+                                      if (value.compareTo("0,00")==0) {
+                                        print ("entrou");
+                                        setState((){
+                                          print("setStat");
+                                          _valorAtual = value;
+                                        });
+                                      } else {
+                                        print(value);
+                                        print("listValores ${listValores.length}");
+                                        print(index);
+                                      }
+                                      listValores[index]=value;
+                                      _valorAtual = value;
+                                      if (_checkSocial) {
+                                        print("desconto social");
+                                        String valorComDesconto ="";
+                                        if (index==0){
+                                          valorComDesconto = getValorComDesconto();
+                                          // valorComDesconto = (double.parse(_valorSessao.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                          if ((value.length>valorComDesconto.length)
+                                            ///fazer comparação
+                                            ||(EMaiorIgual(value,valorPendente)))
+                                          {
+                                            listValores[index]="0,00";
+                                            listTxtController[index].text = "0,00";
+                                            setState((){});
+                                          }else{
+                                            if (value.length>0){
+                                              String result = value;
+                                              double valorInput = double.parse(result.replaceAll(',','.'));
+                                              double sessao1 = double.parse(valorComDesconto.replaceAll(',','.'));
+                                              if (sessao1<valorInput){
+                                                print("ultrapassou $sessao1 < $valorInput");
+                                                listTxtController[index].text = "0,00";
+                                                listValores[index]="0,00";
+                                                _comissaoFinalClinica = _comissaoClinica;
+                                              }   else {
+                                                print("não ultrapassou $sessao1 > $valorInput");
+                                              }
+                                            }
+                                          }
+                                        } else {
+                                          valorComDesconto = getValorComDesconto();
+                                          // valorComDesconto = (double.parse(valorPendente.replaceAll(',', '.'))-(double.parse(_descontoProfissional.replaceAll(',', '.'))+double.parse(_descontoClinica.replaceAll(',', '.'))) ).toStringAsFixed(2).replaceAll('.',',');
+                                          if ((value.length>valorComDesconto.length)
+                                              ///fazer comparação
+                                              ||(EMaior(value,valorPendente)))
+                                          {
+                                            listValores[index]="0,00";
+                                            listTxtController[index].text = "0,00";
+                                            setState((){});
+                                          }else{
+                                            if (value.length>0){
+                                              String result = value;
+                                              double valorInput = double.parse(result.replaceAll(',','.'));
+                                              double sessao1 = double.parse(valorComDesconto.replaceAll(',','.'));
+                                              if (sessao1<valorInput){
+                                                print("ultrapassou $sessao1 < $valorInput");
+                                                listTxtController[index].text = "0,00";
+                                                listValores[index]="0,00";
+                                                _comissaoFinalClinica = _comissaoClinica;
+                                              }   else {
+                                                print("não ultrapassou $sessao1 > $valorInput");
+                                              }
+                                            }
+                                          }
+                                        }
+
+
+                                      }
+                                      else{
+                                        print("sem desconto social");
+                                        print(_valorSessao);
+                                        print(valorPendente);
+                                        print("index $index");
+                                        print("listValores ${listValores.length}");
+
+                                        if (index==0){
+                                          print("primeiro");
+                                          if ((value.length>_valorSessao.length)
+                                          ///fazer comparação
+                                             ||(EMaiorIgual(value,valorPendente)))
+                                          {
+                                            print("EMaior");
+                                            listValores[index]="0,00";
+                                            listTxtController[index].text = "0,00";
+                                            setState((){});
+                                          } else {
+                                            if (value.length>0){
+                                              String result = value;
+                                              double valorInput = double.parse(result.replaceAll(',','.'));
+                                              double sessao = double.parse(_valorSessao.replaceAll(',','.'));
+                                              if (sessao < valorInput){
+                                                print("ultrapassssssou $sessao $valorInput");
+                                                listTxtController[index].text = "0,00";
+                                                listValores[index]="0,00";
+                                                _comissaoFinalClinica = _comissaoClinica;
+                                              }
+                                            }
+                                          }
+                                        }
+                                        else {
+                                          print("segundo");
+                                          if ((value.length>_valorSessao.length)
+                                            ///fazer comparação
+                                              ||(EMaior(value,valorPendente)))
+                                          {
+                                            print("EMaior");
+                                            listValores[index]="0,00";
+                                            listTxtController[index].text = "0,00";
+                                            setState((){});
+                                          }
+                                          else {
+                                            print("Emenor = $value");
+                                            if (value.length>0){
+                                              String result = value;
+                                              double valorInput = double.parse(result.replaceAll(',','.'));
+                                              double sessao = double.parse(_valorSessao.replaceAll(',','.'));
+                                              if (sessao < valorInput){
+                                                print("ultrapassssssou $sessao $valorInput");
+                                                listTxtController[index].text = "0,00";
+                                                listValores[index]="0,00";
+                                                _comissaoFinalClinica = _comissaoClinica;
+                                              }
+                                            }
+                                          }
+                                        }
+
+                                      }
+
+                                    },
+                                    controller:  listTxtController[index],
+                                    keyboardType: TextInputType.text,
+                                    obscureText: false,
+                                    backgroundColor: listEnable[index]?AppColors.shape : AppColors.secondaryColor,
+                                    borderColor: AppColors.line,
+                                    textStyle: AppTextStyles.subTitleBlack10,
+                                    iconColor: AppColors.labelBlack,
+                                    input: CentavosInputFormatter(),
+                                    // initalValue: listValores[index],
+                                  ),
+
+                                ),
+                                //botão
+                                Container(
+                                  // color: AppColors.yelow,
+                                  height: size.height*0.06,
+                                  width: size.width*0.03,
+                                  child:
+                                  (listEnable[index])?
+                                  IconButton(
+                                    onPressed: () {
+                                      if (index<(listEnable.length-1)){
+                                        print("index < listEnable.length");
+                                        print(index);
+                                        print(listEnable.length);
+                                        if (listValores[index].compareTo("0,00")!=0){
+                                          listEnable[index]=false;
+                                          listEnable[index+1]=true;
+                                          listTxtController.add(TextEditingController());
+                                          if (listDropdownFirst[index].compareTo("DINHEIRO")==0){
+                                            list.removeWhere((element) => element.descricao.compareTo("DINHEIRO")==0);
+                                            print("removeu ${list.length}");
+                                          }
+                                          valorPendente  = ((double.parse(valorPendente.replaceAll(',','.')) - double.parse(listValores[index].replaceAll(',','.')))).toStringAsFixed(2).replaceAll('.',',');
+                                          print("ListValores ${listValores.length}");
+                                          listValores.add("0,00");
+                                          print("ListValores ${listValores.length}");
+                                          print("passa a vez");
+                                          setState((){});
+
+                                        } else {
+                                          print("valor = 0,00");
+                                        }
+
+                                      } else {
+                                        print("index > listEnable.length");
+                                        if (valorPendente.compareTo(listValores[index])==0){
+                                          print("valor pendente over");
+                                          valorPendente = "0,00";
+                                          listEnable[index]= false;
+                                          _isButtonDisabled = false;
+                                          setState((){});
+
+                                        } else {
+                                          print("valor pendente ${valorPendente} != ${listValores[index]}");
+
+                                          print(listEnable.length);
+                                          listEnable[index]=false;
+                                          listEnable.add(true);
+                                          listTxtController.add(TextEditingController());
+                                          listValores.add("0,00");
+                                          if (listDropdownFirst[index].compareTo("DINHEIRO")==0){
+                                            list.removeWhere((element) => element.descricao.compareTo("DINHEIRO")==0);
+                                            print("removeu ${list.length}");
+
+                                          }
+                                          listDropdownFirst.add(list.first.descricao);
+                                          valorPendente  = ((double.parse(valorPendente.replaceAll(',','.')) - double.parse(listValores[index].replaceAll(',','.')))).toStringAsFixed(2).replaceAll('.',',');
+                                          print("adiciona");
+                                          print(listEnable.length);
+                                          setState((){});
+                                        }
+
+                                      }
+
+
+
+                                    },
+                                    icon: Icon(Icons.add_circle),
+                                  )
+                                      :
+                                  Icon(Icons.check_circle_rounded),
+                                ),
+                              ],
+                            )
+                                :
+                            (index<=listValores.length-1)?
+                            Row(
+                               children: [
+                                 SizedBox(
+                                   height: size.height*0.06,
+                                   width: size.width*0.13,
+                                   child: FittedBox(
+                                     fit: BoxFit.scaleDown,
+                                     child: Text(listDropdownFirst[index],style: AppTextStyles.labelBlack14,),)
+                                 ),
+                                 SizedBox(
+                                   height: size.height*0.06,
+                                   width: size.width*0.14,
+                                   child:  Center(
+                                     child: Text(listValores[index], style: AppTextStyles.labelBlack14,),
+                                   )
+                                 ),
+                                 SizedBox(
+                                     height: size.height*0.06,
+                                     width: size.width*0.03,
+                                   child: Icon(Icons.check_circle_rounded)
+                                 ),
+                               ],
+                            ):Center(),
+                          );
+
+                        }),
+                  )
+                      :
+                  //pagamengto unico
+                  (socialFinalizado)?
+                  Container(
+                    // color: AppColors.blue,
+                    height: size.height*0.24,
+                    width: size.width*0.3,
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: SizedBox(
+                        height: size.height*0.06,
+                        width: size.width*0.13,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: size.width*0.001),
+                          child: FittedBox(
+                            // alignment: Alignment.topLeft,
+                            fit: BoxFit.scaleDown,
+                            child: DropdownButton<String>(
+                              value: _dropdown,
+                              icon: const Icon(Icons.arrow_drop_down_sharp),
+                              elevation: 8,
+                              style: TextStyle(color: AppColors.labelBlack),
+                              underline: Container(
+                                height: 2,
+                                color: AppColors.line,
+                              ),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _dropdown = newValue!;
+                                  print(_dropdown);
+                                  // listDropdownFirst[index] = newValue!;
+                                });
+                              },
+                              items: getDropdownTiposPagamento(tiposPagamento),
+                            ),
+                          ),
+                        )
+                      ),
+                    )
+
+
+                  ):
+                  SizedBox(
+                    height: size.height*0.24,
+                    width: size.width*0.3,),
                 ],
               ):
                 Center(),
@@ -2094,6 +2751,7 @@ class _SessaoPageState extends State<SessaoPage> {
                                   Row(
                                     children: [
                                       Text("VALOR: ", style: AppTextStyles.subTitleBlack14,),
+                                      // Text("${servicoProfissional!.valor}", style: AppTextStyles.labelBold14,)
                                       Text("${servicoProfissional!.valor}", style: AppTextStyles.labelBold14,)
                                     ],
                                   )
@@ -2101,7 +2759,12 @@ class _SessaoPageState extends State<SessaoPage> {
                                   Row(
                                     children: [
                                       Text("VALOR: ", style: AppTextStyles.subTitleBlack14,),
-                                      Text("${servicoProfissional!.valor}", style: AppTextStyles.labelBold14,)
+                                      // Text("${servicoProfissional!.valor}", style: AppTextStyles.labelBold14,)
+                                      // Text("${getValorComDesconto()}", style: AppTextStyles.labelBold14,)
+                                      (_checkSocial)?
+                                      Text("${getValorComDesconto()}", style: AppTextStyles.labelBold14,):
+                                      Text("${servicoProfissional!.valor}", style: AppTextStyles.labelBold14,),
+
                                     ],
                                   )
 
@@ -2224,15 +2887,19 @@ class _SessaoPageState extends State<SessaoPage> {
                   width: MediaQuery.of(context).size.width * 0.15,
                   height: MediaQuery.of(context).size.height * 0.1,
                   label: "Salvar",
+
                   onTap: () async {
+                    _isButtonDisabled = true;
+                    setState((){});
                     if(_checkSocial){
                       //POSSUI DESCONTO SOCIAL CLÍNICA / PROFISSIONAL
                       if (_form.currentState!.validate()) {
                         String idTransacao = "";
-                        //inserindo transação
+                        // efetuou pagamento
+                        // inserindo transação
                         if (_check1){
-                          String valorTransacaoFinal= (double.parse(servicoProfissional!.valor!.replaceAll(",", "."))-((double.parse(_descontoProfissional.replaceAll(",", ".")))+(double.parse(_descontoClinica.replaceAll(",", "."))))).toStringAsFixed(2).replaceAll('.', ',');
-
+                          // String valorTransacaoFinal= (double.parse(servicoProfissional!.valor!.replaceAll(",", "."))-((double.parse(_descontoProfissional.replaceAll(",", ".")))+(double.parse(_descontoClinica.replaceAll(",", "."))))).toStringAsFixed(2).replaceAll('.', ',');
+                          String valorTransacaoFinal = getValorComDesconto();
                           await Provider.of<TransacaoProvider>(context, listen:false)
                               .put(
                               TransacaoCaixa(
@@ -2240,20 +2907,49 @@ class _SessaoPageState extends State<SessaoPage> {
                                 descricaoTransacao: servicoSelecionado!.descricao!,
                                 tpPagamento: (_check1)?_dropdown:"Não informado",
                                 tpTransacao: (_check1)?"PAGAMENTO EFETUADO":"AGUARDANDO PAGAMENTO",
-                                // valorTransacao: servicoProfissional!.valor!,
                                 valorTransacao: valorTransacaoFinal,
                                 idPaciente: pacienteSelecionado!.id1,
                                 idProfissional: profissionalSelecionado!.id1,
-                                descontoProfissional: (double.parse(_descontoProfissional)).toStringAsFixed(2).replaceAll('.', ','),
-                                descontoClinica: (double.parse(_descontoClinica,)).toStringAsFixed(2).replaceAll('.', ','),
-                              )).then((value) {
+                                descontoProfissional:  _descontoProfissional,
+                                descontoClinica: _descontoClinica,
+                              )).then((value) async{
                             idTransacao = value;
                             print(value);
+                            if (_checkPagamentoVariado){
+                              //inserindo pagamentos transações
+                              for (int i =0; i<listDropdownFirst.length;i++) {
+                                await Provider.of<PagamentoTransacaoProvider>
+                                  (context,listen: false).putTransacao(PagamentoTransacao(
+                                    dataPagamento: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                    horaPagamento: UtilData.obterHoraHHMM(DateTime.now()),
+                                    valorPagamento: listValores[i],
+                                    valorTotalPagamento: valorTransacaoFinal,
+                                    tipoPagamento: listDropdownFirst[i],
+                                    descServico: servicoSelecionado!.descricao!,
+                                    idTransacao: idTransacao)
+                                );
+                              }
 
+                            } else{
+                              //inserindo pagamento transação
+                              await Provider.of<PagamentoTransacaoProvider>
+                                (context,listen: false).putTransacao(PagamentoTransacao(
+                                  dataPagamento: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                  horaPagamento: UtilData.obterHoraHHMM(DateTime.now()),
+                                  valorPagamento: valorTransacaoFinal,
+                                  valorTotalPagamento: valorTransacaoFinal,
+                                  tipoPagamento: _dropdown,
+                                  descServico: servicoSelecionado!.descricao!,
+                                  idTransacao: idTransacao)
+                              );
+                            }
                           });
-                          String valor = servicoProfissional!.valor!;
-                          String valorFinal = valor.substring(0,valor.length-3);
-                          String comissao = ((double.parse(valorFinal)*0.7)-(double.parse(_descontoProfissional))).toStringAsFixed(2).replaceAll('.', ',');
+                          String valor = valorTransacaoFinal;
+                          // String valorFinal = valor.substring(0,valor.length-3);
+                          // String comissao = ((double.parse(valorFinal)*0.7)-(double.parse(_descontoProfissional))).toStringAsFixed(2).replaceAll('.', ',');
+
+                          String valorFinal = valor.replaceAll(',', '.');
+                          String comissao = _comissaoFinalProfissional;
 
                           //inserindo comissão
                           await Provider.of<ComissaoProvider>(context, listen: false)
@@ -2329,10 +3025,38 @@ class _SessaoPageState extends State<SessaoPage> {
                               idProfissional: profissionalSelecionado!.id1,
                               descontoProfissional: "0,00",
                               descontoClinica: "0,00",
-                            )).then((value) {
+                            )).then((value) async{
                           idTransacao = value;
                           print(value);
+                          String valorTransacaoFinal = _valorSessao;
+                          if (_checkPagamentoVariado){
+                            //inserindo pagamentos transações
+                            for (int i =0; i<listDropdownFirst.length;i++) {
+                              await Provider.of<PagamentoTransacaoProvider>
+                                (context,listen: false).putTransacao(PagamentoTransacao(
+                                  dataPagamento: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                  horaPagamento: UtilData.obterHoraHHMM(DateTime.now()),
+                                  valorPagamento: listValores[i],
+                                  valorTotalPagamento: valorTransacaoFinal,
+                                  tipoPagamento: listDropdownFirst[i],
+                                  descServico: servicoSelecionado!.descricao!,
+                                  idTransacao: idTransacao)
+                              );
+                            }
 
+                          } else{
+                            //inserindo pagamento único transação
+                            await Provider.of<PagamentoTransacaoProvider>
+                              (context,listen: false).putTransacao(PagamentoTransacao(
+                                dataPagamento: UtilData.obterDataDDMMAAAA(DateTime.now()),
+                                horaPagamento: UtilData.obterHoraHHMM(DateTime.now()),
+                                valorPagamento: valorTransacaoFinal,
+                                valorTotalPagamento: valorTransacaoFinal,
+                                tipoPagamento: _dropdown,
+                                descServico: servicoSelecionado!.descricao!,
+                                idTransacao: idTransacao)
+                            );
+                          }
                         });
                         String valor = servicoProfissional!.valor!;
                         String valorFinal = valor.substring(0,valor.length-3);
@@ -2370,6 +3094,7 @@ class _SessaoPageState extends State<SessaoPage> {
                         }
                       }
                       else {
+                        //NÃO INSERE TRANSAÇÕES
                         //INSERINDO SESSÕES
                         for(int i =0; i<_datasSelecionadas.length; i++) {
                           await Provider.of<SessaoProvider>(context, listen: false)
@@ -2395,8 +3120,6 @@ class _SessaoPageState extends State<SessaoPage> {
 
 
                   },
-
-
                   isButtonDisabled: _isButtonDisabled,
                 ),
               ),

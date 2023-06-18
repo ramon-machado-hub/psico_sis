@@ -24,6 +24,29 @@ class DiasSalasProfissionaisProvider  with ChangeNotifier{
     }
     return null;
   }
+  //getDiasProfissionalByIdProfissional
+  Future<List<DiasSalasProfissionais>> getDiasProfissionalByIdProfissional(String id,) async{
+    List<String> list = [];
+    var documents = await db.collection('dias_salas_profissionais')
+        .where("id_profissional", isEqualTo: id).get();
+    final allData = documents.docs.map((doc) {
+      final dias = DiasSalasProfissionais.fromJson(doc.data());
+      dias.id1 = doc.id;
+      return dias;
+    }).toList();
+
+    // list = allData.map((e) => e.dia  );
+    // for (int i=0; i<allData.length; i++){
+      //   if (list.contains(allData[i].dia)==false){
+      //     print("add");
+      //     list.add(allData[i].dia!);
+      //   } else {print("nao add ${allData[i].dia} ");}
+    // }
+    print("allData = ${allData.length}");
+    return allData;
+
+  }
+
 
   Future<List<DiasSalasProfissionais>> getHorariosDoDiaByProfissional(String id, String dia) async{
     // List<DiasSalasProfissionais> list = [];

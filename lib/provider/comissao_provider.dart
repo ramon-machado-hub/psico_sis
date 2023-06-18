@@ -61,6 +61,34 @@ class ComissaoProvider  with ChangeNotifier{
     return allData;
   }
 
+  Future<List<Comissao>> getComissaoDoDia(String dia) async {
+    final querySnapshot = await db.collection('comissao')
+        // .where("id_profissional", isEqualTo: idProfissional)
+        .where("data_gerada", isEqualTo: dia)
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final comissao = Comissao.fromJson(e.data());
+      comissao.id1 = e.id;
+      return comissao;
+    }).toList();
+
+    return allData;
+  }
+
+  Future<List<Comissao>> getComissaoDoDiaByProfissional(String dia, String idProfissional) async {
+    final querySnapshot = await db.collection('comissao')
+        .where("id_profissional", isEqualTo: idProfissional)
+        .where("data_gerada", isEqualTo: dia)
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final comissao = Comissao.fromJson(e.data());
+      comissao.id1 = e.id;
+      return comissao;
+    }).toList();
+
+    return allData;
+  }
+
   Future<String> getValorComissaoByProfissional(String idProfissional) async {
     double valor =0.00;
     print("idProfissional");
@@ -101,6 +129,34 @@ class ComissaoProvider  with ChangeNotifier{
     return allData;
   }
 
+  Future<List<Comissao>> getComissoesByProfissional(String idProfissional) async {
+    final querySnapshot = await db.collection('comissao')
+        .where("id_profissional", isEqualTo: idProfissional)
+        // .where("situacao", isEqualTo: "PENDENTE")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final comissao = Comissao.fromJson(e.data());
+      comissao.id1 = e.id;
+      return comissao;
+    }).toList();
+
+    return allData;
+  }
+
+  Future<List<Comissao>> getComissaoByPagamento(String idProfissional, String idPagamento) async {
+    final querySnapshot = await db.collection('comissao')
+        .where("id_profissional", isEqualTo: idProfissional)
+        .where("id_pagamento", isEqualTo: idPagamento)
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final comissao = Comissao.fromJson(e.data());
+      comissao.id1 = e.id;
+      return comissao;
+    }).toList();
+
+    return allData;
+  }
+
   Future<List<Comissao>> getListComissao() async{
     final querySnapshot = await db.collection('comissao').get();
     final allData = querySnapshot.docs.map((e) {
@@ -109,6 +165,32 @@ class ComissaoProvider  with ChangeNotifier{
       return comissao;
     }).toList();
     return allData;
+  }
+  //
+  Future<List<Comissao>> getListComissao2(String idProfissional) async{
+    final querySnapshot = await db.collection('comissao')
+        .where("id_profissional", isEqualTo: idProfissional)
+        // .where('data_pagamento', isEqualTo: "06/04/2023")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final comissao = Comissao.fromJson(e.data());
+      comissao.id1 = e.id;
+      return comissao;
+    }).toList();
+    return allData;
+  }
+
+  Future<Comissao> getComissaoByTransacao(String idTransacao) async{
+    final querySnapshot = await db.collection('comissao')
+        .where("id_transacao", isEqualTo: idTransacao)
+    // .where('data_pagamento', isEqualTo: "06/04/2023")
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final comissao = Comissao.fromJson(e.data());
+      comissao.id1 = e.id;
+      return comissao;
+    }).toList();
+    return allData.first;
   }
 
 

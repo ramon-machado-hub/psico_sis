@@ -52,7 +52,9 @@ class ServicoProfissionalProvider  with ChangeNotifier{
   }
 
   Future<ServicosProfissional> getServByServicoProfissional(String idProf, String idServ)async{
-
+     print(idProf);
+     print(idServ);
+     // print(idProf);
     final querySnapshot = await db.collection('servicos_profissional')
         .where("id_servico", isEqualTo: idServ)
         .where("id_profissional", isEqualTo: idProf)

@@ -43,6 +43,21 @@ class PagamentoProfissionalProvider  with ChangeNotifier{
     return allData;
   }
 
+  Future<List<PagamentoProfissional>> getListPagamentosByIdProfissional(String id)async{
+    List<String> list = [];
+    final querySnapshot = await db.collection('pagamento_profissional')
+        .where("id_profissional", isEqualTo: id)
+        .get();
+    final allData = querySnapshot.docs.map((e) {
+      final pagamento = PagamentoProfissional.fromJson(e.data());
+      pagamento.id1 = e.id;
+      return pagamento;
+    }).toList();
+    print(allData.length);
+    print("listPagamentos");
+    return allData;
+  }
+
   Future<List<Comissao>> getListPagamentos() async{
     final querySnapshot = await db.collection('pagamento_profissional').get();
     final allData = querySnapshot.docs.map((e) {

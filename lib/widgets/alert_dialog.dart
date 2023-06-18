@@ -1,13 +1,16 @@
 import 'dart:async';
+
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:psico_sis/model/Especialidade.dart';
 import 'package:psico_sis/model/despesa.dart';
 import 'package:psico_sis/model/pacientes_parceiros.dart';
 import 'package:psico_sis/model/pagamento_profissional.dart';
+import 'package:psico_sis/model/servicos_profissional.dart';
 import 'package:psico_sis/model/tipo_pagamento.dart';
 import 'package:psico_sis/model/transacao_caixa.dart';
 import 'package:psico_sis/provider/categoria_despesa_provider.dart';
@@ -20,18 +23,22 @@ import 'package:psico_sis/provider/servico_provider.dart';
 import 'package:psico_sis/provider/transacao_provider.dart';
 import 'package:psico_sis/themes/app_colors.dart';
 import 'package:psico_sis/widgets/button_disable_widget.dart';
+
+import '../dialogs/alert_dialog_agenda.dart';
 import '../model/Paciente.dart';
 import '../model/Parceiro.dart';
 import '../model/Profissional.dart';
 import '../model/categoria_despesa.dart';
 import '../model/comissao.dart';
-import '../model/sessao.dart';
 import '../model/log_sistema.dart';
 import '../model/servico.dart';
+import '../model/sessao.dart';
 import '../provider/comissao_provider.dart';
 import '../provider/log_provider.dart';
 import '../provider/parceiro_provider.dart';
-import '../provider/profissional_provider.dart';
+import '../provider/servico_profissional_provider.dart';
+import '../provider/sessao_provider.dart';
+import '../provider/tipo_pagamento_provider.dart';
 import '../themes/app_text_styles.dart';
 import 'button_widget.dart';
 import 'drop_down_widget.dart';
@@ -43,20 +50,875 @@ import 'input_text_widget_mask.dart';
 import 'list_hours_widget.dart';
 
 class Dialogs {
-  static Future<void> showMyDialog(parentContext) {
-    return showDialog(
-      context: parentContext,
-      builder: (context) {
-        return SimpleDialog(
-          title: Text("Title"),
-          children: <Widget>[
-            SimpleDialogOption(child: Text("Option1"), onPressed: () {}),
-            SimpleDialogOption(child: Text("Option2"), onPressed: () {}),
-            SimpleDialogOption(child: Text("Option3"), onPressed: () {})
-          ],
+
+  static Future<void> AlertDialogExtrato(
+      parentContext,
+      List<Comissao> listComissao,
+      List<Profissional> listProf,
+      List<Paciente> listPaciente,
+      List<TransacaoCaixa> listTransacao,
+      List<Sessao> listSessao,
+      DateTime dataCorrente
+      ) {
+
+    ScrollController controllerProfissional = ScrollController();
+    ScrollController controllerSessoes = ScrollController();
+    DateTime diaCorrente = DateTime.now();
+    List<Profissional> profDoDia = [];
+    List<Sessao> sessaoDoProfissional = [];
+    List<Comissao> comissaoDoProfissional = [];
+    Profissional profissionalSelecionado;
+    String dropdownProfissional = "";
+    String saldoDoDia = "0,00";
+    bool processandoSaldo = false;
+
+    List<Comissao> getListComissaoDoProfissional(String id){
+      List<Comissao> list = [];
+      // listComissao.forEach((element) {
+      print("getListComissaoDoProfissional $id");
+      print(listComissao.length);
+      print(sessaoDoProfissional.length);
+
+      for (int j =0; j<listComissao.length;j++){
+
+        if (listComissao[j].idProfissional.compareTo(id)==0){
+           String transacao = listComissao[j].idTransacao;
+           bool result = false;
+           for (int i =0; i<sessaoDoProfissional.length;i++){
+             if (sessaoDoProfissional[i].idTransacao!.compareTo(transacao)==0){
+               result = true;
+               print("achou");
+             }
+           }
+
+           if (!result){
+             print("não achou");
+             list.add(listComissao[j]);
+
+           }
+         }
+      }
+      return list;
+    }
+
+    List<Sessao> getListSessaoDoProfissional(String id) {
+      List<Sessao> list = [];
+      listSessao.forEach((element) {
+         if (element.idProfissional!.compareTo(id)==0){
+           list.add(element);
+         }
+      });
+      list.sort((a,b) {
+        int aHora = int.parse(a.horarioSessao!.substring(0,2));
+        int aMin = 0;
+        int bHora = int.parse(b.horarioSessao!.substring(0,2));
+        int bMin = 0;
+        if (aHora==bHora){
+          return aMin.compareTo(bMin);
+        } else {
+          return aHora.compareTo(bHora);
+        }
+      });
+      list.forEach((element) {
+         print(element.horarioSessao);
+      });
+      print("--------");
+      return list;
+    }
+
+    List<Profissional> getListProfDoDia(DateTime dia){
+         List<Profissional> result = [];
+         List<String> listId = [];
+         listProf.forEach((element) {
+          listSessao.map((e) => e.idProfissional).forEach((element1) {
+            // if (element1.
+            if (listId.contains(element1)==false){
+              listId.add(element1!);
+            }
+          });
+         });
+         listId.forEach((element) {
+            result.add(listProf.firstWhere((element1) => element1.id1.compareTo(element)==0));
+         });
+         result.sort((a,b)=>a.nome!.compareTo(b.nome!));
+         return result;
+    }
+
+    String getNomePaciente(String id){
+      String result ="";
+      result = listPaciente.firstWhere((element) => element.id1.compareTo(id)==0).nome!;
+      return result;
+    }
+
+
+    bool avanca(){
+      DateTime hoje = DateTime.now();
+      if(dataCorrente.year<hoje.year){
+        return true;
+      } else if (dataCorrente.month<hoje.month){
+        return true;
+      } else if((dataCorrente.month==hoje.month)&&(dataCorrente.day<hoje.day)){
+        return true;
+      }
+      return false;
+    }
+
+    Profissional getProfByName(String nome){
+      Profissional profissional = Profissional(
+        nome: "NÃO ENCONTROU"
+      );
+      listProf.forEach((element) {
+        if (element.nome!.compareTo(nome)==0){
+           profissional = element;
+        }
+      });
+      return profissional;
+
+    }
+
+    List<DropdownMenuItem<String>> getDropdownProfissionaisDoDia(List<Profissional> list, Size size) {
+      List<DropdownMenuItem<String>> dropDownItems = [];
+      for (int i = 0; i < list.length; i++) {
+        var newDropdown = DropdownMenuItem(
+          value: list[i].nome.toString(),
+          child: SizedBox(
+            width: size.width*0.22,
+            child: Text(list[i].nome.toString(),),
+          )
         );
-      },
+        dropDownItems.add(newDropdown);
+      }
+      return dropDownItems;
+    }
+
+    Future<String> getNomePacienteByTransacaoComissao(String id)async{
+        String nome ="";
+       await Provider.of<TransacaoProvider>(parentContext, listen: false)
+            .getTransacaoById2(id).then((value) async {
+             await Provider.of<PacienteProvider>(parentContext, listen: false).getPaciente(value!.idPaciente).then((value) {
+                 nome = value.nome!;
+             });
+        });
+       return nome;
+    }
+
+    Future<String> getDescServicoByTransacaoComissao(String id)async{
+      String desc ="";
+      await Provider.of<TransacaoProvider>(parentContext, listen: false)
+          .getTransacaoById2(id).then((value) async {
+           desc = value!.descricaoTransacao;
+      });
+      return desc;
+    }
+
+    Future<String> getValorTransacao(String id)async{
+      String valor ="";
+      await Provider.of<TransacaoProvider>(parentContext, listen: false)
+          .getTransacaoById2(id).then((value) async {
+        valor = value!.valorTransacao;
+      });
+      return valor;
+    }
+
+    Future <String> getSaldoDoDia() async{
+      processandoSaldo = true;
+      String valorAtual = "";
+      double saldo = 0;
+      print(sessaoDoProfissional.length);
+      for (int i =0; i<sessaoDoProfissional.length; i++ ){
+
+        if ((sessaoDoProfissional[i].situacaoSessao!.compareTo("PAGO")==0)
+        ){
+          
+          await Provider.of<ComissaoProvider>(parentContext, listen: false)
+              .getComissaoByTransacao(sessaoDoProfissional[i].idTransacao!).then((value) {
+            if ((value.dataPagamento.compareTo("")==0)||(value.dataPagamento.compareTo(UtilData.obterDataDDMMAAAA(dataCorrente))==0)){
+              print(UtilData.obterDataDDMMAAAA(dataCorrente)+" dataCorrente");
+              print( value.valor);
+              valorAtual = value.valor.replaceAll(',', '.');
+              print("add $valorAtual");
+              saldo += NumberFormat().parse(valorAtual);
+            } else {
+              print(value.id1);
+              print(UtilData.obterDataDDMMAAAA(dataCorrente)+" dataCorrente");
+              print("nao add ${value.dataPagamento}");
+            }
+
+          });
+        }
+
+      }
+
+      for(int i=0; i<comissaoDoProfissional.length;i++){
+        valorAtual = comissaoDoProfissional[i].valor.replaceAll(',', '.');
+        saldo += NumberFormat().parse(valorAtual);
+      }
+
+       print("Saldo = $saldo");
+      processandoSaldo = false;
+      return UtilBrasilFields.obterReal(saldo);
+    }
+
+    Size size = MediaQuery.of(parentContext).size;
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          profDoDia = getListProfDoDia(diaCorrente);
+          profissionalSelecionado =  profDoDia.first;
+          dropdownProfissional = profDoDia.first.nome!;
+
+          sessaoDoProfissional = getListSessaoDoProfissional(profDoDia.first.id1);
+          comissaoDoProfissional = getListComissaoDoProfissional(profDoDia.first.id1);
+          // saldoDoDia = getSaldoDoDia();
+            return StatefulBuilder(
+                builder: (parentContext,setState)=>AlertDialog(
+                  title: Container(
+                    // color: AppColors.red,
+                    width: size.width*0.9,
+                    height: size.height*0.75,
+                    child: Column(
+                      children: [
+                        //CABEÇALHO
+                        Text("EXTRATO PROFISSIONAL "),
+
+                        Divider(thickness: 3,),
+
+                        //detalhes + sessões
+                        Container(
+                          // color: AppColors.blue,
+
+                          width: size.width*0.8,
+                          height: size.height*0.64,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                // color: AppColors.labelBlack,
+                                width: size.width*0.29,
+                                height: size.height*0.64,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          // color: Colors.red,
+                                          width: size.width*0.02,
+                                          height: size.height*0.04,
+                                          child: InkWell(
+                                            child: Container(
+                                              width: size.width*0.02,
+                                              height: size.height*0.03,
+                                              alignment: Alignment.center,
+                                              // margin: EdgeInsets.all(100.0),
+                                              decoration: BoxDecoration(
+                                                  color: AppColors.primaryColor,
+                                                  shape: BoxShape.circle
+                                              ),
+                                              child: Icon(
+                                                size: size.height*0.03,
+                                                Icons.keyboard_double_arrow_left,
+                                                color: AppColors.labelBlack,
+                                              ),
+
+                                            ),
+                                            onTap: () async{
+                                              String dia = DateFormat('EEEE').format(dataCorrente);
+                                              print(dia);
+                                              listComissao.clear();
+                                              if (dia.compareTo("Monday")==0) {
+                                                print("-3");
+
+                                                dataCorrente = dataCorrente.subtract(Duration(days: 3));
+                                              } else{
+                                                print("-1");
+                                                dataCorrente = dataCorrente.subtract(Duration(days: 1));
+                                              }
+                                              await Provider.of<ComissaoProvider>(context, listen:false)
+                                                  .getComissaoDoDia(UtilData.obterDataDDMMAAAA(dataCorrente)).then((value) {
+                                                listComissao = value;
+                                                print(listComissao.length.toString()+"!!!");
+                                              });
+                                              profDoDia.clear();
+                                              comissaoDoProfissional.clear();
+                                              await  Provider.of<SessaoProvider>(context, listen: false)
+                                                  .getListSessoesDoDia(UtilData.obterDataDDMMAAAA(dataCorrente)).then((value){
+                                                print("aaaadddd");
+                                                listSessao.clear();
+                                                listSessao = value;
+                                                profDoDia.clear();
+                                                profDoDia = getListProfDoDia(dataCorrente);
+                                                profissionalSelecionado =  profDoDia.first;
+                                                sessaoDoProfissional = getListSessaoDoProfissional(profDoDia.first.id1);
+                                                comissaoDoProfissional = getListComissaoDoProfissional(profDoDia.first.id1);
+
+                                                // comissaoDoProfissional = gelListComissaoDoProfissional(profDoDia.firs.id1);
+                                                // comis
+                                                dropdownProfissional =  profDoDia.first.nome!;
+                                                // Dialogs.AlertDialogExtrato(context,_lprofissionais, _lpacientes, _transacoesCaixaDoDia, sessoesDoDia,_dataCorrente);
+
+                                              });
+                                              setState((){});
+                                            },
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: size.width*0.05,
+                                          height: size.height*0.06,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(UtilData.obterDataDDMMAAAA(dataCorrente).substring(0,5))
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          // color: Colors.red,
+                                          width: size.width*0.02,
+                                          height: size.height*0.04,
+                                          child: InkWell(
+                                            child: Container(
+                                              width: size.width*0.02,
+                                              height: size.height*0.03,
+                                              alignment: Alignment.center,
+                                              // margin: EdgeInsets.all(100.0),
+                                              decoration: BoxDecoration(
+                                                  color: avanca()?AppColors.primaryColor: AppColors.line,
+                                                  shape: BoxShape.circle
+                                              ),
+                                              child: Icon(
+                                                size: size.height*0.03,
+                                                Icons.keyboard_double_arrow_right,
+                                                color: AppColors.labelBlack,
+                                              ),
+
+                                            ),
+                                            onTap: avanca()?()async{
+                                              String dia = DateFormat('EEEE').format(dataCorrente);
+                                              print(dia);
+                                              listComissao.clear();
+                                              if (dia.compareTo("Friday")==0) {
+                                                print("+3");
+
+                                                dataCorrente = dataCorrente.add(Duration(days: 3));
+
+                                              } else{
+                                                print("+1");
+
+                                                dataCorrente = dataCorrente.add(Duration(days: 1));
+                                              }
+                                              await Provider.of<ComissaoProvider>(context, listen:false)
+                                                  .getComissaoDoDia(UtilData.obterDataDDMMAAAA(dataCorrente)).then((value) {
+                                                listComissao = value;
+                                                print(listComissao.length.toString()+"!!!");
+                                              });
+                                              // dataCorrente = dataCorrente.add(Duration(days: 1));
+                                              profDoDia.clear();
+                                              comissaoDoProfissional.clear();
+                                              await  Provider.of<SessaoProvider>(context, listen: false)
+                                                  .getListSessoesDoDia(UtilData.obterDataDDMMAAAA(dataCorrente)).then((value){
+                                                listSessao.clear();
+                                                profDoDia.clear();
+                                                listSessao = value;
+                                                profDoDia = getListProfDoDia(dataCorrente);
+                                                profissionalSelecionado =  profDoDia.first;
+                                                sessaoDoProfissional = getListSessaoDoProfissional(profDoDia.first.id1);
+                                                comissaoDoProfissional = getListComissaoDoProfissional(profDoDia.first.id1);
+
+                                                dropdownProfissional =  profDoDia.first.nome!;
+                                                //  listSessao.clear();
+                                                //                                         listSessao = value;
+                                                //                                         profDoDia.clear();
+                                                //                                         profDoDia = getListProfDoDia(dataCorrente);
+                                                //                                         profissionalSelecionado =  profDoDia.first;
+                                                //                                         sessaoDoProfissional = getListSessaoDoProfissional(profDoDia.first.id1);
+                                                //                                         dropdownProfissional =  profDoDia.first.nome!;
+
+                                              });
+                                              setState((){});
+                                            }:null,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: size.height*0.02,
+                                    ),
+                                    //dropdown
+                                    Text("Selecione um PROFISSIONAL", style: AppTextStyles.labelBlack12Lex),
+                                    Container(
+                                      // color: Colors.red,
+                                      width: size.width*0.25,
+                                      height: size.height*0.06,
+                                      child: DropdownButton<String>(
+                                        value: dropdownProfissional,
+                                        icon:  SizedBox(
+                                          width: size.width*0.03,
+                                          // alignment: Alignment.centerRight,
+                                          child: Center(
+                                            child:Icon(Icons.arrow_drop_down_sharp),),
+                                        ),
+                                        elevation: 16,
+                                        style: TextStyle(color: AppColors.labelBlack),
+                                        underline: Container(
+
+                                          height: 2,
+                                          color: AppColors.line,
+                                        ),
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            dropdownProfissional = newValue!;
+                                            profissionalSelecionado = getProfByName(dropdownProfissional);
+                                            sessaoDoProfissional.clear();
+                                            comissaoDoProfissional.clear();
+                                            sessaoDoProfissional = getListSessaoDoProfissional(profissionalSelecionado.id1);
+                                            comissaoDoProfissional = getListComissaoDoProfissional(profissionalSelecionado.id1);
+
+                                          });
+                                        },
+                                        items: getDropdownProfissionaisDoDia(profDoDia, size),
+                                      ),
+                                    ),
+                                    Divider(),
+                                    SizedBox(
+                                      height: size.height*0.02,
+                                    ),
+                                    Container(
+                                      // color: Colors.red,
+                                      width: size.width*0.25,
+                                      height: size.height*0.25,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text("PROFISSIONAL", style: AppTextStyles.labelBlack14Lex),
+                                          Text(profissionalSelecionado.nome!, style: AppTextStyles.labelBlack20Lex),
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              Text("DATA: ", style: AppTextStyles.labelBlack14Lex),
+                                              Text(UtilData.obterDataDDMMAAAA(dataCorrente), style: AppTextStyles.labelBlack16Lex)
+                                            ],
+                                          ),
+                                          FutureBuilder(
+                                              future: getSaldoDoDia(),
+                                              builder: (BuildContext parentContext, AsyncSnapshot snapshot2){
+                                                if (snapshot2.hasData) {
+                                                  String result =  snapshot2.data as String;
+                                                  if (processandoSaldo){
+                                                    return CircularProgressIndicator();
+                                                  }
+                                                  return Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text("SALDO DO DIA: ",style: AppTextStyles.labelBlack14Lex,),
+                                                      Text(result, style: AppTextStyles.labelBlack20Lex,)
+                                                    ],
+                                                  );
+                                                } else {
+                                                  return Center();
+                                                }
+                                              }
+                                          )
+
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                  width: size.width*0.51,
+                                  height: size.height*0.64,
+                                  decoration: BoxDecoration(
+                                      color: AppColors.shape,
+                                      borderRadius: BorderRadius.circular(6.0)
+                                  ),
+                                  child: ListView.builder(
+                                      itemCount: sessaoDoProfissional.length+comissaoDoProfissional.length,
+                                      controller: controllerSessoes,
+
+                                      itemBuilder: (buidContext,index){
+                                        print(comissaoDoProfissional.length.toString()+"c");
+                                        if (index<sessaoDoProfissional.length){
+                                          return Padding(
+                                            padding: EdgeInsets.all(size.height*0.005),
+                                            child: Container(
+                                              height: size.height*0.06,
+                                              width: size.width*0.5,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(4.0),
+                                                color: AppColors.labelWhite,
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  //horário
+                                                  SizedBox(
+                                                      height: size.height*0.06,
+                                                      width: size.width*0.05,
+                                                      child: Column(
+                                                        children: [
+                                                          SizedBox(
+                                                            height: size.height*0.03,
+                                                            width: size.width*0.05,
+                                                            child: FittedBox(
+                                                              fit: BoxFit.scaleDown,
+                                                              child: Text(sessaoDoProfissional[index].horarioSessao!),
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            height: size.height*0.03,
+                                                            width: size.width*0.05,
+                                                            child: FittedBox(
+                                                              fit: BoxFit.scaleDown,
+                                                              child: Text(sessaoDoProfissional[index].descSessao!.substring(6,11),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )
+                                                  ),
+                                                  //nome + descricao serviço
+                                                  SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.25,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                      // mainAxisAlignment: MainAxisAlignment.start,
+                                                      children: [
+                                                        SizedBox(
+                                                          height: size.height*0.03,
+                                                          width: size.width*0.3,
+                                                          child: Text(getNomePaciente(sessaoDoProfissional[index].idPaciente!)),
+                                                        ),
+                                                        SizedBox(
+                                                            height: size.height*0.03,
+                                                            width: size.width*0.3,
+                                                            child: FittedBox(
+                                                              fit: BoxFit.scaleDown,
+                                                              alignment: Alignment.centerLeft,
+                                                              child: Text(sessaoDoProfissional[index].descSessao!.substring(11,sessaoDoProfissional[index].descSessao!.length), style: AppTextStyles.labelBlack12Lex,),
+                                                            )
+                                                        ),
+
+
+                                                      ],
+                                                    ),
+                                                  ),
+
+                                                  //pagamento
+                                                  SizedBox(
+                                                    height: size.height*0.06,
+                                                    width: size.width*0.2,
+                                                    child:  FutureBuilder(
+                                                        future: Provider.of<TransacaoProvider>(parentContext, listen: false).getTransacaoById2(sessaoDoProfissional[index].idTransacao!),
+                                                        builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
+                                                          if (snapshot.hasData) {
+                                                            TransacaoCaixa result =  snapshot.data as TransacaoCaixa;
+                                                            String data = result.dataTransacao;
+                                                            return FutureBuilder(
+                                                                future: Provider.of<ComissaoProvider>(parentContext, listen: false).getComissaoByTransacao(result.id1),
+                                                                builder: (BuildContext parentContext, AsyncSnapshot snapshot1){
+                                                                  if (snapshot1.hasData) {
+                                                                    Comissao comissao = snapshot1.data as Comissao;
+                                                                    return
+                                                                      // (data.compareTo(UtilData.obterDataDDMMAAAA(dataCorrente))==0)
+                                                                      ((comissao.dataPagamento.compareTo(UtilData.obterDataDDMMAAAA(dataCorrente))==0)
+                                                                          || (comissao.dataPagamento.compareTo("")==0)
+                                                                      )
+                                                                          ?
+                                                                      Column(
+                                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            height: size.height*0.03,
+                                                                            width: size.width*0.2,
+                                                                            child: FittedBox(
+                                                                              fit: BoxFit.scaleDown,
+                                                                              child: (sessaoDoProfissional[index].situacaoSessao!.compareTo("PAGO")!=0)?
+                                                                              Text("COMISSAO: R\$ "+comissao.valor,style: AppTextStyles.labelRed12Lex,)
+                                                                                  :
+                                                                              Text("COMISSAO: R\$ "+comissao.valor,style: AppTextStyles.labelBlack12Lex,),
+                                                                              // child: Text(sessaoDoProfissional[index].situacaoSessao!+" R\$ "+result.valorTransacao),
+                                                                            ),
+                                                                          ),
+
+                                                                          SizedBox(
+                                                                            height: size.height*0.03,
+                                                                            width: size.width*0.2,
+                                                                            child: FittedBox(
+                                                                              fit: BoxFit.scaleDown,
+                                                                              //red
+                                                                              // child: (comissao.situacao.compareTo("PENDENTE")==0)?
+                                                                              child: (sessaoDoProfissional[index].situacaoSessao!.compareTo("PAGO")!=0)?
+                                                                              Text(comissao.situacao+" R\$ "+result.valorTransacao,style: AppTextStyles.labelRed12Lex,):
+                                                                              Text(sessaoDoProfissional[index].situacaoSessao!+" R\$ "+result.valorTransacao+"   |   DIA "+result.dataTransacao,style: AppTextStyles.labelBlack12Lex,),
+                                                                              // Text(comissao.situacao+" "+sessaoDoProfissional[index].situacaoSessao!+" R\$ "+result.valorTransacao+"   |    DIA "+result.dataTransacao,style: AppTextStyles.labelBlack12Lex,),
+                                                                              // child: Text(" DIA "+result.dataTransacao+"   |   "+sessaoDoProfissional[index].situacaoSessao!+" R\$ "+result.valorTransacao,style: AppTextStyles.labelBlack16Lex,),
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      )
+                                                                          :
+                                                                      Column(
+                                                                        mainAxisAlignment: MainAxisAlignment.center,
+
+                                                                        children: [
+                                                                          SizedBox(
+                                                                            height: size.height*0.03,
+                                                                            width: size.width*0.2,
+                                                                            child: FittedBox(
+                                                                              fit: BoxFit.scaleDown,
+                                                                              child: (sessaoDoProfissional[index].situacaoSessao!.compareTo("PAGO")!=0)?
+                                                                              Text("COMISSAO: R\$ " +comissao.valor,style: AppTextStyles.labelRed12Lex,)
+                                                                                  :
+                                                                              Text("COMISSAO: R\$ " +comissao.valor,style: AppTextStyles.labelLine12Lex,),
+                                                                              // child: Text(sessaoDoProfissional[index].situacaoSessao!+" R\$ "+result.valorTransacao),
+                                                                            ),
+
+                                                                          ),
+                                                                          SizedBox(
+                                                                            height: size.height*0.03,
+                                                                              width: size.width*0.2,
+                                                                            child: FittedBox(
+                                                                              fit: BoxFit.scaleDown,
+                                                                              // child: (comissao.situacao.compareTo("PENDENTE")==0)?
+                                                                              child: (sessaoDoProfissional[index].situacaoSessao!.compareTo("PAGO")!=0)?
+                                                                              Text(comissao.situacao+" R\$ "+result.valorTransacao,style: AppTextStyles.labelRed12Lex,)
+                                                                                  :
+                                                                              Text(sessaoDoProfissional[index].situacaoSessao!+" R\$ "+result.valorTransacao+"   |   DIA "+result.dataTransacao,style: AppTextStyles.labelLine12Lex,),
+                                                                            ),
+
+                                                                          ),
+
+                                                                        ],
+                                                                      );
+                                                                  }  else {
+                                                                    return SizedBox(
+                                                                      width: 15,
+                                                                      height: 15,
+                                                                      child: CircularProgressIndicator(),
+                                                                    );
+                                                                  }
+                                                                });
+                                                            // return Text(" "+result.valorTransacao+" DIA "+result.dataTransacao);
+                                                          }else {
+                                                            return Center(
+                                                                child: Text(sessaoDoProfissional[index].situacaoSessao!, style: AppTextStyles.labelRed12Lex,)
+                                                            );
+                                                          }
+                                                        }
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                            ),
+                                          );
+                                        } else {
+                                          return Padding(
+                                            padding: EdgeInsets.all(size.height*0.005),
+                                              child:  Container(
+                                                height: size.height*0.06,
+                                                width: size.width*0.5,
+                                                decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(4.0),
+                                                color: AppColors.labelWhite,),
+                                                child: Row(
+                                                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: size.width*0.05,
+                                                    ),
+                                                    //nome+serviço
+                                                    SizedBox(
+                                                      height: size.height*0.06,
+                                                      width: size.width*0.25,
+                                                      child:  Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                        children: [
+                                                          FutureBuilder(
+                                                              future: getNomePacienteByTransacaoComissao(comissaoDoProfissional[index-sessaoDoProfissional.length].idTransacao),
+                                                              builder: (BuildContext parentContext, AsyncSnapshot snapshot2){
+                                                                if (snapshot2.hasData) {
+                                                                  String nomePaciente = snapshot2.data as String;
+                                                                  return Text(nomePaciente);
+                                                                } else {
+                                                                  return Center();
+                                                                }
+                                                              }
+                                                          ),
+
+                                                          FutureBuilder(
+                                                              future:  getDescServicoByTransacaoComissao(comissaoDoProfissional[index-sessaoDoProfissional.length].idTransacao),
+                                                              builder: (BuildContext parentContext, AsyncSnapshot snapshot2){
+                                                                if (snapshot2.hasData) {
+                                                                  String descricao = snapshot2.data as String;
+                                                                  return Text(descricao, style: AppTextStyles.labelBlack12Lex,);
+                                                                } else {
+                                                                  return Center();
+                                                                }
+                                                              }
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    //pagamento
+                                                    SizedBox(
+                                                        height: size.height*0.06,
+                                                        width: size.width*0.2,
+                                                        child: Column(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+
+                                                          children: [
+                                                            Text("COMISSÃO: R\$ "+comissaoDoProfissional[index-sessaoDoProfissional.length].valor,style: AppTextStyles.labelBlack12Lex,),
+                                                            Row(
+                                                              mainAxisAlignment: MainAxisAlignment.center,
+
+                                                              children: [
+                                                                Text("PAGO: R\$ ",style: AppTextStyles.labelBlack12Lex,),
+                                                                FutureBuilder(
+                                                                    future:  getValorTransacao(comissaoDoProfissional[index-sessaoDoProfissional.length].idTransacao),
+                                                                    builder: (BuildContext parentContext, AsyncSnapshot snapshot){
+                                                                      if (snapshot.hasData) {
+                                                                        String valor = snapshot.data as String;
+                                                                        return Text(valor, style: AppTextStyles.labelBlack12Lex,);
+                                                                      } else {
+                                                                        return Center();
+                                                                      }
+                                                                    }
+                                                                ),
+                                                                Text("  |  DIA ${UtilData.obterDataDDMMAAAA(dataCorrente)}",style: AppTextStyles.labelBlack12Lex,),
+                                                              ],
+                                                            )
+                                                          ],
+                                                        )
+                                                    ),
+
+
+                                                  ],
+                                                ),
+                                          )
+                                          );
+                                        }
+
+                                        // return Padding(padding: EdgeInsets.only(top:size.height*0.001),
+                                        //   child: Container(
+                                        //     height: size.height*0.05,
+                                        //     width: size.width*0.7,
+                                        //     color: AppColors.line,
+                                        //     child: ListTile(
+                                        //         title: Row(
+                                        //           children: [
+                                        //             Text(sessaoDoProfissional[index].horarioSessao!+" "),
+                                        //
+                                        //             Text(getNomePaciente(sessaoDoProfissional[index].idPaciente!)),
+                                        //           ],
+                                        //         ),
+                                        //         subtitle: Row(
+                                        //           crossAxisAlignment: CrossAxisAlignment.start,
+                                        //           children: [
+                                        //             Text(sessaoDoProfissional[index].descSessao!),
+                                        //
+                                        //             Row(
+                                        //               children: [
+                                        //                 Text(sessaoDoProfissional[index].situacaoSessao!+" | "),
+                                        //                 FutureBuilder(
+                                        //                     future: Provider.of<TransacaoProvider>(parentContext, listen: false).getTransacaoById2(sessaoDoProfissional[index].idTransacao!),
+                                        //                     builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
+                                        //                       if (snapshot.hasData) {
+                                        //                         TransacaoCaixa result =  snapshot.data as TransacaoCaixa;
+                                        //                         return FutureBuilder(
+                                        //                             future: Provider.of<ComissaoProvider>(parentContext, listen: false).getComissaoByTransacao(result.id1),
+                                        //                             builder: (BuildContext parentContext, AsyncSnapshot snapshot1){
+                                        //                               if (snapshot1.hasData) {
+                                        //                                 Comissao comissao = snapshot1.data as Comissao;
+                                        //                                 return Text(" R\$ "+result.valorTransacao+ " DIA "+result.dataTransacao+" | COMISSAO: R\$ " +comissao.valor+" ");
+                                        //                               }  else {
+                                        //                                 return SizedBox(
+                                        //                                   width: 15,
+                                        //                                   height: 15,
+                                        //                                   child: CircularProgressIndicator(),
+                                        //                                 );
+                                        //                               }
+                                        //                             });
+                                        //                         // return Text(" "+result.valorTransacao+" DIA "+result.dataTransacao);
+                                        //                       }else {
+                                        //                         return Center(
+                                        //                             child: Text("")
+                                        //                         );
+                                        //                       }
+                                        //                     }
+                                        //                 ),
+                                        //               ],
+                                        //
+                                        //             ),
+                                        //
+                                        //           ],
+                                        //         )
+                                        //     ),
+                                        //   ),
+                                        // );
+                                      }),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // saldo do dia
+                        // Container(
+                        //     color: AppColors.labelWhite,
+                        //     width: size.width*0.8,
+                        //     height: size.height*0.06,
+                        //
+                        //     child: Align(
+                        //         alignment: Alignment.centerRight,
+                        //         child: Padding(
+                        //             padding: EdgeInsets.only(right: size.width*0.004),
+                        //             child: FutureBuilder(
+                        //                 future: getSaldoDoDia(),
+                        //                 builder: (BuildContext parentContext, AsyncSnapshot snapshot2){
+                        //                   if (snapshot2.hasData) {
+                        //                     String result =  snapshot2.data as String;
+                        //                     if (processandoSaldo){
+                        //                       return CircularProgressIndicator();
+                        //                     }
+                        //                     return Text("Saldo do dia R\$ $result");
+                        //                   } else {
+                        //                     return Center();
+                        //                   }
+                        //                 }
+                        //             )
+                        //           // Text("Saldo do dia: R\$ 0,00", style: AppTextStyles.labelBlack16Lex,),
+                        //         )
+                        //     )
+                        // ),
+
+                      ],
+                    )
+                  ),
+                  actions:<Widget> [
+                    ButtonWidget(
+                      onTap: ()async{
+                        Navigator.pop(context);
+                      },
+                      label: "FECHAR",
+                      width: MediaQuery.of(context).size.width * 0.07,
+                      height: MediaQuery.of(context).size.height * 0.065,
+                    ),
+                  ],
+                //  actions: <Widget>[
+                  //                 SimpleDialogOption(child: Text("Salvar"), onPressed: () {}),]
+                )
+
+            );
+        }
     );
+
   }
 
   static Future<void> AlertDialogProfissional(parentContext) {
@@ -1397,6 +2259,143 @@ class Dialogs {
                 )));
   }
 
+
+  static Future<void> AlertConfirmRemoverCategoria(parentContext, CategoriaDespesa categoriaDespesa ){
+
+
+
+    Size size = MediaQuery.of(parentContext).size;
+    return showDialog(
+        barrierColor: AppColors.shape,
+        context: parentContext,
+        builder: (context) {
+          return  AlertDialog(
+            title: SizedBox(
+              width: size.width*0.5,
+              height: size.height*0.3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text("DESEJA REMOVER ESTA CATEGORIA?", style: AppTextStyles.labelBlack16Lex,),
+                  SizedBox(
+                    height: size.height*0.03,
+                  ),
+                  Text(categoriaDespesa.descricao!, style: AppTextStyles.labelBlack16Lex,),
+                ],
+              ),
+            ),
+
+            actions: [
+              SimpleDialogOption(
+                child: Text("Remover"),
+                onPressed: ()async{
+                  await Provider.of<CategoriaDespesaProvider>(parentContext, listen: false).remove(categoriaDespesa.id1);
+                  Navigator.pop(context);
+                },
+              ),
+              SimpleDialogOption(
+                child: Text("Fechar"),
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        }
+    );
+  }
+
+
+  static Future<void> AlertRemoverCategoria(parentContext, List<CategoriaDespesa> listCategoriaDespesa ){
+
+
+
+    Size size = MediaQuery.of(parentContext).size;
+    return showDialog(
+        barrierColor: AppColors.shape,
+        context: parentContext,
+        builder: (context) {
+          return  AlertDialog(
+            title: SizedBox(
+              width: size.width*0.7,
+              height: size.height*0.7,
+              child: Column(
+                children: [
+                  Text("REMOVER CATEGORIA", style: AppTextStyles.labelBlack16Lex,),
+                  Container(
+                    color: AppColors.line,
+                    width: size.width*0.6,
+                    height: size.height*0.6,
+                    child: ListView.builder(
+                        itemCount: listCategoriaDespesa.length,
+                        itemBuilder: (BuildContext, index){
+                          return Card(
+                            child: ListTile(
+                              title: Text(listCategoriaDespesa[index].descricao!),
+                              trailing: Container(
+                                // color: Colors.red,
+                                width: size.width*0.02,
+                                height: size.height*0.04,
+                                child: InkWell(
+                                  child: Container(
+                                    width: size.width*0.02,
+                                    height: size.height*0.03,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        shape: BoxShape.circle
+                                    ),
+                                    child: Icon(
+                                      size: size.height*0.03,
+                                      Icons.delete_outlined,
+                                      color: AppColors.labelBlack,
+                                    ),
+
+                                  ),
+                                  onTap: () async{
+                                    // AlertConfirmRemoverCategoria
+                                    await Dialogs.AlertConfirmRemoverCategoria(parentContext, listCategoriaDespesa[index]);
+
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ),
+
+                              // IconButton(
+                              //   onPressed: (){},
+                              //   icon: Icon(Icons.delete_outlined),
+                              // ),
+                            ),
+                          );
+                        }),
+
+
+                  ),
+                ],
+              ),
+            ),
+
+            actions: [
+              // SimpleDialogOption(
+              //   child: Text("FECHAR"),
+              //   onPressed: ()async{
+              //
+              //     Navigator.pop(context);
+              //   },
+              // ),
+              SimpleDialogOption(
+                child: Text("Fechar"),
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        }
+    );
+  }
+
+
   static Future<void> AlertCadastrarCategoria(parentContext, List<CategoriaDespesa> listCategoriaDespesa ){
     final _form = GlobalKey<FormState>();
     bool containCategoria = false;
@@ -1468,9 +2467,11 @@ class Dialogs {
                            descricao: categoria
                        )
                    ).then((value) {
-                     listCategoriaDespesa.add(CategoriaDespesa(descricao: categoria));
+                     // listCategoriaDespesa.add(CategoriaDespesa(descricao: categoria));
                      listCategoriaDespesa.sort((a,b)=> a.descricao!.toUpperCase().compareTo(b.descricao!.toUpperCase()));
-                     Dialogs.AlertCadastrarDespesa(parentContext, listCategoriaDespesa);
+                     // Dialogs.AlertCadastrarDespesa(parentContext, listCategoriaDespesa);
+                     print("salvou");
+                     Navigator.pop(context);
                    });
                  }
 
@@ -1489,11 +2490,245 @@ class Dialogs {
     );
   }
 
+  static Future<void> AlertInadimplentes(parentContext,
+      _uid,
+      List<Sessao> list,
+      List<Profissional> listProfissional,
+      List<ServicosProfissional> listServicoProfissional,
+
+      ) {
+    var seen = Set<String>();
+
+    // List<Sessao> uniqueList = list.where((element) => seen.add(element.idPaciente!)).toList();
+    for (int i=0;i<list.length;i++){
+          print("----");
+         print(list[i].descSessao!.substring(7,8));
+      }
+    List<Sessao> uniqueList = list.where((element) => element.descSessao!.substring(7,8).compareTo("1")==0).toList();
+    // List<Sessao> uniqueList = [];
+    // for (int i=0;i<list.length;i++){
+    //    if (list[i].descSessao!.substring(8,9).compareTo("1")==0){
+    //      uniqueList.add(list[i]);
+    //    }
+    // }
+    final _form = GlobalKey<FormState>();
+    Size size = MediaQuery.of(parentContext).size;
+
+    Profissional getProfissionalById(String id){
+      Profissional result = Profissional();
+      result = listProfissional.firstWhere((element) => element.id1.compareTo(id)==0);
+      return result;
+    }
+
+    Future<String> getNomePaciente(String id)async{
+      String result = "";
+      await Provider.of<PacienteProvider>(parentContext, listen: false)
+          .getPaciente(id).then((value) {
+           result = value.nome!;
+           return result;
+      });
+      return result;
+    }
+    Future<String> getValorServicoByDesc(String desc, String idProf)async{
+      String result = "";
+      String valorSessao = "";
+      await Provider.of<ServicoProvider>(parentContext, listen: false)
+          .getServicoByDesc( desc)
+          .then((value) async{
+        result = value.id1;
+        await Provider.of<ServicoProfissionalProvider>(parentContext, listen: false)
+            .getServByServicoProfissional(idProf,result).then((value) {
+          valorSessao = value.valor!;
+          print(result);
+          return valorSessao;
+        });
+      });
+      return valorSessao;
+
+    }
+
+    String getNameProfissional(String id){
+      // String result="";
+      var result = listProfissional.firstWhere((element) => element.id1.compareTo(id)==0);
+      return result.nome!;
+    }
+
+
+    return showDialog(
+      barrierColor: AppColors.shape,
+      context: parentContext,
+      builder: (context) {
+        return StatefulBuilder(
+            builder: (parentContext, setState) => AlertDialog(
+                title: Form(
+                  key: _form,
+                  child: Container(
+                    width: size.width*0.9,
+                    height: size.height*0.7,
+                    color: AppColors.labelWhite,
+                    child: Column(
+                      children: [
+                        Text("INADIMPLENTES"),
+                        Container(
+                          width: size.width*0.65,
+                          height: size.height*0.6,
+                          decoration: BoxDecoration(
+                            color: AppColors.shape,
+                            borderRadius: BorderRadius.circular(8.0)
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(left:4, right: 4),
+                            child: ListView.builder(
+                                itemCount: uniqueList.length,
+                                itemBuilder: (buildContext, index){
+                                  return Card(
+                                    child: ListTile(
+                                        trailing: Column(
+                                          children: [
+                                            InkWell(
+                                              onTap: ()async{
+                                                List<TipoPagamento> tiposPagamento = [];
+                                                Paciente paciente = Paciente();
+                                                String valor = "";
+                                                await getValorServicoByDesc(uniqueList[index].descSessao!.substring(11, uniqueList[index].descSessao!.length),
+                                                    uniqueList[index].idProfissional!).then((value) {
+                                                  valor = value;
+                                                });
+                                                Profissional prof = getProfissionalById(uniqueList[index].idProfissional!);
+                                                await Provider.of<TipoPagamentoProvider>(context, listen: false)
+                                                    .getTiposPagamentos().then((value) {
+                                                  tiposPagamento = value;
+                                                  tiposPagamento.sort((a,b)=>a.descricao.toLowerCase().replaceAll("à", "a").compareTo(b.descricao.toLowerCase().replaceAll("à", "a")));
+                                                });
+
+                                                await Provider.of<PacienteProvider>(context,listen: false).getPaciente(uniqueList[index].idPaciente!).then((value) {
+                                                  paciente = value;
+                                                });
+                                                String valorSessao = "";
+                                                getValorServicoByDesc(
+                                                    uniqueList[index].descSessao!.substring(11, uniqueList[index].descSessao!.length),
+                                                    uniqueList[index].idProfissional!
+                                                  // desc, idProf
+
+                                                ).then((value) {
+                                                  valorSessao = value;
+                                                });
+                                                await DialogsAgendaAssistente.AlertDialogRegistrarPagamento(context, _uid, uniqueList[index], paciente, prof, tiposPagamento, valor);
+                                                Navigator.pop(context);
+                                              },
+                                              // alignment: Alignment.center,
+
+                                              child: Icon(Icons.monetization_on,
+                                                color: AppColors.primaryColor,
+                                                // size: 35,
+                                              ),
+                                            ),
+                                            FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Text("PAGAR"),
+                                            )
+                                          ],
+                                        ),
+                                        title: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                                              children: [
+                                                Text(uniqueList[index].id1.substring(0,5), style: AppTextStyles.labelBlack12Lex,),
+                                                // Text(, ),
+                                                Text(uniqueList[index].descSessao!.substring(11, uniqueList[index].descSessao!.length)),
+                                                FutureBuilder(
+                                                  //list[index].descSessao!.substring(11, list[index].descSessao!.length)
+                                                    future: getValorServicoByDesc(
+                                                        uniqueList[index].descSessao!.substring(11, uniqueList[index].descSessao!.length),
+                                                        uniqueList[index].idProfissional!),
+                                                    builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
+
+                                                      if (snapshot.hasData) {
+                                                        String result =  snapshot.data as String;
+                                                        return Text(result);
+                                                      }else {
+                                                        return Center(
+                                                            child: Text("")
+                                                        );
+                                                      }
+                                                    }),
+                                              ],
+                                            ),
+                                            FutureBuilder(
+                                              //list[index].descSessao!.substring(11, list[index].descSessao!.length)
+                                                future: getNomePaciente(uniqueList[index].idPaciente!),
+                                                builder: (BuildContext parentContext, AsyncSnapshot snapshot) {
+
+                                                  if (snapshot.hasData) {
+                                                    String result =  snapshot.data as String;
+                                                    return Text(result);
+                                                  }else {
+                                                    return Center(
+                                                        child: Text("")
+                                                    );
+                                                  }
+                                                }),
+                                            Text(getNameProfissional(uniqueList[index].idProfissional!),
+                                              style: AppTextStyles.labelBlack14,),
+
+
+                                          ],
+                                        ),
+                                        subtitle: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text("SESSÃO "+uniqueList[index].statusSessao!),
+                                                  Text(" EM "+uniqueList[index].dataSessao!),
+                                                ],
+                                              ),
+
+                                              Row(
+                                                children: [
+                                                  Text(uniqueList[index].situacaoSessao!),
+                                                  Text(uniqueList[index].idTransacao!),
+                                                ],
+                                              ),
+                                            ]
+                                        )
+                                    ),
+                                  );
+                                }),
+                          )
+                        )
+                      ],
+                    ),
+                  )
+                ),
+                actions: [
+                 SimpleDialogOption(
+                     child: Text("CANCELAR"),
+                     onPressed: () {
+                       Navigator.pop(context);
+                     }),
+               ],
+            )
+        );
+      }
+    );
+
+  }
+
+
+
   static Future<void> AlertCadastrarDespesa(parentContext, List<CategoriaDespesa> list) {
     final _form = GlobalKey<FormState>();
     String valor = "";
     String descricao = "";
     String dropdown = list.first.descricao!;
+    bool checkCaixa = false;
+    bool checkConta = false;
+    bool showMessage = false;
+
     List<DropdownMenuItem<String>> getDropdownCategoriaDespesas() {
       List<DropdownMenuItem<String>> dropDownItems = [];
       for (int i = 0; i < list.length; i++) {
@@ -1506,12 +2741,14 @@ class Dialogs {
       return dropDownItems;
     }
 
+    Size size = MediaQuery.of(parentContext).size;
     return showDialog(
         barrierColor: AppColors.shape,
         context: parentContext,
         builder: (context) {
+
           return StatefulBuilder(
-            builder: (parentContext, setState) => AlertDialog(
+            builder: (context, setState) => AlertDialog(
             title: Form(
               key: _form,
               child: Column(
@@ -1568,6 +2805,7 @@ class Dialogs {
                 //dropDown
                 Row(
                   children: [
+                    // drop
                     SizedBox(
                       width: MediaQuery.of(parentContext).size.width * 0.25,
                       height: MediaQuery.of(parentContext).size.height * 0.06,
@@ -1592,25 +2830,159 @@ class Dialogs {
                       ),
 
                     ),
-                    IconButton(onPressed: (){
-                      Dialogs.AlertCadastrarCategoria(parentContext, list);
-                    }, icon: Icon(Icons.add)),
+                    //botao
+                    // IconButton(onPressed: (){
+                    //   Dialogs.AlertCadastrarCategoria(parentContext, list);
+                    // }, icon: Icon(Icons.add)),
+                    Padding(
+                      padding: EdgeInsets.only(left: size.width * 0.02, right: size.width*0.02),
+                      child:  Container(
+                        // color: Colors.red,
+                        width: size.width*0.02,
+                        height: size.height*0.04,
+                        child: InkWell(
+                          child: Container(
+                            width: size.width*0.02,
+                            height: size.height*0.03,
+                            alignment: Alignment.center,
+                            // margin: EdgeInsets.all(100.0),
+                            decoration: BoxDecoration(
+                                color: AppColors.primaryColor,
+                                shape: BoxShape.circle
+                            ),
+                            child: Icon(
+                              size: size.height*0.03,
+                              Icons.add,
+                              color: AppColors.labelBlack,
+                            ),
+
+                          ),
+                          onTap: () async{
+                            print("AlertCadastrarCategoria");
+                            print(list.length);
+                            await Dialogs.AlertCadastrarCategoria(parentContext, list);
+
+                            await Provider.of<CategoriaDespesaProvider>(parentContext, listen:false).getListCategorias().then((value) {
+                              list.clear;
+                              list = value;
+                              setState((){
+                                print("setState");
+                                print(list.length);
+                              });
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    Container(
+                      // color: Colors.red,
+                      width: size.width*0.02,
+                      height: size.height*0.04,
+                      child: InkWell(
+                        child: Container(
+                          width: size.width*0.02,
+                          height: size.height*0.03,
+                          alignment: Alignment.center,
+                          // margin: EdgeInsets.all(100.0),
+                          decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              shape: BoxShape.circle
+                          ),
+                          child: Icon(
+                            size: size.height*0.03,
+                            Icons.remove,
+                            color: AppColors.labelBlack,
+                          ),
+
+                        ),
+                        onTap: () async{
+                         await Dialogs.AlertRemoverCategoria(parentContext, list);
+                         await Provider.of<CategoriaDespesaProvider>(parentContext, listen:false).getListCategorias().then((value) {
+                           list.clear;
+                           list = value;
+                           setState((){
+                             print("setState");
+                             print(list.length);
+                           });
+                         });
+                        },
+                      ),
+                    ),
                   ],
-                )
+                ),
+                //checkbox retirada
+                SizedBox(
+                  width: MediaQuery.of(parentContext).size.width * 0.3,
+                  height: MediaQuery.of(parentContext).size.height * 0.2,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Checkbox(
+                              value: checkCaixa,
+                              onChanged: (value){
+                                if ((checkConta==false)&&(checkCaixa==false)){
+                                  showMessage=false;
+                                }
+                                checkCaixa = value!;
+                                if (checkCaixa){
+                                  checkConta = false;
+                                }
+                                setState((){});
+                              }
+                          ),
+                          Text("Retirada CAIXA")
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Checkbox(
+                              value: checkConta,
+                              onChanged: (value){
+                                if ((checkConta==false)&&(checkCaixa==false)){
+                                  showMessage=false;
+                                }
+                                checkConta = value!;
+                                if (checkConta){
+                                  checkCaixa = false;
+                                }
+                                setState((){});
+                              }
+                          ),
+                          Text("Retirada CONTA BANCÁRIA")
+                        ],
+                      ),
+                      ((checkConta==false)&&(checkCaixa==false))&&(showMessage)?
+                      SizedBox(
+                        width: size.width*0.2,
+                        child: Text("Selecione uma retirada",
+                          style: AppTextStyles.subTitleRed14,
+                          textAlign: TextAlign.start,),
+
+                      )
+                        :
+                      Center(),
+                    ],
+                  )
+                ),
               ],
             ),),
             actions: <Widget>[
               SimpleDialogOption(
                   child: Text("SALVAR"),
                   onPressed: () async{
-                      if (_form.currentState!.validate()){
+                      if ((_form.currentState!.validate())&&(checkCaixa||checkConta)){
+                        String valorSemPonto = valor.substring(0,valor.length-3).replaceAll('.', '')+valor.substring(valor.length-3,valor.length);
+                        print(valorSemPonto);
+                        print("valorSemPonto");
                           await Provider.of<DespesaProvider>(context, listen: false)
                               .put(Despesa(
                             data: UtilData.obterDataDDMMAAAA(DateTime.now()),
                             hora: UtilData.obterHoraHHMM(DateTime.now()),
-                            valor: valor,
+                            valor: valorSemPonto,
                             descricao: descricao,
                             categoria: dropdown,
+                            retirada: (checkCaixa)?"CAIXA":"CONTA BANCÁRIA",
                           )).then((value) {
                             print('salvou desp');
                             setState((){});
@@ -1618,6 +2990,11 @@ class Dialogs {
 
                             // Navigator.pop(context);
                           } );
+                      } else {
+                        if ((checkConta==false)&&(checkCaixa==false)){
+                          showMessage = true;
+                          setState((){});
+                        }
                       }
 
                     // Navigator.pop(context);
@@ -1633,23 +3010,241 @@ class Dialogs {
         });
   }
 
-  static Future<void> AlertDetalhesProfissional(
-      parentContext, Profissional profissional) {
+  static Future<void> AlertDetalhesPagamentoProfissional(
+      parentContext, Profissional profissional, PagamentoProfissional pagamento,
+      List<Comissao> listComissao,
+      // List<Paciente> listPacientes
+      ) {
+
+    Future<Paciente> getPacienteByTransacao(String idTransacao)async{
+      Paciente paciente = Paciente();
+      print("akkkk");
+      //recupera o pagamento
+      // String idTransacao = listComissao.first.idTransacao;
+      await Provider.of<TransacaoProvider>(parentContext, listen: false).getTransacaoById2(idTransacao).then((value) async{
+        String idPaciente = value!.idPaciente;
+        print("achou pac = ${idPaciente}");
+
+        await Provider.of<PacienteProvider>(parentContext, listen: false).getPaciente(idPaciente).then((value)async{
+          paciente = value;
+          print("achou paciente = ${paciente.nome}");
+          return paciente;
+        });
+      });
+      print("não achou paciente = ${paciente.nome!}");
+
+      return paciente;
+    }
+
+    Future<String> getServicoByTransacao(String idTransacao)async{
+      String result = "";
+      print("akkkk");
+      //recupera o pagamento
+      // String idTransacao = listComissao.first.idTransacao;
+      await Provider.of<TransacaoProvider>(parentContext, listen: false).getTransacaoById2(idTransacao).then((value) async{
+        result = value!.descricaoTransacao;
+        return result;
+      });
+      print("não achou servico ");
+
+      return result;
+    }
+
+
+    // Paciente getPaciente(String id){
+    //   return listPacientes.firstWhere((element) => element.id1.compareTo(id)==0);
+    // }
+
+    Size size = MediaQuery.of(parentContext).size;
     return showDialog(
         context: parentContext,
-        barrierColor: AppColors.shape,
+        // barrierColor: AppColors.shape,
         builder: (context) {
+
           return StatefulBuilder(
             builder: (parentContext, setState) => AlertDialog(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Detalhes Proffisional"),
-                  Text(
-                    profissional.nome.toString(),
-                    style: AppTextStyles.labelBlack16Lex,
-                  ),
-                ],
+              title: Container(
+                width: size.width*0.8,
+                height: size.height*0.7,
+                child:  Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Container(
+                          width: size.width*0.2,
+                          height: size.height*0.6,
+                          // color: AppColors.red,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Center(
+                               child: Text("DETALHES PAGAMENTO"),
+                              ),
+                              Divider(thickness: 3,),
+                              Text(
+                                "PROFISSIONAL: ",
+                                style: AppTextStyles.labelBlack16Lex,
+                              ),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  profissional.nome.toString(),
+                                  style: AppTextStyles.labelBlackBold20Slin,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "DATA: ",
+                                    style: AppTextStyles.labelBlack16Lex,
+                                  ),
+                                  Text(
+                                    pagamento.data.toString(),
+                                    style: AppTextStyles.labelBlackBold20Slin,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "HORA: ",
+                                    style: AppTextStyles.labelBlack16Lex,
+                                  ),
+                                  Text(
+                                    pagamento.hora.toString(),
+                                    style: AppTextStyles.labelBlackBold20Slin,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "VALOR:",
+                                    style: AppTextStyles.labelBlack16Lex,
+                                  ),
+                                  Text(
+                                    " R\$ "+pagamento.valor.toString(),
+                                    style: AppTextStyles.labelBlackBold20Slin,
+                                  ),
+                                ],
+                              ),
+
+                              // Row(
+                              //   children: [
+                              //
+                              //
+                              //   ],
+                              // ),
+
+
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: size.width*0.3,
+                          height: size.height*0.6,
+                          // color: AppColors.red,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: AppColors.shape
+                          ),
+                          child: ListView.builder(
+                            itemCount: listComissao.length,
+                            itemBuilder: (context, index){
+                              return Padding(padding: EdgeInsets.all(size.width*0.002),
+                                child: Container(
+                                  width: size.width*0.3,
+                                  height: size.height*0.1,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: AppColors.labelWhite
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: size.width*0.25-(size.width*0.002)*2,
+                                        height: size.height*0.1-(size.width*0.002)*2,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: size.width*0.008),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              // Text("${listComissao[index].id1}"),
+                                              FutureBuilder(
+                                                future: getPacienteByTransacao(listComissao[index].idTransacao),
+                                                builder: (BuildContext context, AsyncSnapshot snapshot){
+                                                  print(listComissao[index].idTransacao);
+                                                  if (snapshot.hasData){
+                                                    Paciente paciente = snapshot.data as Paciente;
+                                                    return FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.centerLeft,
+                                                        child: Text(paciente.nome!,
+                                                          style: AppTextStyles.labelBold14,));
+                                                  } else {
+                                                    if (snapshot.hasError) {
+                                                      return Text('Error: ${snapshot.error}');
+                                                    } else {
+                                                      return Center(
+                                                          child: Text(""));
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                              FutureBuilder(
+                                                future: getServicoByTransacao(listComissao[index].idTransacao),
+                                                builder: (BuildContext context, AsyncSnapshot snapshot){
+                                                  // print(listComissao[index].idTransacao);
+                                                  if (snapshot.hasData){
+                                                    String descricao = snapshot.data as String;
+                                                    return FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        child: Text(descricao,
+                                                          style: AppTextStyles.labelBlack12Lex,));
+                                                  } else {
+                                                    if (snapshot.hasError) {
+                                                      return Text('Error: ${snapshot.error}');
+                                                    } else {
+                                                      return Center(
+                                                          child: Text(""));
+                                                    }
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ),
+                                      SizedBox(
+                                        width: size.width*0.05,
+                                        height: size.height*0.1,
+                                        child: Padding(
+                                          padding: EdgeInsets.all(2.0),
+                                          child: FittedBox(
+                                            fit: BoxFit.contain,
+                                            child: Text("R\$ "+listComissao[index].valor),
+                                          ),
+                                        )
+                                      ),
+
+
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               ),
               actions: <Widget>[
                 SimpleDialogOption(
@@ -1735,6 +3330,9 @@ class Dialogs {
                                 builder: (context, snapshot){
                                   if (snapshot.hasData) {
                                     List<Comissao> comissoes = snapshot.data as List<Comissao>;
+                                    comissoes.forEach((element) {
+                                      print(element.id1);
+                                    });
                                     return Column(
                                         children: [
                                           Text("COMISSÕES"),
@@ -1761,6 +3359,8 @@ class Dialogs {
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
                                                           Text(comissoes[index].situacao),
+
+
                                                           //desc transação + paciente
                                                           FutureBuilder(
                                                               future: Provider.of<TransacaoProvider>(context,listen: false)
@@ -1795,7 +3395,13 @@ class Dialogs {
                                                               }),
                                                         ],
                                                       ),
-                                                      title: Text(comissoes[index].dataGerada),
+                                                      title: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                          Text(comissoes[index].dataGerada),
+                                                          Text(comissoes[index].id1.substring(0,4)),
+                                                        ]
+                                                      ),
                                                     ),
                                                   );
                                                 }),

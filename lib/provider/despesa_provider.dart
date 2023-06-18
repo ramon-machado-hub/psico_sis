@@ -19,7 +19,7 @@ class DespesaProvider  with ChangeNotifier{
         desp.id1= documentSnapshhot.id;
         return desp;
     } else {
-      return Despesa(descricao: "não existe", hora: '',categoria: '', valor: '', data: '');
+      return Despesa(descricao: "não existe", hora: '',categoria: '', valor: '', data: '', retirada: '');
     }
   }
 
@@ -58,14 +58,15 @@ class DespesaProvider  with ChangeNotifier{
         'valor': despesa.valor,
         'categoria': despesa.categoria,
         'hora': despesa.hora,
+        'retirada': despesa.retirada,
       }).then((value) => print('Salvou despesa ${doc}'));
       return doc;
   }
 
 
 
-  void remove(String id) async {
-    db.collection("despesa").doc(id).delete();
-    notifyListeners();
-  }
+  // void remove(String id) async {
+  //   db.collection("despesa").doc(id).delete();
+  //   notifyListeners();
+  // }
 }

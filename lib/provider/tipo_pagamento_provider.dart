@@ -16,7 +16,7 @@ class TipoPagamentoProvider  with ChangeNotifier{
   }
 
   Future<List<TipoPagamento>> getTiposPagamentos()async{
-    if (tiposPagamento.length==0){
+    // if (tiposPagamento.length==0){
       final querySnapshot = await db.collection('tipos_pagamento').get();
       final allData = querySnapshot.docs.map((e) {
         final tipoPagamento = TipoPagamento.fromJson(e.data());
@@ -25,9 +25,9 @@ class TipoPagamentoProvider  with ChangeNotifier{
       }).toList();
       tiposPagamento = allData;
       return allData;
-    }  else {
-      return tiposPagamento;
-    }
+    // }  else {
+    //   return tiposPagamento;
+    // }
 
   }
 

@@ -568,7 +568,8 @@ class _ProfissionaisState extends State<Profissionais> {
                                                             itemCount: getListEspById(items[index].id1).length,
                                                             itemBuilder: (context, index1){
                                                               List<Especialidade> esp = getListEspById(items[index].id1);
-                                                              return Text(esp[index1].descricao!,style: AppTextStyles.subTitleBlack14,);
+                                                              return Text("${esp[index1].descricao!} ",
+                                                                style: AppTextStyles.subTitleBlack14,);
                                                             })
                                                     ),
                                                     //dias
@@ -679,7 +680,7 @@ class _ProfissionaisState extends State<Profissionais> {
                                                       child: FittedBox(
                                                         alignment: Alignment.centerLeft,
                                                         fit: BoxFit.scaleDown,
-                                                        child: Text(getNomeServicoById(servProf[index1].idServico!), style: AppTextStyles.subTitleBlack12,),
+                                                        child: Text("${getNomeServicoById(servProf[index1].idServico!)} ", style: AppTextStyles.subTitleBlack12,),
                                                       ),
                                                     ),
                                                     SizedBox(

@@ -53,10 +53,10 @@ class PacienteProvider  with ChangeNotifier{
       }).toList();
       print("paciente provider list = ${allData.length}");
       pacientes = allData;
-      print("Pacientes retornou allData");
+      print("Pacientes retornou allData ${pacientes.length}");
       return allData;
     } else {
-      print("Pacientes retornou pacientes");
+      print("Pacientes retornou pacientes ${pacientes.length}");
       return pacientes;
     }
 
@@ -64,6 +64,7 @@ class PacienteProvider  with ChangeNotifier{
 
   Future<List<Paciente>> getListPacientes2() async {
     if (pacientes.length==0){
+      print("pacientes = 0");
       final querySnapshot = await db.collection('pacientes').orderBy("nome_paciente")
           .limit(10).snapshots().listen((event) {
           pacientes.clear();

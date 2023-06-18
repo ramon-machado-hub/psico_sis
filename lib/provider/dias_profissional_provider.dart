@@ -26,7 +26,8 @@ class DiasProfissionalProvider  with ChangeNotifier{
 
   Future<List<DiasProfissional>> getDiasProfissionalByIdProfissional(String id) async {
     List<DiasProfissional> result = [];
-    if (diasProfissional.length==0){
+    print("getDiasProfissionalByIdProfissional = ${diasProfissional.length}");
+    if (diasProfissional.length>0){
       diasProfissional.forEach((element) {
         if(element.idProfissional!.compareTo(id)==0){
              result.add(element);
@@ -47,6 +48,8 @@ class DiasProfissionalProvider  with ChangeNotifier{
       return result;
     }
   }
+
+
 
   Future<List<DiasProfissional>> getDiasProfissionalByIdProfDia(String id, String dia) async {
 

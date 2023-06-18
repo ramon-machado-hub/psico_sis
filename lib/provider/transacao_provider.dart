@@ -16,6 +16,7 @@ class TransacaoProvider  with ChangeNotifier{
   }
   
   Future<TransacaoCaixa?> getTransacaoById2(String id)async{
+    // print("TransacaoProvider id = $id");
     final documentSnapshhot = await db.collection('transacoes').doc(id).get();
     if (documentSnapshhot.exists){
       final Map<String, dynamic> doc =
@@ -28,6 +29,8 @@ class TransacaoProvider  with ChangeNotifier{
     }
   }
 
+
+
   Future<List<TransacaoCaixa>> getTransacoes()async{
     final querySnapshot = await db.collection('transacoes').get();
     final allData = querySnapshot.docs.map((e) {
@@ -37,6 +40,8 @@ class TransacaoProvider  with ChangeNotifier{
     }).toList();
     return allData;
   }
+
+
 
   Future<List<TransacaoCaixa>> getTransacoesDoDia(DateTime dia)async{
     String data = UtilData.obterDataDDMMAAAA(dia);
